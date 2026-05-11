@@ -340,6 +340,54 @@
   .settings-toggle-row:last-child{border-bottom:none;}
   .settings-toggle-label{font-size:0.875rem;font-weight:500;}
   .settings-toggle-sub{font-size:0.72rem;color:var(--text-muted);margin-top:2px;}
+
+  /* ══ 날짜 클릭 팝업 ══ */
+  #day-popup{position:fixed;inset:0;background:#000000bb;display:none;align-items:center;justify-content:center;z-index:600;padding:20px;}
+  #day-popup.show{display:flex;}
+  .day-popup-inner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;max-width:380px;width:100%;max-height:80vh;overflow-y:auto;}
+  .day-popup-inner::-webkit-scrollbar{width:4px;}
+  .day-popup-inner::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  .day-popup-title{font-size:0.95rem;font-weight:700;margin-bottom:4px;}
+  .day-popup-total{font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;color:var(--accent-red);margin-bottom:16px;}
+  .day-popup-empty{font-size:0.83rem;color:var(--text-muted);text-align:center;padding:20px 0;}
+  .day-popup-close{width:100%;margin-top:14px;padding:10px;border-radius:9px;border:none;background:var(--surface2);color:var(--text-muted);font-family:inherit;font-size:0.83rem;cursor:pointer;}
+
+  /* ══ 저축 탭 ══ */
+  .saving-tab-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .saving-tab-header h2{font-size:1rem;font-weight:700;}
+  .saving-sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+  .saving-account-list{display:flex;flex-direction:column;gap:12px;}
+  .saving-account-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .saving-account-card.goal-reached{border-color:#00e87a44;}
+  .saving-account-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;}
+  .saving-account-header:hover{background:var(--surface2);}
+  .saving-account-left{display:flex;align-items:center;gap:11px;}
+  .saving-account-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+  .saving-account-name{font-size:0.9rem;font-weight:600;}
+  .saving-account-type{font-size:0.68rem;color:var(--text-muted);margin-top:2px;}
+  .saving-account-right{text-align:right;}
+  .saving-account-balance{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--accent-purple);}
+  .saving-account-goal{font-size:0.68rem;color:var(--text-muted);margin-top:2px;}
+  .saving-account-body{border-top:1px solid var(--border);padding:14px 16px;display:none;}
+  .saving-account-body.open{display:block;}
+  .saving-progress-wrap{background:var(--surface2);border-radius:5px;height:6px;overflow:hidden;margin-bottom:8px;}
+  .saving-progress-bar{height:100%;border-radius:5px;background:var(--accent-purple);transition:width 0.4s;}
+  .saving-tx-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem;}
+  .saving-tx-item:last-child{border-bottom:none;}
+  .saving-tx-date{color:var(--text-muted);font-family:'DM Mono',monospace;flex-shrink:0;}
+  .saving-tx-desc{flex:1;padding:0 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .saving-tx-amt{font-family:'DM Mono',monospace;font-weight:600;flex-shrink:0;}
+  .saving-tx-amt.plus{color:var(--accent-green);}
+  .saving-tx-amt.minus{color:var(--accent-yellow);}
+  .saving-actions{display:flex;gap:8px;margin-top:12px;}
+  .saving-action-btn{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.15s;}
+  .saving-action-btn.deposit{border-color:var(--accent-green);color:var(--accent-green);}
+  .saving-action-btn.deposit:hover{background:#00e87a12;}
+  .saving-action-btn.withdraw{border-color:var(--accent-yellow);color:var(--accent-yellow);}
+  .saving-action-btn.withdraw:hover{background:#ffd16612;}
+  .saving-action-btn.del{border-color:var(--accent-red);color:var(--accent-red);}
+  .saving-action-btn.del:hover{background:#ff4d6d12;}
+  .saving-empty{text-align:center;padding:40px;color:var(--text-muted);font-size:0.85rem;}
   .ch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
   .ch-header h2{font-size:1rem;font-weight:700;}
 
@@ -419,11 +467,12 @@
 <header>
   <div class="logo">💰 <span>가계부</span></div>
   <nav>
-    <button class="active" onclick="showPage('home',this)">홈</button>
-    <button onclick="showPage('add',this)">+ 입력</button>
-    <button onclick="showPage('stats',this)">통계</button>
-    <button onclick="showPage('loan',this)">💸 빌려준돈</button>
+    <button class="active" onclick="showPage('home',this)">🏠 홈</button>
+    <button onclick="showPage('add',this)">✏️ 입력</button>
+    <button onclick="showPage('stats',this)">📊 통계</button>
+    <button onclick="showPage('saving',this)">🏦 저축</button>
     <button onclick="showPage('challenge',this)">🎯 챌린지</button>
+    <button onclick="showPage('loan',this)">💸 빌려준돈</button>
     <button onclick="showPage('settings',this)">⚙️ 설정</button>
   </nav>
   <div class="header-right">
@@ -682,6 +731,36 @@
     </div>
   </div><!-- end page-loan -->
 
+  <!-- ══ SAVING TAB ══ -->
+  <div id="page-saving" class="page">
+    <div class="saving-tab-header">
+      <h2>🏦 저축 현황</h2>
+      <button class="loan-add-btn" onclick="openSavingAccountModal(null)" style="background:var(--accent-purple)">+ 항목 추가</button>
+    </div>
+    <!-- 요약 카드 -->
+    <div class="saving-sum-grid">
+      <div class="card">
+        <div class="card-label">총 저축액</div>
+        <div class="card-amount saving" id="stab-total">₩0</div>
+        <div class="card-sub" id="stab-count">0개 항목</div>
+      </div>
+      <div class="card">
+        <div class="card-label">이달 저축</div>
+        <div class="card-amount saving" id="stab-month">₩0</div>
+        <div class="card-sub">이번 달 적립액</div>
+      </div>
+      <div class="card">
+        <div class="card-label">목표 달성률</div>
+        <div class="card-amount" style="color:var(--accent-blue)" id="stab-rate">—</div>
+        <div class="card-sub">목표 설정된 항목</div>
+      </div>
+    </div>
+    <!-- 저축 항목 목록 -->
+    <div class="saving-account-list" id="saving-account-list">
+      <div class="saving-empty">저축 항목이 없어요<br>+ 항목 추가 버튼을 눌러 시작해봐요 🏦</div>
+    </div>
+  </div>
+
   <!-- ══ CHALLENGE TAB ══ -->
   <div id="page-challenge" class="page">
     <div class="ch-header">
@@ -757,6 +836,18 @@
       <div class="settings-section-body" id="settings-methods"></div>
     </div>
 
+    <!-- 저축 항목 관리 -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <h3>🏦 저축 항목 관리</h3>
+        <button class="settings-add-btn" onclick="openSavingAccountModal(null)">+ 추가</button>
+      </div>
+      <div class="settings-section-body">
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">저축 탭에서 항목별 잔액과 거래내역을 관리할 수 있어요.</p>
+        <div id="settings-saving-section"></div>
+      </div>
+    </div>
+
     <!-- 챌린지 설정 -->
     <div class="settings-section">
       <div class="settings-section-header">
@@ -827,6 +918,54 @@
   </div>
 
 </main>
+
+<!-- 날짜 클릭 팝업 -->
+<div id="day-popup" onclick="if(event.target===this)closeDayPopup()">
+  <div class="day-popup-inner">
+    <div class="day-popup-title" id="day-popup-title">날짜</div>
+    <div class="day-popup-total" id="day-popup-total">₩0</div>
+    <div id="day-popup-list"></div>
+    <button class="day-popup-close" onclick="closeDayPopup()">닫기</button>
+  </div>
+</div>
+
+<!-- 저축 항목 추가/수정 모달 -->
+<div class="modal-overlay" id="saving-account-modal" style="display:none" onclick="if(event.target===this)closeSavingAccountModal()">
+  <div class="modal">
+    <h3 id="saving-account-modal-title">저축 항목 추가</h3>
+    <div class="modal-form">
+      <div class="form-group"><label>아이콘</label><input type="text" id="sa-icon" placeholder="예) 🏠" style="font-size:1.3rem;text-align:center;"></div>
+      <div class="form-group"><label>항목 이름</label><input type="text" id="sa-name" placeholder="예) 주택청약, 비상금"></div>
+      <div class="form-group"><label>카테고리/유형</label><input type="text" id="sa-type" placeholder="예) 청약, 비상금, 투자"></div>
+      <div class="form-group"><label>목표 금액 (선택)</label><input type="number" id="sa-goal" placeholder="목표 없으면 비워두세요" min="0"></div>
+      <div class="form-group"><label>현재 잔액</label><input type="number" id="sa-balance" placeholder="0" min="0"></div>
+      <div class="form-group"><label>색상 테마</label>
+        <select id="sa-color">
+          <option value="purple">보라</option><option value="green">초록</option>
+          <option value="blue">파랑</option><option value="yellow">노랑</option>
+          <option value="orange">주황</option><option value="red">빨강</option>
+        </select>
+      </div>
+    </div>
+    <button class="modal-submit green" onclick="saveSavingAccount()">저장</button>
+    <button class="modal-close" onclick="closeSavingAccountModal()">취소</button>
+  </div>
+</div>
+
+<!-- 저축 입/출금 모달 -->
+<div class="modal-overlay" id="saving-tx-modal" style="display:none" onclick="if(event.target===this)closeSavingTxModal()">
+  <div class="modal">
+    <h3 id="saving-tx-modal-title">저축 입금</h3>
+    <p id="saving-tx-modal-desc" style="font-size:0.78rem;color:var(--text-muted);margin-bottom:16px"></p>
+    <div class="modal-form">
+      <div class="form-group"><label>금액</label><input type="number" id="saving-tx-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>날짜</label><input type="date" id="saving-tx-date"></div>
+      <div class="form-group"><label>메모 (선택)</label><input type="text" id="saving-tx-memo" placeholder="예) 월급날 적립"></div>
+    </div>
+    <button class="modal-submit green" onclick="saveSavingTx()">기록하기</button>
+    <button class="modal-close" onclick="closeSavingTxModal()">취소</button>
+  </div>
+</div>
 
 <!-- 홈 카드 추가 모달 -->
 <div class="modal-overlay" id="homecard-modal" style="display:none" onclick="if(event.target===this)closeHomeCardModal()">
@@ -1086,7 +1225,8 @@ const CHALLENGE_BUDGET = 100000; // 하위 호환용, CH_BASE 사용
 // ══ State ══
 let transactions=[], loans=[];
 let homeCards=[]; // 커스텀 홈 카드
-let hiddenCards=new Set(); // 숨긴 기본 카드 id set
+let hiddenCards=new Set(); // 숨긴 기본 카드
+let savingAccounts=[]; // 저축 항목 [{id,icon,name,type,goal,balance,color,txs:[]}]
 let currentType='expense', selectedCat=null, selectedMethod=null;
 let currentYear=new Date().getFullYear(), currentMonth=new Date().getMonth();
 let charts={}, currentLoanId=null;
@@ -1123,6 +1263,9 @@ function startListeners(){
       if(d.id==='homeCards'){
         if(data.cards) homeCards=data.cards;
         if(data.hidden) hiddenCards=new Set(data.hidden);
+      }
+      if(d.id==='savingAccounts'){
+        if(data.accounts) savingAccounts=data.accounts;
       }
     });
     // 설정 바뀌면 UI 갱신
@@ -1172,6 +1315,7 @@ window.showPage=(page,btn)=>{
   if(btn) btn.classList.add('active');
   if(page==='stats')     renderStats();
   if(page==='loan')      renderLoanPage();
+  if(page==='saving')    renderSavingTab();
   if(page==='challenge') renderChallengePage();
   if(page==='settings')  renderSettingsPage();
   if(page==='txall'){
@@ -2011,7 +2155,7 @@ function renderChallengeCalendar(year,month,weekBudgets){
       if(amt>=10000) amtStr=`${Math.floor(amt/10000)}만${amt%10000>0?Math.floor((amt%10000)/1000)+'천':''}`;
       else amtStr=`₩${amt.toLocaleString()}`;
     }
-    return`<div class="cal-cell${otherMonth?' other-month':''}${isToday?' today':''}${dow===6?' saturday':''}${dow===0?' sunday':''}${isWeekStart?' week-start':''}">
+    return`<div class="cal-cell${otherMonth?' other-month':''}${isToday?' today':''}${dow===6?' saturday':''}${dow===0?' sunday':''}${isWeekStart?' week-start':''}" ${!otherMonth&&amt>0?`onclick="openDayPopup('${key}')" style="cursor:pointer"`:''}>
       <span class="cal-day">${date.getDate()}</span>
       ${amtStr?`<span class="cal-amount ${amtClass}">${amtStr}</span>`:''}
     </div>`;
@@ -2086,10 +2230,10 @@ function renderSettingsPage(){
   renderSettingsChallenge();
   renderSettingsAggregate();
   renderSettingsHomeCards();
-  // 기본 카드 토글 상태 반영
+  renderSettingsSaving();
   ['balance','card-expense','cash-expense','income','saving'].forEach(id=>{
     const wrap=document.getElementById('toggle-hcard-'+id);
-    if(wrap) wrap.classList.toggle('on', !hiddenCards.has(id));
+    if(wrap) wrap.classList.toggle('on',!hiddenCards.has(id));
   });
 }
 
@@ -2384,6 +2528,201 @@ window.deleteHomeCard=async i=>{
     toast('삭제됐어요');
   }catch(e){toast('❌ 삭제 실패');}
 };
+
+// ══ 날짜 클릭 팝업 ══
+window.openDayPopup=key=>{
+  const [y,m,d]=key.split('-').map(Number);
+  const txs=getChallengeExpense(transactions).filter(t=>t.date===key);
+  const total=txs.reduce((s,t)=>s+t.amount,0);
+  const allCats=[...CATS_EXPENSE,...CATS_INCOME];
+  document.getElementById('day-popup-title').textContent=`${m}월 ${d}일 지출`;
+  document.getElementById('day-popup-total').textContent='₩'+total.toLocaleString();
+  const el=document.getElementById('day-popup-list');
+  if(!txs.length){
+    el.innerHTML='<div class="day-popup-empty">이날 챌린지 지출이 없어요</div>';
+  } else {
+    el.innerHTML=txs.map(t=>{
+      const cat=allCats.find(c=>c.id===t.cat)||{icon:'📦',name:'기타'};
+      const badge=t.method?`<span style="font-size:0.62rem;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:var(--text-muted)">${t.method}</span>`:'';
+      return`<div class="tx-item" style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div class="tx-icon" style="background:#ff4d6d18;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.88rem;flex-shrink:0">${cat.icon}</div>
+        <div class="tx-info" style="flex:1;min-width:0;margin-left:10px">
+          <div style="font-size:0.83rem;font-weight:500">${t.desc}</div>
+          <div style="font-size:0.68rem;color:var(--text-muted);margin-top:2px">${cat.name} ${badge}</div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:500;color:var(--accent-red)">-₩${t.amount.toLocaleString()}</div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('day-popup').classList.add('show');
+};
+window.closeDayPopup=()=>document.getElementById('day-popup').classList.remove('show');
+
+// ══ 저축 탭 ══
+const SA_COLORS={purple:'#c084fc',green:'#00e87a',blue:'#4d9fff',yellow:'#ffd166',orange:'#fb923c',red:'#ff4d6d'};
+
+function renderSavingTab(){
+  const total=savingAccounts.reduce((s,a)=>s+a.balance,0);
+  const now=new Date();
+  const monthTxAmt=savingAccounts.reduce((s,a)=>{
+    return s+(a.txs||[]).filter(t=>{
+      const d=new Date(t.date);
+      return t.type==='deposit'&&d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+    }).reduce((ss,t)=>ss+t.amount,0);
+  },0);
+  const withGoal=savingAccounts.filter(a=>a.goal>0);
+  const avgRate=withGoal.length
+    ?Math.round(withGoal.reduce((s,a)=>s+Math.min(100,a.balance/a.goal*100),0)/withGoal.length)
+    :null;
+
+  document.getElementById('stab-total').textContent='₩'+total.toLocaleString();
+  document.getElementById('stab-month').textContent='₩'+monthTxAmt.toLocaleString();
+  document.getElementById('stab-count').textContent=savingAccounts.length+'개 항목';
+  document.getElementById('stab-rate').textContent=avgRate!==null?avgRate+'%':'—';
+
+  const el=document.getElementById('saving-account-list');
+  if(!savingAccounts.length){
+    el.innerHTML='<div class="saving-empty">저축 항목이 없어요<br>+ 항목 추가 버튼을 눌러 시작해봐요 🏦</div>';
+    return;
+  }
+  el.innerHTML=savingAccounts.map((a,i)=>{
+    const color=SA_COLORS[a.color]||SA_COLORS.purple;
+    const pct=a.goal>0?Math.min(100,Math.round(a.balance/a.goal*100)):null;
+    const isReached=pct!==null&&pct>=100;
+    const txsSorted=(a.txs||[]).slice().sort((x,y)=>new Date(y.date)-new Date(x.date));
+    const txHTML=txsSorted.slice(0,10).map(t=>`
+      <div class="saving-tx-item">
+        <span class="saving-tx-date">${t.date}</span>
+        <span class="saving-tx-desc">${t.memo||''}</span>
+        <span class="saving-tx-amt ${t.type==='deposit'?'plus':'minus'}">${t.type==='deposit'?'+':'-'}₩${t.amount.toLocaleString()}</span>
+      </div>`).join('');
+    return`<div class="saving-account-card${isReached?' goal-reached':''}">
+      <div class="saving-account-header" onclick="toggleSavingCard(${i})">
+        <div class="saving-account-left">
+          <div class="saving-account-icon" style="background:${color}22;border:1.5px solid ${color}44">${a.icon||'🏦'}</div>
+          <div>
+            <div class="saving-account-name">${a.name}${isReached?' <span style="font-size:0.62rem;color:var(--accent-green);background:#00e87a18;padding:2px 6px;border-radius:4px">목표달성🎉</span>':''}</div>
+            <div class="saving-account-type">${a.type||''}</div>
+          </div>
+        </div>
+        <div class="saving-account-right">
+          <div class="saving-account-balance" style="color:${color}">₩${a.balance.toLocaleString()}</div>
+          <div class="saving-account-goal">${a.goal>0?`목표 ₩${a.goal.toLocaleString()} (${pct}%)`:'목표 없음'}</div>
+        </div>
+      </div>
+      <div class="saving-account-body" id="sab-${i}">
+        ${a.goal>0?`<div class="saving-progress-wrap"><div class="saving-progress-bar" style="width:${pct}%;background:${color}"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin-bottom:12px">
+          <span>₩${a.balance.toLocaleString()}</span><span>목표 ₩${a.goal.toLocaleString()}</span>
+        </div>`:''}
+        ${txHTML||'<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">거래 내역이 없어요</div>'}
+        <div class="saving-actions">
+          <button class="saving-action-btn deposit" onclick="openSavingTxModal(${i},'deposit')">+ 입금</button>
+          <button class="saving-action-btn withdraw" onclick="openSavingTxModal(${i},'withdraw')">- 출금</button>
+          <button class="saving-action-btn" onclick="openSavingAccountModal(${i})" style="border-color:var(--accent-blue);color:var(--accent-blue)">✏️ 수정</button>
+          <button class="saving-action-btn del" onclick="deleteSavingAccount(${i})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.toggleSavingCard=i=>document.getElementById('sab-'+i)?.classList.toggle('open');
+
+// 저축 항목 모달
+let saEditIdx=null;
+window.openSavingAccountModal=idx=>{
+  saEditIdx=idx;
+  const a=idx!==null?savingAccounts[idx]:null;
+  document.getElementById('saving-account-modal-title').textContent=idx!==null?'저축 항목 수정':'저축 항목 추가';
+  document.getElementById('sa-icon').value=a?.icon||'';
+  document.getElementById('sa-name').value=a?.name||'';
+  document.getElementById('sa-type').value=a?.type||'';
+  document.getElementById('sa-goal').value=a?.goal||'';
+  document.getElementById('sa-balance').value=a?.balance||0;
+  document.getElementById('sa-color').value=a?.color||'purple';
+  document.getElementById('saving-account-modal').style.display='flex';
+};
+window.closeSavingAccountModal=()=>document.getElementById('saving-account-modal').style.display='none';
+window.saveSavingAccount=async()=>{
+  const name=document.getElementById('sa-name').value.trim();
+  if(!name) return toast('이름을 입력해주세요');
+  const acct={
+    icon:document.getElementById('sa-icon').value.trim()||'🏦',
+    name, type:document.getElementById('sa-type').value.trim(),
+    goal:parseInt(document.getElementById('sa-goal').value)||0,
+    balance:parseInt(document.getElementById('sa-balance').value)||0,
+    color:document.getElementById('sa-color').value,
+  };
+  const newAccounts=[...savingAccounts];
+  if(saEditIdx!==null){
+    acct.txs=newAccounts[saEditIdx].txs||[];
+    newAccounts[saEditIdx]=acct;
+  } else {
+    acct.txs=[]; newAccounts.push(acct);
+  }
+  try{
+    await upsertSetting('savingAccounts',{accounts:newAccounts});
+    closeSavingAccountModal(); showSuccessPopup('저장됐어요! 🏦');
+  }catch(e){toast('❌ 저장 실패: '+e.message);}
+};
+window.deleteSavingAccount=async i=>{
+  if(!confirm(`"${savingAccounts[i]?.name}" 항목을 삭제할까요?`)) return;
+  const newAccounts=savingAccounts.filter((_,idx)=>idx!==i);
+  try{ await upsertSetting('savingAccounts',{accounts:newAccounts}); toast('삭제됐어요'); }
+  catch(e){toast('❌ 삭제 실패');}
+};
+
+// 저축 입/출금
+let savingTxIdx=null, savingTxType=null;
+window.openSavingTxModal=(idx,type)=>{
+  savingTxIdx=idx; savingTxType=type;
+  const a=savingAccounts[idx];
+  document.getElementById('saving-tx-modal-title').textContent=type==='deposit'?'💚 입금':'💛 출금';
+  document.getElementById('saving-tx-modal-desc').textContent=`${a.icon} ${a.name} · 현재 ₩${a.balance.toLocaleString()}`;
+  document.getElementById('saving-tx-amount').value='';
+  document.getElementById('saving-tx-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('saving-tx-memo').value='';
+  document.getElementById('saving-tx-modal').style.display='flex';
+};
+window.closeSavingTxModal=()=>document.getElementById('saving-tx-modal').style.display='none';
+window.saveSavingTx=async()=>{
+  const amount=parseInt(document.getElementById('saving-tx-amount').value);
+  const date=document.getElementById('saving-tx-date').value;
+  const memo=document.getElementById('saving-tx-memo').value.trim();
+  if(!amount||amount<=0) return toast('금액을 입력해주세요');
+  if(!date) return toast('날짜를 선택해주세요');
+  const newAccounts=[...savingAccounts];
+  const a={...newAccounts[savingTxIdx]};
+  const newBalance=savingTxType==='deposit'?a.balance+amount:a.balance-amount;
+  if(newBalance<0) return toast('잔액보다 많이 출금할 수 없어요');
+  a.balance=newBalance;
+  a.txs=[...(a.txs||[]),{type:savingTxType,amount,date,memo}];
+  newAccounts[savingTxIdx]=a;
+  try{
+    await upsertSetting('savingAccounts',{accounts:newAccounts});
+    closeSavingTxModal();
+    showSuccessPopup(savingTxType==='deposit'?'입금됐어요! 💚':'출금됐어요! 💛',`₩${amount.toLocaleString()}`);
+  }catch(e){toast('❌ 저장 실패');}
+};
+
+// 설정 탭에서도 저축 항목 수정 가능하도록 renderSettingsPage 연동
+function renderSettingsSaving(){
+  // 저축 탭과 동일하게 설정탭에서도 항목 관리 가능 (저축탭으로 이동 안내)
+  const el=document.getElementById('settings-saving-section');
+  if(!el) return;
+  el.innerHTML=savingAccounts.length
+    ?savingAccounts.map((a,i)=>`<div class="settings-item">
+        <div class="settings-item-icon">${a.icon}</div>
+        <div class="settings-item-name">${a.name}</div>
+        <span class="settings-item-badge saving">${a.type||'저축'}</span>
+        <div class="settings-item-actions">
+          <button class="settings-item-btn edit" onclick="openSavingAccountModal(${i});showPage('saving',document.querySelector('nav button:nth-child(4)'))">수정</button>
+          <button class="settings-item-btn del" onclick="deleteSavingAccount(${i})">삭제</button>
+        </div>
+      </div>`).join('')
+    :'<div style="font-size:0.8rem;color:var(--text-muted)">저축 항목이 없어요.</div>';
+}
 
 // ══ Toast ══
 window.toast=msg=>{
