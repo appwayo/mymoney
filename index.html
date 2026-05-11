@@ -1511,42 +1511,20 @@ function getWeekRangeFull(dateStr){
   return{mon,sun};
 }
 
-// 해당 월의 모든 주 목록 생성 (월요일 기준 달 나누기: 월요일이 속한 달로 귀속)
+// 해당 월의 모든 주 목록 생성
+// 규칙: 월요일이 속한 달로 귀속. 이번 달에 월요일이 있는 주만 포함.
 function getMonthWeeks(year, month){
-  // month: 0-indexed
   const weeks=[];
-  // 해당 달의 첫 번째 월요일 찾기
-  let d=new Date(year,month,1);
-  // 1일이 무슨 요일인지 확인해서 그 주 월요일로 이동
-  const dow=d.getDay();
-  const toMon=dow===0?1:(dow===1?0:8-dow); // 이번 달 첫 월요일
-  d.setDate(d.getDate()+toMon-(dow===1?0:dow===0?-6:dow-1));
-  // 첫 월요일부터 시작, 월요일이 이 달에 속하는 주만 포함
-  let cur=new Date(year,month,1);
-  // 이 달의 첫 월요일 계산
-  const fd=new Date(year,month,1);
-  const fdow=fd.getDay();
-  const daysToMon=fdow===0?1:(fdow===1?0:8-fdow);
-  // 달의 첫 날이 월요일이 아니면 이전 달의 마지막 월요일도 고려
-  // 단, 그 월요일이 이 달에 있어야 함
-  let firstMon=new Date(year,month,1);
-  if(fdow!==1){
-    if(fdow===0) firstMon.setDate(2); // 일요일이면 다음날이 월요일
-    else firstMon.setDate(1-(fdow-1)); // 이전 달로 가면 제외하고 다음 월요일
-    if(firstMon.getMonth()!==month) firstMon=new Date(year,month,1+daysToMon-(fdow===0?-1:fdow-1));
+  // 이 달의 모든 월요일 수집
+  for(let day=1; day<=31; day++){
+    const d=new Date(year,month,day);
+    if(d.getMonth()!==month) break; // 달 넘어가면 종료
+    if(d.getDay()===1){ // 월요일
+      const mon=new Date(d); mon.setHours(0,0,0,0);
+      const sun=new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+      weeks.push({mon,sun});
+    }
   }
-
-  // 간단하게: 이 달 1일부터 말일까지 순회하며 월요일 수집
-  const mondays=[];
-  for(let dd=new Date(year,month,1);dd.getMonth()===month;dd.setDate(dd.getDate()+1)){
-    if(dd.getDay()===1) mondays.push(new Date(dd));
-  }
-  // 1일이 월요일 아닌 경우 이전 달 마지막 월요일도 포함 여부 확인
-  // → 이번 달 월요일들만으로 주차 구성
-  mondays.forEach(mon=>{
-    const sun=new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
-    weeks.push({mon:new Date(mon),sun});
-  });
   return weeks;
 }
 
@@ -1554,31 +1532,25 @@ function getMonthWeeks(year, month){
 function calcWeekBudgets(year, month){
   const weeks=getMonthWeeks(year,month);
   const results=[];
-  let carry=0; // 이전 주 이월금 (양수=절약, 음수=초과)
+  let carry=0;
+  const today=new Date(); today.setHours(0,0,0,0);
 
-  weeks.forEach((w,i)=>{
-    const budget = CH_BASE + carry;
-    // 이 주 해당 거래
-    const weekTxs=getChallengeExpense(transactions).filter(t=>{
+  weeks.forEach(w=>{
+    const budget=CH_BASE+carry;
+    const isFuture=today<w.mon;
+    const isCurrentWeek=today>=w.mon&&today<=w.sun;
+
+    // 미래 주는 지출 0으로 처리 (이월만 표시)
+    const weekTxs=isFuture?[]:getChallengeExpense(transactions).filter(t=>{
       const d=new Date(t.date); return d>=w.mon&&d<=w.sun;
     });
     const used=weekTxs.reduce((s,t)=>s+t.amount,0);
-    const diff=budget-used; // 양수=절약, 음수=초과
-    const isCurrentWeek=(()=>{
-      const today=new Date();
-      return today>=w.mon&&today<=w.sun;
-    })();
-    const isFuture=new Date()>w.sun===false&&!isCurrentWeek;
+    const diff=budget-used;
 
-    results.push({
-      mon:w.mon, sun:w.sun,
-      budget, used, diff,
-      carry, // 이번 주에 적용된 이월
-      isCurrentWeek,
-      isFuture: new Date()<w.mon
-    });
-    // 다음 주 이월
-    carry=diff;
+    results.push({mon:w.mon,sun:w.sun,budget,used,diff,carry,isCurrentWeek,isFuture});
+
+    // 미래 주는 이월 계산 하지 않음 (현재 주까지만 누적)
+    if(!isFuture) carry=diff;
   });
   return results;
 }
