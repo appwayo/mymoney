@@ -132,12 +132,13 @@
   .repay-link-box strong{color:var(--accent-green);}
 
   .category-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
-  .cat-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.63rem;font-weight:500;cursor:pointer;transition:all 0.15s;}
+  .cat-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.6rem;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:center;}
   .cat-btn .cat-icon{font-size:1.1rem;}
   .cat-btn.active{border-color:var(--accent-blue);background:#4d9fff15;color:var(--accent-blue);}
   .cat-btn.saving-cat.active{border-color:var(--accent-purple);background:#c084fc15;color:var(--accent-purple);}
   .cat-btn.loan-cat.active{border-color:var(--accent-orange);background:#fb923c15;color:var(--accent-orange);}
   .cat-btn.repay-cat.active{border-color:var(--accent-green);background:#00e87a15;color:var(--accent-green);}
+  .cat-btn.apt-cat.active{border-color:#38bdf8;background:#38bdf815;color:#38bdf8;}
 
   .method-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
   .method-btn{padding:8px 3px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.66rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center;}
@@ -405,7 +406,7 @@
   <div id="page-stats" class="page">
     <div class="saving-summary">
       <div class="saving-left">
-        <h3>🏦 이번 달 저축</h3>
+        <h3>🏦 이번 달 저축 · 청약</h3>
         <div class="saving-amount" id="stats-saving-amount">₩0</div>
       </div>
       <div class="saving-right" id="stats-saving-detail">저축 내역이 없어요</div>
@@ -530,17 +531,23 @@ const COL  = collection(db, 'transactions');
 const LCOL = collection(db, 'loans');
 
 // ══ Constants ══
+// 가나다순: 구독·기타·도서·럽딥·빌려줌·쇼핑·식비·外출·운동·저축·청약·취미·교통·할부·생활비·구독
 const CATS_EXPENSE = [
-  {id:'food',      icon:'🍽',  name:'식비'},
-  {id:'coffee',    icon:'☕',  name:'카페'},
-  {id:'transport', icon:'🚌',  name:'교통'},
-  {id:'living',    icon:'🏠',  name:'생활비'},
-  {id:'shopping',  icon:'🛍',  name:'쇼핑'},
-  {id:'health',    icon:'💊',  name:'의료'},
-  {id:'culture',   icon:'🎬',  name:'여가'},
-  {id:'beauty',    icon:'💄',  name:'미용'},
-  {id:'saving',    icon:'🏦',  name:'저축',   isSaving:true},
-  {id:'loan',      icon:'💸',  name:'빌려줌', isLoan:true},
+  {id:'subscribe', icon:'📱', name:'구독'},
+  {id:'etc',       icon:'📦', name:'기타'},
+  {id:'book',      icon:'📚', name:'도서'},
+  {id:'lovdip',    icon:'🐾', name:'럽딥'},
+  {id:'loan',      icon:'💸', name:'빌려줌', isLoan:true},
+  {id:'shopping',  icon:'🛍', name:'쇼핑'},
+  {id:'food',      icon:'🍽', name:'식비'},
+  {id:'outside',   icon:'🌇', name:'외출'},
+  {id:'exercise',  icon:'🏋️', name:'운동'},
+  {id:'saving',    icon:'🏦', name:'저축',  isSaving:true},
+  {id:'apt',       icon:'🏢', name:'청약',  isApt:true},
+  {id:'hobby',     icon:'🎮', name:'취미'},
+  {id:'transport', icon:'🚌', name:'교통'},
+  {id:'install',   icon:'💳', name:'할부'},
+  {id:'living',    icon:'🏠', name:'생활비'},
 ];
 const CATS_INCOME = [
   {id:'salary', icon:'💼', name:'월급'},
@@ -631,9 +638,10 @@ function renderCatGrid(){
   const cats=currentType==='expense'?CATS_EXPENSE:CATS_INCOME;
   document.getElementById('cat-grid').innerHTML=cats.map(c=>{
     let extra='';
-    if(c.isLoan) extra=' loan-cat';
-    if(c.isSaving) extra=' saving-cat';
+    if(c.isLoan)  extra=' loan-cat';
+    if(c.isSaving)extra=' saving-cat';
     if(c.isRepay) extra=' repay-cat';
+    if(c.isApt)   extra=' apt-cat';
     return`<button class="cat-btn${extra}" onclick="selectCat('${c.id}',this)">
       <span class="cat-icon">${c.icon}</span>${c.name}
     </button>`;
@@ -763,7 +771,7 @@ function renderChallenge(){
   const{mon,sun}=getWeekRange(new Date());
   const used=transactions.filter(t=>{
     const d=new Date(t.date);
-    return t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan'&&d>=mon&&d<=sun;
+    return t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan'&&d>=mon&&d<=sun;
   }).reduce((s,t)=>s+t.amount,0);
   const remain=CHALLENGE_BUDGET-used;
   const pct=Math.min(100,Math.round(used/CHALLENGE_BUDGET*100));
@@ -784,16 +792,16 @@ function renderChallenge(){
 function renderHome(){
   const txs=getMonthTxs();
   const income =txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const saving =txs.filter(t=>t.type==='expense'&&t.cat==='saving').reduce((s,t)=>s+t.amount,0);
+  const saving =txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).reduce((s,t)=>s+t.amount,0);
   const loanOut=txs.filter(t=>t.type==='expense'&&t.cat==='loan').reduce((s,t)=>s+t.amount,0);
-  const expense=txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan').reduce((s,t)=>s+t.amount,0);
+  const expense=txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan').reduce((s,t)=>s+t.amount,0);
   const balance=income-expense-saving;
   document.getElementById('sum-income').textContent ='₩'+income.toLocaleString();
   document.getElementById('sum-expense').textContent='₩'+expense.toLocaleString();
   document.getElementById('sum-saving').textContent ='₩'+saving.toLocaleString();
   document.getElementById('sum-balance').textContent=(balance<0?'-₩':'₩')+Math.abs(balance).toLocaleString();
   document.getElementById('sum-income-count').textContent=txs.filter(t=>t.type==='income').length+'건';
-  document.getElementById('sum-saving-count').textContent=txs.filter(t=>t.type==='expense'&&t.cat==='saving').length+'건';
+  document.getElementById('sum-saving-count').textContent=txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).length+'건';
   renderTxList(txs);renderDonut(txs);renderLine(txs);renderChallenge();
 }
 
@@ -806,14 +814,16 @@ function renderTxList(txs){
   el.innerHTML=sorted.map(t=>{
     const cat=allCats.find(c=>c.id===t.cat)||{icon:'📦',name:'기타'};
     const isSaving=t.cat==='saving';
-    const isLoan=t.cat==='loan';
-    const isRepay=t.cat==='repay';
+    const isApt   =t.cat==='apt';
+    const isLoan  =t.cat==='loan';
+    const isRepay =t.cat==='repay';
     let amtCls=t.type==='income'?'income':'expense';
-    if(isSaving) amtCls='saving';
-    if(isLoan)   amtCls='loan';
-    if(isRepay)  amtCls='income';
+    if(isSaving||isApt) amtCls='saving';
+    if(isLoan)  amtCls='loan';
+    if(isRepay) amtCls='income';
     let bg=t.type==='income'?'#00e87a18':'#ff4d6d18';
     if(isSaving) bg='#c084fc18';
+    if(isApt)    bg='#38bdf818';
     if(isLoan)   bg='#fb923c18';
     const prefix=t.type==='income'?'+':'-';
     const methodBadge=t.method?`<span class="tx-method-badge ${t.method}">${t.method}</span>`:'';
@@ -838,9 +848,9 @@ function renderDonut(txs){
   dc('donut');
   const ctx=document.getElementById('chart-donut').getContext('2d');
   const catMap={};
-  txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan').forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
+  txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan').forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
   const labels=[],data=[],colors=[];
-  CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan).forEach((c,i)=>{
+  CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan&&!c.isApt).forEach((c,i)=>{
     if(catMap[c.id]>0){labels.push(c.icon+' '+c.name);data.push(catMap[c.id]);colors.push(CAT_COLORS[i%CAT_COLORS.length]);}
   });
   if(!data.length){ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);ctx.fillStyle='#7a7a8c';ctx.font='13px Noto Sans KR';ctx.textAlign='center';ctx.fillText('지출 내역이 없어요',ctx.canvas.width/2,80);return;}
@@ -852,7 +862,7 @@ function renderLine(txs){
   const ctx=document.getElementById('chart-line').getContext('2d');
   const days=new Date(currentYear,currentMonth+1,0).getDate();
   const daily=Array(days).fill(0);
-  txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan').forEach(t=>{daily[new Date(t.date).getDate()-1]+=t.amount;});
+  txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan').forEach(t=>{daily[new Date(t.date).getDate()-1]+=t.amount;});
   const cum=daily.reduce((acc,v,i)=>{acc.push((acc[i-1]||0)+v);return acc;},[]);
   charts.line=new Chart(ctx,{type:'line',
     data:{labels:Array.from({length:days},(_,i)=>i+1),datasets:[{data:cum,borderColor:'#ff4d6d',backgroundColor:'rgba(255,77,109,0.08)',borderWidth:2,fill:true,tension:0.4,pointRadius:0,pointHoverRadius:4}]},
@@ -863,14 +873,15 @@ function renderLine(txs){
 // ══ Stats ══
 function renderStats(){renderSavingSummary();renderMonthly();renderIncomeCat();renderCatDetail();renderMethodChart();}
 function renderSavingSummary(){
-  const txs=getMonthTxs().filter(t=>t.type==='expense'&&t.cat==='saving');
-  const total=txs.reduce((s,t)=>s+t.amount,0);
+  const txs=getMonthTxs().filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'));
+  const savingAmt=getMonthTxs().filter(t=>t.type==='expense'&&t.cat==='saving').reduce((s,t)=>s+t.amount,0);
+  const aptAmt   =getMonthTxs().filter(t=>t.type==='expense'&&t.cat==='apt').reduce((s,t)=>s+t.amount,0);
+  const total=savingAmt+aptAmt;
   document.getElementById('stats-saving-amount').textContent='₩'+total.toLocaleString();
-  if(!txs.length){document.getElementById('stats-saving-detail').innerHTML='저축 내역이 없어요';return;}
-  const byMethod={};
-  txs.forEach(t=>{const k=t.method||'미분류';byMethod[k]=(byMethod[k]||0)+t.amount;});
+  if(!txs.length){document.getElementById('stats-saving-detail').innerHTML='저축·청약 내역이 없어요';return;}
   document.getElementById('stats-saving-detail').innerHTML=
-    Object.entries(byMethod).map(([k,v])=>`<div><strong>${k}</strong> ₩${v.toLocaleString()}</div>`).join('')+
+    `<div><strong>저축</strong> ₩${savingAmt.toLocaleString()}</div>`+
+    `<div><strong>청약</strong> ₩${aptAmt.toLocaleString()}</div>`+
     `<div style="margin-top:4px">총 <strong>${txs.length}건</strong></div>`;
 }
 function renderMonthly(){
@@ -883,8 +894,8 @@ function renderMonthly(){
     months.push(String(m+1)+'월');
     const mt=transactions.filter(t=>{const d=new Date(t.date);return d.getFullYear()===y&&d.getMonth()===m;});
     incomes.push(mt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));
-    expenses.push(mt.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan').reduce((s,t)=>s+t.amount,0));
-    savings.push(mt.filter(t=>t.type==='expense'&&t.cat==='saving').reduce((s,t)=>s+t.amount,0));
+    expenses.push(mt.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan').reduce((s,t)=>s+t.amount,0));
+    savings.push(mt.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).reduce((s,t)=>s+t.amount,0));
   }
   charts.monthly=new Chart(ctx,{type:'bar',
     data:{labels:months,datasets:[
@@ -908,14 +919,14 @@ function renderIncomeCat(){
     options:{responsive:true,maintainAspectRatio:true,cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#f0f0f4',font:{size:11},boxWidth:12,padding:8}}}}});
 }
 function renderCatDetail(){
-  const txs=getMonthTxs().filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan');
+  const txs=getMonthTxs().filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan');
   const catMap={};
-  CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan).forEach(c=>catMap[c.id]=0);
+  CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan&&!c.isApt).forEach(c=>catMap[c.id]=0);
   txs.forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
   const total=Object.values(catMap).reduce((s,v)=>s+v,0);
   const el=document.getElementById('cat-detail-list');
   if(!total){el.innerHTML='<div style="color:var(--text-muted);font-size:.83rem;padding:12px 0">지출 내역이 없어요</div>';return;}
-  el.innerHTML=CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan&&catMap[c.id]>0)
+  el.innerHTML=CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan&&!c.isApt&&catMap[c.id]>0)
     .sort((a,b)=>catMap[b.id]-catMap[a.id])
     .map((c,i)=>{
       const pct=Math.round(catMap[c.id]/total*100);
