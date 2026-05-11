@@ -232,6 +232,26 @@
   #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);padding:10px 17px;border-radius:10px;font-size:0.83rem;transition:transform 0.3s;z-index:999;white-space:nowrap;}
   #toast.show{transform:translateX(-50%) translateY(0);}
 
+  /* 완료 알림 (중앙 팝업) */
+  #success-popup{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);
+    background:var(--surface);border:1.5px solid var(--accent-green);
+    border-radius:var(--radius);padding:24px 32px;text-align:center;
+    z-index:998;opacity:0;pointer-events:none;transition:all 0.2s;
+  }
+  #success-popup.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto;}
+  #success-popup .sp-icon{font-size:2rem;margin-bottom:8px;}
+  #success-popup .sp-msg{font-size:0.9rem;font-weight:600;color:var(--accent-green);}
+  #success-popup .sp-sub{font-size:0.75rem;color:var(--text-muted);margin-top:4px;}
+
+  /* 토글 스위치 */
+  .toggle-wrap{display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;transition:border-color 0.15s;user-select:none;}
+  .toggle-wrap.on{border-color:var(--accent-red);}
+  .toggle-switch{width:38px;height:22px;border-radius:11px;background:var(--border);position:relative;transition:background 0.2s;flex-shrink:0;}
+  .toggle-wrap.on .toggle-switch{background:var(--accent-red);}
+  .toggle-knob{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left 0.2s;}
+  .toggle-wrap.on .toggle-knob{left:19px;}
+
   /* PDF 버튼 */
   .pdf-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.7rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px;}
   .pdf-btn:hover{border-color:#fb923c;color:#fb923c;}
@@ -274,6 +294,70 @@
     .saving-right{text-align:left;}
     .backup-btn span{display:none;}
   }
+
+  /* ══ 챌린지 탭 ══ */
+  .ch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .ch-header h2{font-size:1rem;font-weight:700;}
+
+  /* 이번 주 큰 카드 */
+  .ch-this-week{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border:1px solid #4d9fff44;border-radius:var(--radius);padding:20px 24px;margin-bottom:18px;position:relative;overflow:hidden;}
+  .ch-this-week::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,#4d9fff22,transparent 70%);}
+  .ch-week-label{font-size:0.68rem;font-weight:700;color:var(--accent-blue);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+  .ch-budget-row{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}
+  .ch-budget-num{font-family:'DM Mono',monospace;font-size:2.2rem;font-weight:500;}
+  .ch-budget-num.ok{color:var(--accent-green);}
+  .ch-budget-num.warn{color:var(--accent-yellow);}
+  .ch-budget-num.danger{color:var(--accent-red);}
+  .ch-budget-label{font-size:0.8rem;color:var(--text-muted);}
+  .ch-bar-wrap{background:#ffffff18;border-radius:6px;height:8px;overflow:hidden;margin:12px 0 8px;}
+  .ch-bar{height:100%;border-radius:6px;transition:width 0.5s,background 0.3s;}
+  .ch-meta-row{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);}
+  .ch-carry{margin-top:10px;padding:8px 12px;border-radius:8px;font-size:0.75rem;font-weight:600;}
+  .ch-carry.plus{background:#00e87a18;border:1px solid #00e87a44;color:var(--accent-green);}
+  .ch-carry.minus{background:#ff4d6d18;border:1px solid #ff4d6d44;color:var(--accent-red);}
+  .ch-carry.zero{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);}
+
+  /* 캘린더 */
+  .ch-calendar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px;}
+  .ch-calendar h3{font-size:0.76rem;font-weight:600;color:var(--text-muted);margin-bottom:14px;letter-spacing:0.05em;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cal-dow{text-align:center;font-size:0.65rem;font-weight:700;color:var(--text-muted);padding:4px 0;letter-spacing:0.05em;}
+  .cal-dow:first-child{color:#ff7a9a;}
+  .cal-dow:last-child{color:#7aabff;}
+  .cal-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:3px;cursor:default;transition:background 0.1s;min-height:44px;}
+  .cal-cell:hover{background:var(--surface2);}
+  .cal-cell.today{border:1.5px solid var(--accent-blue);}
+  .cal-cell.other-month{opacity:0.3;}
+  .cal-cell.sunday .cal-day{color:#ff7a9a;}
+  .cal-cell.saturday .cal-day{color:#7aabff;}
+  .cal-day{font-size:0.72rem;font-weight:600;line-height:1;}
+  .cal-amount{font-family:'DM Mono',monospace;font-size:0.55rem;line-height:1;}
+  .cal-amount.ok{color:var(--accent-green);}
+  .cal-amount.warn{color:var(--accent-yellow);}
+  .cal-amount.over{color:var(--accent-red);}
+  .cal-cell.week-start{border-left:2px solid #4d9fff44;}
+
+  /* 주차 이력 */
+  .ch-history{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);}
+  .ch-history-header{padding:13px 17px;border-bottom:1px solid var(--border);}
+  .ch-history-header h3{font-size:0.76rem;font-weight:600;color:var(--text-muted);letter-spacing:0.05em;}
+  .ch-week-item{padding:14px 17px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;}
+  .ch-week-item:last-child{border-bottom:none;}
+  .ch-week-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .ch-week-dot.ok{background:var(--accent-green);}
+  .ch-week-dot.warn{background:var(--accent-yellow);}
+  .ch-week-dot.over{background:var(--accent-red);}
+  .ch-week-info{flex:1;}
+  .ch-week-range{font-size:0.78rem;font-weight:600;}
+  .ch-week-detail{font-size:0.68rem;color:var(--text-muted);margin-top:2px;}
+  .ch-week-right{text-align:right;}
+  .ch-week-used{font-family:'DM Mono',monospace;font-size:0.9rem;font-weight:600;}
+  .ch-week-used.ok{color:var(--accent-green);}
+  .ch-week-used.over{color:var(--accent-red);}
+  .ch-week-budget{font-size:0.68rem;color:var(--text-muted);margin-top:2px;}
+  .ch-week-carry{font-size:0.68rem;margin-top:2px;font-weight:600;}
+  .ch-week-carry.plus{color:var(--accent-green);}
+  .ch-week-carry.minus{color:var(--accent-red);}
 </style>
 </head>
 <body>
@@ -295,6 +379,7 @@
     <button onclick="showPage('add',this)">+ 입력</button>
     <button onclick="showPage('stats',this)">통계</button>
     <button onclick="showPage('loan',this)">💸 빌려준돈</button>
+    <button onclick="showPage('challenge',this)">🎯 챌린지</button>
   </nav>
   <div class="header-right">
     <button class="pdf-btn" onclick="openPdfModal('living')">🖨 <span>생활비</span></button>
@@ -330,25 +415,25 @@
       </div>
     </div>
     <div class="summary-grid">
+      <div class="card" style="grid-column:span 2;background:linear-gradient(135deg,#0d2418,#1a1a1e);border-color:#00e87a33">
+        <div class="card-label">💰 현재 잔고</div>
+        <div class="card-amount income" id="sum-balance" style="font-size:1.8rem">₩0</div>
+        <div class="card-sub" id="sum-balance-sub">수입 − 지출 − 저축</div>
+      </div>
       <div class="card">
-        <div class="card-label">수입</div>
+        <div class="card-label">이달 수입</div>
         <div class="card-amount income" id="sum-income">₩0</div>
         <div class="card-sub" id="sum-income-count">0건</div>
       </div>
       <div class="card">
-        <div class="card-label">지출</div>
+        <div class="card-label">이달 지출</div>
         <div class="card-amount expense" id="sum-expense">₩0</div>
         <div class="card-sub">저축·대여 제외</div>
       </div>
       <div class="card">
-        <div class="card-label">저축</div>
+        <div class="card-label">이달 저축</div>
         <div class="card-amount saving" id="sum-saving">₩0</div>
         <div class="card-sub" id="sum-saving-count">0건</div>
-      </div>
-      <div class="card">
-        <div class="card-label">잔액</div>
-        <div class="card-amount balance" id="sum-balance">₩0</div>
-        <div class="card-sub">수입 − 지출 − 저축</div>
       </div>
     </div>
     <div class="two-col">
@@ -435,17 +520,14 @@
 
       <!-- 챌린지 제외 토글 (지출일 때만 표시) -->
       <div id="challenge-exclude-section" style="margin-bottom:15px">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;transition:border-color 0.15s;" id="challenge-toggle-label">
+        <div class="toggle-wrap" id="challenge-toggle-wrap" onclick="toggleChallenge()">
           <span style="font-size:1rem">🎯</span>
           <span style="flex:1">
             <span style="font-size:0.83rem;font-weight:600;color:var(--text)">주간 챌린지에서 제외</span><br>
             <span style="font-size:0.68rem;color:var(--text-muted)">카드값·고정비 등 챌린지와 무관한 지출</span>
           </span>
-          <div id="challenge-toggle-switch" style="width:38px;height:22px;border-radius:11px;background:var(--border);position:relative;transition:background 0.2s;flex-shrink:0;">
-            <div id="challenge-toggle-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left 0.2s;"></div>
-          </div>
-          <input type="checkbox" id="input-exclude-challenge" style="display:none" onchange="updateChallengeToggle()">
-        </label>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </div>
       </div>
 
       <button class="submit-btn" id="submit-btn" onclick="addTransaction()">추가하기</button>
@@ -507,6 +589,48 @@
     <div class="loan-list" id="loan-list">
       <div class="loan-empty">아직 등록된 대여가 없어요</div>
     </div>
+  </div><!-- end page-loan -->
+
+  <!-- ══ CHALLENGE TAB ══ -->
+  <div id="page-challenge" class="page">
+    <div class="ch-header">
+      <h2>🎯 주간 챌린지</h2>
+      <span style="font-size:0.75rem;color:var(--text-muted)" id="ch-month-label"></span>
+    </div>
+
+    <!-- 이번 주 현황 -->
+    <div class="ch-this-week">
+      <div class="ch-week-label" id="ch-this-label">이번 주</div>
+      <div class="ch-budget-row">
+        <div class="ch-budget-num ok" id="ch-remain-num">₩100,000</div>
+        <div class="ch-budget-label">남음</div>
+      </div>
+      <div class="ch-bar-wrap">
+        <div class="ch-bar" id="ch-bar" style="width:0%"></div>
+      </div>
+      <div class="ch-meta-row">
+        <span>지출 <strong id="ch-used-num" style="font-family:'DM Mono',monospace">₩0</strong></span>
+        <span>예산 <strong id="ch-budget-num" style="font-family:'DM Mono',monospace">₩100,000</strong></span>
+      </div>
+      <div class="ch-carry zero" id="ch-carry-badge">이번 달 첫 주 · 기본 ₩100,000</div>
+    </div>
+
+    <!-- 캘린더 -->
+    <div class="ch-calendar">
+      <h3 id="ch-cal-title">캘린더</h3>
+      <div class="cal-grid" id="ch-cal-dow">
+        <div class="cal-dow">일</div><div class="cal-dow">월</div><div class="cal-dow">화</div>
+        <div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div>
+        <div class="cal-dow">토</div>
+      </div>
+      <div class="cal-grid" id="ch-cal-cells" style="margin-top:4px"></div>
+    </div>
+
+    <!-- 주차 이력 -->
+    <div class="ch-history">
+      <div class="ch-history-header"><h3>이번 달 주차별 이력</h3></div>
+      <div id="ch-week-history"></div>
+    </div>
   </div>
 
 </main>
@@ -559,6 +683,40 @@
 
 <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
 <div id="toast"></div>
+
+<!-- 완료 팝업 -->
+<div id="success-popup">
+  <div class="sp-icon">✅</div>
+  <div class="sp-msg" id="success-msg">저장됐어요!</div>
+  <div class="sp-sub" id="success-sub"></div>
+</div>
+
+<!-- 거래 수정 모달 -->
+<div class="modal-overlay" id="edit-modal" style="display:none" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal">
+    <h3>✏️ 거래 수정</h3>
+    <p>내용을 수정하고 저장하세요.</p>
+    <div class="modal-form">
+      <div class="form-group"><label>금액</label><input type="number" id="edit-amount" min="0"></div>
+      <div class="form-group"><label>내용</label><input type="text" id="edit-desc"></div>
+      <div class="form-group"><label>날짜</label><input type="date" id="edit-date"></div>
+      <div class="form-group">
+        <label>카테고리</label>
+        <select id="edit-cat"></select>
+      </div>
+      <div class="form-group" id="edit-method-group">
+        <label>결제수단</label>
+        <select id="edit-method">
+          <option value="">없음</option>
+          <option>현금</option><option>통장</option>
+          <option>신한카드</option><option>현대카드</option><option>BC카드</option>
+        </select>
+      </div>
+    </div>
+    <button class="modal-submit green" onclick="saveEdit()">저장하기</button>
+    <button class="modal-close" onclick="closeEditModal()">취소</button>
+  </div>
+</div>
 
 <!-- PDF 기간 선택 모달 -->
 <div class="modal-overlay" id="pdf-modal" style="display:none" onclick="if(event.target===this)closePdfModal()">
@@ -691,8 +849,9 @@ window.showPage=(page,btn)=>{
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   btn.classList.add('active');
-  if(page==='stats') renderStats();
-  if(page==='loan')  renderLoanPage();
+  if(page==='stats')     renderStats();
+  if(page==='loan')      renderLoanPage();
+  if(page==='challenge') renderChallengePage();
 };
 
 // ══ Add Form ══
@@ -703,38 +862,19 @@ window.setType=(type,btn)=>{
   document.getElementById('method-section').style.display='';
   document.getElementById('loan-input-section').style.display='none';
   document.getElementById('repay-input-section').style.display='none';
-  // 챌린지 제외 토글은 지출일 때만 표시
   document.getElementById('challenge-exclude-section').style.display= type==='expense' ? '' : 'none';
   // 토글 초기화
-  const cb=document.getElementById('input-exclude-challenge');
-  cb.checked=false; updateChallengeToggle();
+  excludeChallengePending = false;
+  document.getElementById('challenge-toggle-wrap').classList.remove('on');
   renderCatGrid();
 };
 
-// 챌린지 토글 UI 업데이트
-window.updateChallengeToggle=()=>{
-  const cb=document.getElementById('input-exclude-challenge');
-  const sw=document.getElementById('challenge-toggle-switch');
-  const kn=document.getElementById('challenge-toggle-knob');
-  const lb=document.getElementById('challenge-toggle-label');
-  if(cb.checked){
-    sw.style.background='var(--accent-red)';
-    kn.style.left='19px';
-    lb.style.borderColor='var(--accent-red)';
-  } else {
-    sw.style.background='var(--border)';
-    kn.style.left='3px';
-    lb.style.borderColor='var(--border)';
-  }
+// 챌린지 토글 상태 변수
+let excludeChallengePending = false;
+window.toggleChallenge = () => {
+  excludeChallengePending = !excludeChallengePending;
+  document.getElementById('challenge-toggle-wrap').classList.toggle('on', excludeChallengePending);
 };
-
-// 토글 라벨 클릭 시 체크박스 토글
-document.getElementById('challenge-toggle-label').addEventListener('click', e=>{
-  if(e.target.tagName==='INPUT') return;
-  const cb=document.getElementById('input-exclude-challenge');
-  cb.checked=!cb.checked;
-  updateChallengeToggle();
-});
 
 function renderCatGrid(){
   const cats=currentType==='expense'?CATS_EXPENSE:CATS_INCOME;
@@ -794,7 +934,7 @@ window.addTransaction=async()=>{
   const isLoanCat  = selectedCat==='loan';
   const isRepayCat = selectedCat==='repay';
   const needMethod = currentType==='expense' && !isRepayCat;
-  const excludeChallenge = currentType==='expense' && document.getElementById('input-exclude-challenge').checked;
+  const excludeChallenge = currentType==='expense' && excludeChallengePending;
 
   if(needMethod && !selectedMethod) return toast('결제수단을 선택해주세요');
 
@@ -852,10 +992,10 @@ window.addTransaction=async()=>{
     document.getElementById('loan-input-section').style.display='none';
     document.getElementById('repay-input-section').style.display='none';
     document.getElementById('method-section').style.display='';
-    const cb=document.getElementById('input-exclude-challenge');
-    cb.checked=false; updateChallengeToggle();
+    excludeChallengePending=false;
+    document.getElementById('challenge-toggle-wrap').classList.remove('on');
     selectedCat=null; selectedMethod=null;
-    toast('✅ 저장됐어요!');
+    showSuccessPopup(currentType==='income'?'수입 추가됐어요! 💰':'지출 추가됐어요! 📤', `₩${amount.toLocaleString()}`);
   }catch(e){toast('❌ 저장 실패: '+e.message);setSyncBar('error','저장 실패');}
   finally{btn.disabled=false;btn.textContent='추가하기';}
 };
@@ -909,6 +1049,7 @@ function renderHome(){
   document.getElementById('sum-expense').textContent='₩'+expense.toLocaleString();
   document.getElementById('sum-saving').textContent ='₩'+saving.toLocaleString();
   document.getElementById('sum-balance').textContent=(balance<0?'-₩':'₩')+Math.abs(balance).toLocaleString();
+  document.getElementById('sum-balance-sub').textContent=`이달 수입 ${income>0?'₩'+income.toLocaleString():'없음'} 기준`;
   document.getElementById('sum-income-count').textContent=txs.filter(t=>t.type==='income').length+'건';
   document.getElementById('sum-saving-count').textContent=txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).length+'건';
   renderTxList(txs);renderDonut(txs);renderLine(txs);renderChallenge();
@@ -946,6 +1087,7 @@ function renderTxList(txs){
         <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}${exclBadge}</div>
       </div>
       <div class="tx-amount ${amtCls}">${prefix}₩${t.amount.toLocaleString()}</div>
+      <button class="tx-delete" style="opacity:0;color:var(--accent-blue);margin-right:2px" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0" onclick="openEditModal('${t.id}')">✏️</button>
       <button class="tx-delete" onclick="deleteTransaction('${t.id}')">✕</button>
     </div>`;
   }).join('');
@@ -1241,11 +1383,286 @@ window.confirmClearAll=async()=>{
   }catch(e){toast('❌ 삭제 실패');}
 };
 
+// ══════════════════════════════════════════
+//  챌린지 탭 로직
+// ══════════════════════════════════════════
+
+const CH_BASE = 100000;
+
+// 챌린지용 지출 필터 (저축·청약·대여·제외 플래그 제외)
+function getChallengeExpense(txs){
+  return txs.filter(t=>
+    t.type==='expense' &&
+    t.cat!=='saving' && t.cat!=='apt' && t.cat!=='loan' &&
+    !t.excludeChallenge
+  );
+}
+
+// 날짜가 속한 월요일 기준 주의 시작(월)·끝(일) 반환
+function getWeekRangeFull(dateStr){
+  const d=new Date(dateStr);
+  const dow=d.getDay(); // 0=일
+  const toMon=dow===0?-6:1-dow;
+  const mon=new Date(d); mon.setDate(d.getDate()+toMon); mon.setHours(0,0,0,0);
+  const sun=new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+  return{mon,sun};
+}
+
+// 해당 월의 모든 주 목록 생성 (월요일 기준 달 나누기: 월요일이 속한 달로 귀속)
+function getMonthWeeks(year, month){
+  // month: 0-indexed
+  const weeks=[];
+  // 해당 달의 첫 번째 월요일 찾기
+  let d=new Date(year,month,1);
+  // 1일이 무슨 요일인지 확인해서 그 주 월요일로 이동
+  const dow=d.getDay();
+  const toMon=dow===0?1:(dow===1?0:8-dow); // 이번 달 첫 월요일
+  d.setDate(d.getDate()+toMon-(dow===1?0:dow===0?-6:dow-1));
+  // 첫 월요일부터 시작, 월요일이 이 달에 속하는 주만 포함
+  let cur=new Date(year,month,1);
+  // 이 달의 첫 월요일 계산
+  const fd=new Date(year,month,1);
+  const fdow=fd.getDay();
+  const daysToMon=fdow===0?1:(fdow===1?0:8-fdow);
+  // 달의 첫 날이 월요일이 아니면 이전 달의 마지막 월요일도 고려
+  // 단, 그 월요일이 이 달에 있어야 함
+  let firstMon=new Date(year,month,1);
+  if(fdow!==1){
+    if(fdow===0) firstMon.setDate(2); // 일요일이면 다음날이 월요일
+    else firstMon.setDate(1-(fdow-1)); // 이전 달로 가면 제외하고 다음 월요일
+    if(firstMon.getMonth()!==month) firstMon=new Date(year,month,1+daysToMon-(fdow===0?-1:fdow-1));
+  }
+
+  // 간단하게: 이 달 1일부터 말일까지 순회하며 월요일 수집
+  const mondays=[];
+  for(let dd=new Date(year,month,1);dd.getMonth()===month;dd.setDate(dd.getDate()+1)){
+    if(dd.getDay()===1) mondays.push(new Date(dd));
+  }
+  // 1일이 월요일 아닌 경우 이전 달 마지막 월요일도 포함 여부 확인
+  // → 이번 달 월요일들만으로 주차 구성
+  mondays.forEach(mon=>{
+    const sun=new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
+    weeks.push({mon:new Date(mon),sun});
+  });
+  return weeks;
+}
+
+// 주차별 예산 계산 (이월 포함)
+function calcWeekBudgets(year, month){
+  const weeks=getMonthWeeks(year,month);
+  const results=[];
+  let carry=0; // 이전 주 이월금 (양수=절약, 음수=초과)
+
+  weeks.forEach((w,i)=>{
+    const budget = CH_BASE + carry;
+    // 이 주 해당 거래
+    const weekTxs=getChallengeExpense(transactions).filter(t=>{
+      const d=new Date(t.date); return d>=w.mon&&d<=w.sun;
+    });
+    const used=weekTxs.reduce((s,t)=>s+t.amount,0);
+    const diff=budget-used; // 양수=절약, 음수=초과
+    const isCurrentWeek=(()=>{
+      const today=new Date();
+      return today>=w.mon&&today<=w.sun;
+    })();
+    const isFuture=new Date()>w.sun===false&&!isCurrentWeek;
+
+    results.push({
+      mon:w.mon, sun:w.sun,
+      budget, used, diff,
+      carry, // 이번 주에 적용된 이월
+      isCurrentWeek,
+      isFuture: new Date()<w.mon
+    });
+    // 다음 주 이월
+    carry=diff;
+  });
+  return results;
+}
+
+// 날짜별 지출 맵 {YYYY-MM-DD: amount}
+function buildDailyMap(year,month){
+  const map={};
+  getChallengeExpense(transactions).forEach(t=>{
+    const d=new Date(t.date);
+    if(d.getFullYear()===year&&d.getMonth()===month){
+      const k=t.date; map[k]=(map[k]||0)+t.amount;
+    }
+  });
+  return map;
+}
+
+function fmtShort(n){return(n<0?'-₩':'₩')+Math.abs(n).toLocaleString();}
+function fmtMD(d){return `${d.getMonth()+1}/${d.getDate()}`;}
+
+function renderChallengePage(){
+  const year=currentYear, month=currentMonth;
+  document.getElementById('ch-month-label').textContent=`${year}.${String(month+1).padStart(2,'0')}`;
+  document.getElementById('ch-cal-title').textContent=`${year}년 ${month+1}월 캘린더`;
+
+  const weekBudgets=calcWeekBudgets(year,month);
+  const curWeek=weekBudgets.find(w=>w.isCurrentWeek)||weekBudgets[weekBudgets.length-1];
+
+  // ── 이번 주 현황 ──
+  if(curWeek){
+    const pct=Math.min(100,Math.round(curWeek.used/curWeek.budget*100));
+    document.getElementById('ch-this-label').textContent=
+      `이번 주 · ${fmtMD(curWeek.mon)}(월) ~ ${fmtMD(curWeek.sun)}(일)`;
+    const remEl=document.getElementById('ch-remain-num');
+    remEl.textContent=fmtShort(curWeek.diff);
+    remEl.className='ch-budget-num '+(pct<60?'ok':pct<90?'warn':'danger');
+    document.getElementById('ch-used-num').textContent='₩'+curWeek.used.toLocaleString();
+    document.getElementById('ch-budget-num').textContent='₩'+curWeek.budget.toLocaleString();
+    const bar=document.getElementById('ch-bar');
+    bar.style.width=pct+'%';
+    bar.style.background=pct<60?'var(--accent-green)':pct<90?'var(--accent-yellow)':'var(--accent-red)';
+    // 이월 뱃지
+    const cb=document.getElementById('ch-carry-badge');
+    if(curWeek.carry===0){
+      cb.className='ch-carry zero'; cb.textContent='이번 달 기준 · 기본 ₩100,000';
+    } else if(curWeek.carry>0){
+      cb.className='ch-carry plus'; cb.textContent=`지난 주 절약 +₩${curWeek.carry.toLocaleString()} 이월 → 이번 주 예산 ₩${curWeek.budget.toLocaleString()}`;
+    } else {
+      cb.className='ch-carry minus'; cb.textContent=`지난 주 초과 -₩${Math.abs(curWeek.carry).toLocaleString()} 차감 → 이번 주 예산 ₩${curWeek.budget.toLocaleString()}`;
+    }
+  }
+
+  // ── 캘린더 ──
+  renderChallengeCalendar(year,month,weekBudgets);
+
+  // ── 주차 이력 ──
+  renderWeekHistory(weekBudgets);
+}
+
+function renderChallengeCalendar(year,month,weekBudgets){
+  const dailyMap=buildDailyMap(year,month);
+  const today=new Date(); today.setHours(0,0,0,0);
+  const firstDay=new Date(year,month,1);
+  const lastDay=new Date(year,month+1,0);
+  // 캘린더 시작: 첫날의 요일(일=0)만큼 이전 달 채우기
+  const startDow=firstDay.getDay(); // 0=일
+  const cells=[];
+
+  // 이전 달 빈 칸
+  for(let i=0;i<startDow;i++){
+    const d=new Date(year,month,-(startDow-i-1));
+    cells.push({date:d,otherMonth:true});
+  }
+  // 이번 달
+  for(let d=1;d<=lastDay.getDate();d++){
+    cells.push({date:new Date(year,month,d),otherMonth:false});
+  }
+  // 다음 달 빈 칸 (6주 채우기)
+  const remain=42-cells.length;
+  for(let i=1;i<=remain;i++){
+    cells.push({date:new Date(year,month+1,i),otherMonth:true});
+  }
+
+  // 주 시작일(월요일) 세트
+  const monSet=new Set(weekBudgets.map(w=>`${w.mon.getFullYear()}-${String(w.mon.getMonth()+1).padStart(2,'0')}-${String(w.mon.getDate()).padStart(2,'0')}`));
+
+  const grid=document.getElementById('ch-cal-cells');
+  grid.innerHTML=cells.map(({date,otherMonth})=>{
+    const key=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const amt=dailyMap[key]||0;
+    const dow=date.getDay();
+    const isToday=date.getTime()===today.getTime();
+    const isWeekStart=!otherMonth&&monSet.has(key);
+    let amtClass='ok';
+    if(amt>30000) amtClass='warn';
+    if(amt>50000) amtClass='over';
+    const amtStr=amt>0?(amt>=10000?`${Math.round(amt/1000)}k`:`₩${amt.toLocaleString()}`):'';
+    return`<div class="cal-cell${otherMonth?' other-month':''}${isToday?' today':''}${dow===0?' sunday':dow===6?' saturday':''}${isWeekStart?' week-start':''}">
+      <span class="cal-day">${date.getDate()}</span>
+      ${amtStr?`<span class="cal-amount ${amtClass}">${amtStr}</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderWeekHistory(weekBudgets){
+  const el=document.getElementById('ch-week-history');
+  if(!weekBudgets.length){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.83rem">이번 달 주차 데이터가 없어요</div>';
+    return;
+  }
+  el.innerHTML=weekBudgets.map((w,i)=>{
+    const pct=Math.min(100,Math.round(w.used/w.budget*100));
+    const isOver=w.diff<0;
+    const isFuture=w.isFuture;
+    const dotCls=isFuture?'':'(w.used===0?\'ok\':pct<90?\'ok\':pct<100?\'warn\':\'over\')';
+    const dotClass=isFuture?'ok':(pct<90?'ok':pct<100?'warn':'over');
+    const carryText=w.carry!==0
+      ?(w.carry>0?`지난 주 +₩${w.carry.toLocaleString()} 이월`:`지난 주 -₩${Math.abs(w.carry).toLocaleString()} 차감`)
+      :'기본 ₩100,000';
+    return`<div class="ch-week-item">
+      <div class="ch-week-dot ${dotClass}"></div>
+      <div class="ch-week-info">
+        <div class="ch-week-range">${i+1}주차 · ${fmtMD(w.mon)}(월) ~ ${fmtMD(w.sun)}(일)</div>
+        <div class="ch-week-detail">${isFuture?'아직 시작 안 됨':carryText} · 예산 ₩${w.budget.toLocaleString()}</div>
+      </div>
+      <div class="ch-week-right">
+        ${isFuture
+          ?`<div class="ch-week-used ok">예정</div>`
+          :`<div class="ch-week-used ${isOver?'over':'ok'}">₩${w.used.toLocaleString()}</div>
+            <div class="ch-week-carry ${w.diff>=0?'plus':'minus'}">${w.diff>=0?'+':'-'}₩${Math.abs(w.diff).toLocaleString()} ${w.diff>=0?'절약':'초과'}</div>`
+        }
+        <div class="ch-week-budget">${Math.round(pct)}% 사용</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ══ Toast ══
 window.toast=msg=>{
   const el=document.getElementById('toast');
   el.textContent=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2500);
+};
+
+// ══ 성공 팝업 ══
+function showSuccessPopup(msg, sub=''){
+  const p=document.getElementById('success-popup');
+  document.getElementById('success-msg').textContent=msg;
+  document.getElementById('success-sub').textContent=sub;
+  p.classList.add('show');
+  setTimeout(()=>p.classList.remove('show'),1800);
+}
+
+// ══ 거래 수정 ══
+let editingId = null;
+window.openEditModal = id => {
+  const t = transactions.find(tx=>tx.id===id);
+  if(!t) return;
+  editingId = id;
+  document.getElementById('edit-amount').value = t.amount;
+  document.getElementById('edit-desc').value   = t.desc;
+  document.getElementById('edit-date').value   = t.date;
+  // 카테고리 셀렉트 채우기
+  const cats = t.type==='expense' ? CATS_EXPENSE : CATS_INCOME;
+  const sel  = document.getElementById('edit-cat');
+  sel.innerHTML = cats.map(c=>`<option value="${c.id}"${c.id===t.cat?' selected':''}>${c.icon} ${c.name}</option>`).join('');
+  // 결제수단
+  const mg = document.getElementById('edit-method-group');
+  mg.style.display = t.type==='expense' ? '' : 'none';
+  document.getElementById('edit-method').value = t.method||'';
+  document.getElementById('edit-modal').style.display='flex';
+};
+window.closeEditModal = () => { document.getElementById('edit-modal').style.display='none'; editingId=null; };
+window.saveEdit = async () => {
+  if(!editingId) return;
+  const amount = parseInt(document.getElementById('edit-amount').value);
+  const desc   = document.getElementById('edit-desc').value.trim();
+  const date   = document.getElementById('edit-date').value;
+  const cat    = document.getElementById('edit-cat').value;
+  const method = document.getElementById('edit-method').value || null;
+  if(!amount||amount<=0) return toast('금액을 입력해주세요');
+  if(!desc)              return toast('내용을 입력해주세요');
+  if(!date)              return toast('날짜를 선택해주세요');
+  try{
+    await updateDoc(doc(db,'transactions',editingId),{amount,desc,date,cat,method});
+    closeEditModal();
+    showSuccessPopup('수정됐어요! ✏️', `₩${amount.toLocaleString()}`);
+  }catch(e){toast('❌ 수정 실패: '+e.message);}
 };
 
 // ══ PDF 출력 ══
