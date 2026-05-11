@@ -284,7 +284,13 @@
   }
   #print-area{display:none;}
 
-  /* ══ 월별 리뷰 팝업 ══ */
+  /* ══ 설정 탭 내부 탭 ══ */
+  .settings-inner-nav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px;}
+  .settings-inner-btn{background:none;border:none;color:var(--text-muted);font-family:inherit;font-size:0.8rem;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+  .settings-inner-btn.active{background:var(--surface2);color:var(--text);}
+  .settings-inner-btn.active{color:var(--accent-green);}
+  .settings-tab-content{display:none;}
+  .settings-tab-content.active{display:block;}
   #monthly-review-overlay{position:fixed;inset:0;background:#000000cc;display:none;align-items:center;justify-content:center;z-index:700;padding:20px;}
   #monthly-review-overlay.show{display:flex;}
   .review-modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto;}
@@ -550,14 +556,14 @@
     <button onclick="showPage('settings',this)">⚙️ 설정</button>
   </nav>
   <div class="header-right">
-    <button class="pdf-btn" onclick="openPdfModal('living')">🖨 <span>생활비</span></button>
-    <button class="pdf-btn" onclick="openPdfModal('loan')">🖨 <span>빌려준돈</span></button>
-    <button class="backup-btn" onclick="openBackupModal()">🗂 <span>백업/복구</span></button>
-    <div class="month-nav">
+    <div class="month-nav" id="month-nav">
       <button onclick="changeMonth(-1)">‹</button>
       <div id="month-label"></div>
       <button onclick="changeMonth(1)">›</button>
     </div>
+    <button class="pdf-btn" onclick="openPdfModal('living')">🖨 <span>생활비</span></button>
+    <button class="pdf-btn" onclick="openPdfModal('loan')">🖨 <span>빌려준돈</span></button>
+    <button class="backup-btn" onclick="openBackupModal()">🗂 <span>백업/복구</span></button>
   </div>
 </header>
 
@@ -630,6 +636,12 @@
     <div class="card-forecast" id="home-card-forecast">
       <div class="card-forecast-title">💳 다음 달 카드값 예측</div>
       <div id="card-forecast-list"></div>
+    </div>
+
+    <!-- 이달 내야할 카드값 (전달 카드 지출) -->
+    <div class="card-forecast" id="home-card-due" style="border-color:#ffd16633;background:linear-gradient(135deg,#1a1800,#1a1a1e)">
+      <div class="card-forecast-title" style="color:var(--accent-yellow)">⚡ 이달 내야할 카드값</div>
+      <div id="card-due-list"></div>
     </div>
 
     <div class="two-col">
@@ -714,6 +726,25 @@
           <button class="method-btn" data-method="신한카드" onclick="selectMethod('신한카드',this)"><span class="method-icon" style="color:#7aabff">💳</span>신한</button>
           <button class="method-btn" data-method="현대카드" onclick="selectMethod('현대카드',this)"><span class="method-icon" style="color:#e0e0e0">💳</span>현대</button>
           <button class="method-btn" data-method="BC카드"   onclick="selectMethod('BC카드',this)"><span class="method-icon" style="color:#ff7a9a">💳</span>BC</button>
+        </div>
+      </div>
+
+      <!-- 카드 선택 시 일시불/할부 -->
+      <div id="installment-section" style="display:none;margin-bottom:15px">
+        <div style="font-size:0.66rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:7px">결제 방식</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+          <button id="pay-lumpsum-btn" onclick="selectPayType('lumpsum')" style="padding:9px;border-radius:9px;border:1.5px solid var(--accent-blue);background:#4d9fff15;color:var(--accent-blue);font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;">💳 일시불</button>
+          <button id="pay-install-btn" onclick="selectPayType('install')" style="padding:9px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;">📅 할부</button>
+        </div>
+        <div id="install-months-section" style="display:none;margin-top:8px">
+          <div style="font-size:0.66rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">할부 개월 수</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="install-month-btn" onclick="selectInstallMonths(2,this)" style="padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">2개월</button>
+            <button class="install-month-btn" onclick="selectInstallMonths(3,this)" style="padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">3개월</button>
+            <button class="install-month-btn" onclick="selectInstallMonths(6,this)" style="padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">6개월</button>
+            <button class="install-month-btn" onclick="selectInstallMonths(12,this)" style="padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer;">12개월</button>
+          </div>
+          <div id="install-preview" style="font-size:0.72rem;color:var(--text-muted);margin-top:6px"></div>
         </div>
       </div>
 
@@ -908,103 +939,70 @@
 
   <!-- ══ SETTINGS ══ -->
   <div id="page-settings" class="page">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <h2 style="font-size:1rem;font-weight:700;">⚙️ 설정</h2>
     </div>
 
-    <!-- 지출 카테고리 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>📤 지출 카테고리</h3>
-        <button class="settings-add-btn" onclick="openCatModal('expense',null)">+ 추가</button>
-      </div>
-      <div class="settings-section-body" id="settings-expense-cats"></div>
+    <!-- 내부 탭 네비 -->
+    <div class="settings-inner-nav">
+      <button class="settings-inner-btn active" onclick="showSettingsTab('categories',this)">📂 카테고리</button>
+      <button class="settings-inner-btn" onclick="showSettingsTab('payment',this)">💳 결제수단</button>
+      <button class="settings-inner-btn" onclick="showSettingsTab('home',this)">🏠 홈 화면</button>
+      <button class="settings-inner-btn" onclick="showSettingsTab('budget',this)">🎯 예산·고정</button>
+      <button class="settings-inner-btn" onclick="showSettingsTab('saving',this)">🏦 저축</button>
+      <button class="settings-inner-btn" onclick="showSettingsTab('challenge',this)">🏅 챌린지</button>
     </div>
 
-    <!-- 수입 카테고리 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>📥 수입 카테고리</h3>
-        <button class="settings-add-btn" onclick="openCatModal('income',null)">+ 추가</button>
-      </div>
-      <div class="settings-section-body" id="settings-income-cats"></div>
-    </div>
-
-    <!-- 결제수단 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>💳 결제수단</h3>
-        <button class="settings-add-btn" onclick="openMethodModal(null)">+ 추가</button>
-      </div>
-      <div class="settings-section-body" id="settings-methods"></div>
-    </div>
-
-    <!-- 저축 항목 관리 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>🏦 저축 항목 관리</h3>
-        <button class="settings-add-btn" onclick="openSavingAccountModal(null)">+ 추가</button>
-      </div>
-      <div class="settings-section-body">
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">저축 탭에서 항목별 잔액과 거래내역을 관리할 수 있어요.</p>
-        <div id="settings-saving-section"></div>
-      </div>
-    </div>
-
-    <!-- 고정 지출 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>🔁 고정 지출 등록</h3>
-        <button class="settings-add-btn" onclick="openFixedModal(null)">+ 추가</button>
-      </div>
-      <div class="settings-section-body">
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">매달 자동으로 거래내역에 추가돼요. 월초에 자동 등록됩니다.</p>
-        <div id="settings-fixed-list"></div>
-      </div>
-    </div>
-
-    <!-- 카테고리별 예산 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>🎯 카테고리별 월 예산</h3>
-        <button class="settings-add-btn" onclick="openBudgetModal(null)">+ 설정</button>
-      </div>
-      <div class="settings-section-body">
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">카테고리별 월 예산을 설정하면 통계 탭에서 달성률을 확인할 수 있어요.</p>
-        <div id="settings-budget-list"></div>
-      </div>
-    </div>
-
-    <!-- 챌린지 설정 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>🎯 챌린지 설정</h3>
-      </div>
-      <div class="settings-section-body">
-        <div class="settings-row">
-          <label>주간 예산</label>
-          <input type="number" id="setting-budget" placeholder="100000" min="1000">
-          <span style="font-size:0.8rem;color:var(--text-muted);flex-shrink:0">원</span>
+    <!-- 카테고리 탭 -->
+    <div class="settings-tab-content active" id="stab-categories">
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <h3>📤 지출 카테고리</h3>
+          <button class="settings-add-btn" onclick="openCatModal('expense',null)">+ 추가</button>
         </div>
-        <div class="settings-row">
-          <label>시작일</label>
-          <input type="date" id="setting-ch-start">
+        <div class="settings-section-body" id="settings-expense-cats"></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <h3>📥 수입 카테고리</h3>
+          <button class="settings-add-btn" onclick="openCatModal('income',null)">+ 추가</button>
         </div>
-        <button class="settings-save-btn" onclick="saveChallengeSetting()" style="margin-top:8px;width:100%">저장</button>
+        <div class="settings-section-body" id="settings-income-cats"></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-header"><h3>📊 별도 집계 카테고리</h3></div>
+        <div class="settings-section-body">
+          <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">저축·청약처럼 지출에서 제외되고 따로 집계되는 카테고리예요.</p>
+          <div id="settings-aggregate-list"></div>
+        </div>
       </div>
     </div>
 
-    <!-- 홈 카드 커스텀 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>🏠 홈 카드 표시 설정</h3>
-        <button class="settings-add-btn" onclick="openHomeCardModal()">+ 카드 추가</button>
+    <!-- 결제수단 탭 -->
+    <div class="settings-tab-content" id="stab-payment">
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <h3>💳 결제수단</h3>
+          <button class="settings-add-btn" onclick="openMethodModal(null)">+ 추가</button>
+        </div>
+        <div class="settings-section-body" id="settings-methods"></div>
       </div>
-      <div class="settings-section-body">
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">기본 카드 표시 여부를 설정하고, 카테고리·결제수단별 카드를 추가할 수 있어요.</p>
-        <div style="margin-bottom:16px">
+    </div>
+
+    <!-- 홈 화면 탭 -->
+    <div class="settings-tab-content" id="stab-home">
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <h3>🏠 홈 카드 표시 설정</h3>
+          <button class="settings-add-btn" onclick="openHomeCardModal()">+ 카드 추가</button>
+        </div>
+        <div class="settings-section-body">
           <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px">기본 카드</div>
           <div id="settings-default-cards">
+            <div class="settings-toggle-row">
+              <div><div class="settings-toggle-label">🎯 챌린지 배너</div></div>
+              <div class="toggle-wrap on" id="toggle-hcard-challenge-banner" onclick="toggleHomeCard('challenge-banner')"><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+            </div>
             <div class="settings-toggle-row">
               <div><div class="settings-toggle-label">💰 실제 가용 자금</div></div>
               <div class="toggle-wrap" id="toggle-hcard-balance" onclick="toggleHomeCard('balance')"><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
@@ -1025,21 +1023,83 @@
               <div><div class="settings-toggle-label">이달 저축·청약</div></div>
               <div class="toggle-wrap" id="toggle-hcard-saving" onclick="toggleHomeCard('saving')"><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
             </div>
+            <div class="settings-toggle-row">
+              <div><div class="settings-toggle-label">📈 순자산</div></div>
+              <div class="toggle-wrap on" id="toggle-hcard-networth" onclick="toggleHomeCard('networth')"><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+            </div>
+            <div class="settings-toggle-row">
+              <div><div class="settings-toggle-label">💳 다음달 카드값 예측</div></div>
+              <div class="toggle-wrap on" id="toggle-hcard-card-forecast" onclick="toggleHomeCard('card-forecast')"><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+            </div>
+            <div class="settings-toggle-row">
+              <div><div class="settings-toggle-label">💸 이달 내야할 카드값</div></div>
+              <div class="toggle-wrap on" id="toggle-hcard-card-due" onclick="toggleHomeCard('card-due')"><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+            </div>
+            <div class="settings-toggle-row">
+              <div><div class="settings-toggle-label">📊 차트 (카테고리/일별)</div></div>
+              <div class="toggle-wrap on" id="toggle-hcard-charts" onclick="toggleHomeCard('charts')"><div class="toggle-switch"><div class="toggle-knob"></div></div></div>
+            </div>
           </div>
+          <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin:16px 0 10px">커스텀 카드</div>
+          <div id="settings-home-cards"></div>
         </div>
-        <div style="font-size:0.7rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px">커스텀 카드</div>
-        <div id="settings-home-cards"></div>
       </div>
     </div>
 
-    <!-- 집계 설정 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>📊 별도 집계 카테고리</h3>
+    <!-- 예산·고정 탭 -->
+    <div class="settings-tab-content" id="stab-budget">
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <h3>🔁 고정 지출 등록</h3>
+          <button class="settings-add-btn" onclick="openFixedModal(null)">+ 추가</button>
+        </div>
+        <div class="settings-section-body">
+          <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">매달 자동으로 거래내역에 추가돼요.</p>
+          <div id="settings-fixed-list"></div>
+        </div>
       </div>
-      <div class="settings-section-body">
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">아래 카테고리는 일반 지출에서 제외되고 저축/청약처럼 따로 집계돼요. 카테고리 편집에서 유형을 변경하면 자동 반영돼요.</p>
-        <div id="settings-aggregate-list"></div>
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <h3>🎯 카테고리별 월 예산</h3>
+          <button class="settings-add-btn" onclick="openBudgetModal(null)">+ 설정</button>
+        </div>
+        <div class="settings-section-body">
+          <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">통계 탭에서 달성률을 확인할 수 있어요.</p>
+          <div id="settings-budget-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 저축 탭 -->
+    <div class="settings-tab-content" id="stab-saving">
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <h3>🏦 저축 항목 관리</h3>
+          <button class="settings-add-btn" onclick="openSavingAccountModal(null)">+ 추가</button>
+        </div>
+        <div class="settings-section-body">
+          <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">저축 탭에서 항목별 잔액과 거래내역을 관리할 수 있어요.</p>
+          <div id="settings-saving-section"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 챌린지 탭 -->
+    <div class="settings-tab-content" id="stab-challenge">
+      <div class="settings-section">
+        <div class="settings-section-header"><h3>🎯 챌린지 설정</h3></div>
+        <div class="settings-section-body">
+          <div class="settings-row">
+            <label>주간 예산</label>
+            <input type="number" id="setting-budget" placeholder="100000" min="1000">
+            <span style="font-size:0.8rem;color:var(--text-muted);flex-shrink:0">원</span>
+          </div>
+          <div class="settings-row">
+            <label>시작일</label>
+            <input type="date" id="setting-ch-start">
+          </div>
+          <button class="settings-save-btn" onclick="saveChallengeSetting()" style="margin-top:8px;width:100%">저장</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1367,7 +1427,6 @@ const DEFAULT_CATS_EXPENSE = [
   {id:'exercise',  icon:'🏋️', name:'운동'},
   {id:'hobby',     icon:'🎮', name:'취미'},
   {id:'transport', icon:'🚌', name:'교통'},
-  {id:'install',   icon:'💳', name:'할부'},
   {id:'living',    icon:'🏠', name:'생활비'},
 ];
 const DEFAULT_CATS_INCOME = [
@@ -1398,6 +1457,7 @@ let homeCards=[]; // 커스텀 홈 카드
 let hiddenCards=new Set(); // 숨긴 기본 카드
 let savingAccounts=[]; // 저축 항목 [{id,icon,name,type,goal,balance,color,txs:[]}]
 let currentType='expense', selectedCat=null, selectedMethod=null;
+let selectedPayType='lumpsum', selectedInstallMonths=0;
 let currentYear=new Date().getFullYear(), currentMonth=new Date().getMonth();
 let charts={}, currentLoanId=null;
 
@@ -1489,7 +1549,6 @@ window.changeMonth=d=>{
   if(currentMonth>11){currentMonth=0;currentYear++;}
   if(currentMonth<0) {currentMonth=11;currentYear--;}
   updateMonthLabel();
-  // 현재 활성 탭에 맞게 갱신
   const active=document.querySelector('.page.active');
   if(!active) return;
   const id=active.id.replace('page-','');
@@ -1515,9 +1574,13 @@ window.showPage=(page,btn)=>{
   document.getElementById('page-'+page).classList.add('active');
   if(btn) btn.classList.add('active');
 
-  // 월 네비게이션 표시/숨김
-  const monthNav=document.querySelector('.month-nav');
-  if(monthNav) monthNav.style.display=MONTH_NAV_PAGES.includes(page)?'flex':'none';
+  // 월 네비게이션 - 관련 탭은 활성화, 나머지는 흐리게 (자리는 유지)
+  const monthNav=document.getElementById('month-nav');
+  if(monthNav){
+    const isActive=MONTH_NAV_PAGES.includes(page);
+    monthNav.style.opacity=isActive?'1':'0.25';
+    monthNav.style.pointerEvents=isActive?'auto':'none';
+  }
 
   if(page==='stats')     renderStats();
   if(page==='loan')      renderLoanPage();
@@ -1593,6 +1656,11 @@ window.selectCat=(id,btn)=>{
 window.selectMethod=(method,btn)=>{
   document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active'); selectedMethod=method;
+  // 카드면 일시불/할부 선택 표시
+  const isCard=method&&method.includes('카드');
+  const sec=document.getElementById('installment-section');
+  if(sec) sec.style.display=isCard?'':'none';
+  if(isCard) selectPayType('lumpsum'); // 기본 일시불
 };
 
 // 상환 드롭다운 업데이트
@@ -1641,13 +1709,34 @@ window.addTransaction=async()=>{
 
   try{
     // 거래내역 저장
+    const isInstall = selectedPayType==='install' && selectedInstallMonths>1 && selectedMethod?.includes('카드');
     await addDoc(COL,{
       type:currentType, amount, desc, date, cat:selectedCat,
       method: needMethod ? selectedMethod : null,
       loanId: repayLoanId||null,
       excludeChallenge: excludeChallenge||false,
+      installment: isInstall ? {months:selectedInstallMonths, current:1} : null,
       createdAt:new Date().toISOString()
     });
+
+    // 할부: 다음달부터 나머지 회차 자동 예약 저장
+    if(isInstall){
+      const baseDate=new Date(date);
+      const monthlyAmt=Math.round(amount/selectedInstallMonths);
+      for(let i=1;i<selectedInstallMonths;i++){
+        const d=new Date(baseDate.getFullYear(),baseDate.getMonth()+i,baseDate.getDate());
+        const dStr=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        await addDoc(COL,{
+          type:'expense', amount:monthlyAmt,
+          desc:`${desc} (할부 ${i+1}/${selectedInstallMonths})`,
+          date:dStr, cat:selectedCat,
+          method:selectedMethod,
+          excludeChallenge:true, // 챌린지 제외 (첫 달만 포함)
+          installment:{months:selectedInstallMonths, current:i+1, parentDesc:desc},
+          createdAt:new Date().toISOString()
+        });
+      }
+    }
 
     // 빌려줌 → loans 컬렉션에도 자동 등록
     if(isLoanCat){
@@ -1676,6 +1765,9 @@ window.addTransaction=async()=>{
     document.getElementById('method-section').style.display='';
     excludeChallengePending=false;
     document.getElementById('challenge-toggle-wrap').classList.remove('on');
+    const instSec=document.getElementById('installment-section');
+    if(instSec) instSec.style.display='none';
+    selectedPayType='lumpsum'; selectedInstallMonths=0;
     selectedCat=null; selectedMethod=null;
     showSuccessPopup(currentType==='income'?'수입 추가됐어요! 💰':'지출 추가됐어요! 📤', `₩${amount.toLocaleString()}`);
   }catch(e){toast('❌ 저장 실패: '+e.message);setSyncBar('error','저장 실패');}
@@ -1683,7 +1775,33 @@ window.addTransaction=async()=>{
 };
 
 window.deleteTransaction=async id=>{
-  if(!confirm('이 거래내역을 삭제할까요?')) return;
+  const t=transactions.find(tx=>tx.id===id);
+  if(!t) return;
+  // 할부 1회차 삭제 시 나머지 회차도 삭제할지 확인
+  if(t.installment&&t.installment.current===1){
+    const others=transactions.filter(tx=>
+      tx.id!==id && tx.installment && (
+        tx.installment.parentDesc===t.desc ||
+        (tx.desc && tx.desc.startsWith(t.desc+' (할부'))
+      )
+    );
+    const msg=others.length>0
+      ?`할부 ${t.installment.months}개월 중 1회차예요.\n나머지 ${others.length}회차도 함께 삭제할까요?\n\n"확인" = 전체 삭제\n"취소" = 이 건만 삭제`
+      :'이 거래내역을 삭제할까요?';
+    const deleteAll=others.length>0?confirm(msg):confirm('이 거래내역을 삭제할까요?');
+    if(others.length>0&&deleteAll){
+      try{
+        await deleteDoc(doc(db,'transactions',id));
+        for(const o of others) await deleteDoc(doc(db,'transactions',o.id));
+        toast(`할부 전체 ${1+others.length}건 삭제됐어요`);
+      }catch(e){toast('❌ 삭제 실패');}
+      return;
+    } else if(others.length>0&&!deleteAll){
+      if(!confirm('이 건만 삭제할까요?')) return;
+    } else if(!deleteAll) return;
+  } else {
+    if(!confirm('이 거래내역을 삭제할까요?')) return;
+  }
   try{await deleteDoc(doc(db,'transactions',id));toast('삭제됐어요');}
   catch(e){toast('❌ 삭제 실패');}
 };
@@ -1769,6 +1887,8 @@ function renderHome(){
   renderCustomHomeCards(txs);
   renderNetworth();
   renderCardForecast();
+  renderCardDue();
+  applyHomeCardVisibility();
   renderStreakBadge();
   renderTxList(txs);renderDonut(txs);renderLine(txs);renderChallenge();
 }
@@ -1827,11 +1947,12 @@ function makeTxHTML(t){
   const loanBadge  =isLoan ?`<span class="tx-loan-badge">💸 대여</span>`:'';
   const repayBadge =isRepay?`<span class="tx-repay-badge">💚 상환</span>`:'';
   const exclBadge  =t.excludeChallenge?`<span style="background:#ff4d6d18;border:1px solid #ff4d6d44;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#ff8fa3">챌린지제외</span>`:'';
+  const installBadge=t.installment?`<span style="background:#fb923c18;border:1px solid #fb923c44;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#fb923c">${t.installment.current}/${t.installment.months}할</span>`:'';
   return`<div class="tx-item">
     <div class="tx-icon" style="background:${bg}">${cat.icon}</div>
     <div class="tx-info">
       <div class="tx-name">${t.desc}</div>
-      <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}${exclBadge}</div>
+      <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}${exclBadge}${installBadge}</div>
     </div>
     <div class="tx-amount ${amtCls}">${prefix}₩${t.amount.toLocaleString()}</div>
     <button style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.8rem;padding:3px 5px;border-radius:5px;flex-shrink:0;opacity:0.6;transition:opacity 0.15s;" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0.6" onclick="openEditModal('${t.id}')">✏️</button>
@@ -2484,10 +2605,17 @@ function renderSettingsPage(){
   renderSettingsAggregate();
   renderSettingsHomeCards();
   renderSettingsSaving();
-  ['balance','card-expense','cash-expense','income','saving'].forEach(id=>{
+  ALL_HOME_CARDS.forEach(id=>{
     const wrap=document.getElementById('toggle-hcard-'+id);
     if(wrap) wrap.classList.toggle('on',!hiddenCards.has(id));
   });
+  // 현재 선택된 탭 유지
+  document.querySelectorAll('.settings-tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.settings-inner-btn').forEach(b=>b.classList.remove('active'));
+  const activeTab=document.getElementById('stab-'+currentSettingsTab);
+  if(activeTab) activeTab.classList.add('active');
+  const activeBtn=document.querySelector(`.settings-inner-btn[onclick*="${currentSettingsTab}"]`);
+  if(activeBtn) activeBtn.classList.add('active');
 }
 
 function renderSettingsCats(type){
@@ -3382,6 +3510,113 @@ function renderStreakBadge(){
     : '';
 }
 
+// ══ 설정 내부 탭 ══
+let currentSettingsTab='categories';
+window.showSettingsTab=(tab,btn)=>{
+  currentSettingsTab=tab;
+  document.querySelectorAll('.settings-tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.settings-inner-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('stab-'+tab).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ══ 일시불/할부 선택 ══
+window.selectPayType=type=>{
+  selectedPayType=type;
+  const lbtn=document.getElementById('pay-lumpsum-btn');
+  const ibtn=document.getElementById('pay-install-btn');
+  const instSec=document.getElementById('install-months-section');
+  if(type==='lumpsum'){
+    lbtn.style.borderColor='var(--accent-blue)';lbtn.style.background='#4d9fff15';lbtn.style.color='var(--accent-blue)';
+    ibtn.style.borderColor='var(--border)';ibtn.style.background='none';ibtn.style.color='var(--text-muted)';
+    instSec.style.display='none';
+    selectedInstallMonths=0;
+  } else {
+    ibtn.style.borderColor='var(--accent-orange)';ibtn.style.background='#fb923c15';ibtn.style.color='var(--accent-orange)';
+    lbtn.style.borderColor='var(--border)';lbtn.style.background='none';lbtn.style.color='var(--text-muted)';
+    instSec.style.display='';
+  }
+};
+window.selectInstallMonths=(n,btn)=>{
+  selectedInstallMonths=n;
+  document.querySelectorAll('.install-month-btn').forEach(b=>{
+    b.style.borderColor='var(--border)';b.style.background='none';b.style.color='var(--text-muted)';
+  });
+  btn.style.borderColor='var(--accent-orange)';btn.style.background='#fb923c15';btn.style.color='var(--accent-orange)';
+  // 미리보기
+  const amt=parseInt(document.getElementById('input-amount').value)||0;
+  const monthly=amt?Math.round(amt/n):0;
+  document.getElementById('install-preview').textContent =
+    amt?`월 ₩${monthly.toLocaleString()} × ${n}개월 = ₩${amt.toLocaleString()}`:'금액을 먼저 입력해주세요';
+};
+
+// ══ 이달 내야할 카드값 (전달 카드 지출) ══
+function renderCardDue(){
+  const el=document.getElementById('card-due-list');
+  if(!el) return;
+  // 전달 카드 지출 계산
+  const prevMonth=currentMonth===0?11:currentMonth-1;
+  const prevYear =currentMonth===0?currentYear-1:currentYear;
+  const prevTxs=transactions.filter(t=>{
+    const d=new Date(t.date);
+    return d.getFullYear()===prevYear&&d.getMonth()===prevMonth&&
+      t.type==='expense'&&t.method&&t.method.includes('카드')&&
+      t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='saving_linked';
+  });
+  const cardMethods=METHODS.filter(m=>m.includes('카드'));
+  const rows=cardMethods.map(m=>{
+    const amt=prevTxs.filter(t=>t.method===m).reduce((s,t)=>s+t.amount,0);
+    return{name:m,amt};
+  }).filter(r=>r.amt>0);
+
+  if(!rows.length){
+    el.innerHTML=`<div style="font-size:0.78rem;color:var(--text-muted);padding:4px 0">${currentMonth+1}월 1일 기준 전달 카드값이 없어요</div>`;
+    return;
+  }
+  const total=rows.reduce((s,r)=>s+r.amt,0);
+  el.innerHTML=rows.map(r=>`
+    <div class="card-forecast-row">
+      <div>
+        <div class="card-forecast-name" style="color:var(--accent-yellow)">${r.name}</div>
+        <div class="card-forecast-date">${prevMonth+1}월 사용분</div>
+      </div>
+      <div class="card-forecast-amt" style="color:var(--accent-yellow)">₩${r.amt.toLocaleString()}</div>
+    </div>`).join('')+
+    `<div style="display:flex;justify-content:space-between;padding:8px 0 0;font-size:0.78rem;font-weight:700;border-top:1px solid var(--border);margin-top:6px">
+      <span style="color:var(--text-muted)">이달 총 카드값</span>
+      <span style="color:var(--accent-yellow)">₩${total.toLocaleString()}</span>
+    </div>`;
+}
+
+// ══ 홈 카드 온오프 확장 ══
+const ALL_HOME_CARDS=[
+  'challenge-banner','balance','card-expense','cash-expense','income','saving',
+  'networth','card-forecast','card-due','charts'
+];
+
+function applyHomeCardVisibility(){
+  // 챌린지 배너
+  const cb=document.querySelector('.challenge-banner');
+  if(cb) cb.style.display=hiddenCards.has('challenge-banner')?'none':'';
+  // 기본 카드들
+  ['balance','card-expense','cash-expense','income','saving'].forEach(id=>{
+    const el=document.getElementById('hcard-'+id);
+    if(el) el.style.display=hiddenCards.has(id)?'none':'';
+  });
+  // 순자산
+  const nw=document.getElementById('home-networth');
+  if(nw) nw.style.display=hiddenCards.has('networth')?'none':'';
+  // 카드값 예측
+  const cf=document.getElementById('home-card-forecast');
+  if(cf) cf.style.display=hiddenCards.has('card-forecast')?'none':'';
+  // 이달 카드값
+  const cd=document.getElementById('home-card-due');
+  if(cd) cd.style.display=hiddenCards.has('card-due')?'none':'';
+  // 차트
+  const charts=document.querySelector('.two-col');
+  if(charts) charts.style.display=hiddenCards.has('charts')?'none':'';
+}
+
 // ══ Toast ══
 window.toast=msg=>{
   const el=document.getElementById('toast');
@@ -3407,14 +3642,26 @@ window.openEditModal = id => {
   document.getElementById('edit-amount').value = t.amount;
   document.getElementById('edit-desc').value   = t.desc;
   document.getElementById('edit-date').value   = t.date;
-  // 카테고리 셀렉트 채우기
   const cats = t.type==='expense' ? CATS_EXPENSE : CATS_INCOME;
   const sel  = document.getElementById('edit-cat');
   sel.innerHTML = cats.map(c=>`<option value="${c.id}"${c.id===t.cat?' selected':''}>${c.icon} ${c.name}</option>`).join('');
-  // 결제수단
   const mg = document.getElementById('edit-method-group');
   mg.style.display = t.type==='expense' ? '' : 'none';
   document.getElementById('edit-method').value = t.method||'';
+  // 할부 정보 표시
+  let installInfo=document.getElementById('edit-install-info');
+  if(!installInfo){
+    installInfo=document.createElement('div');
+    installInfo.id='edit-install-info';
+    installInfo.style.cssText='font-size:0.75rem;color:var(--accent-orange);background:#fb923c12;border:1px solid #fb923c33;border-radius:8px;padding:8px 12px;margin-bottom:12px;';
+    document.querySelector('#edit-modal .modal-form').prepend(installInfo);
+  }
+  if(t.installment){
+    installInfo.style.display='';
+    installInfo.textContent=`📅 할부 ${t.installment.current}/${t.installment.months}회차 · 이 건만 수정됩니다`;
+  } else {
+    installInfo.style.display='none';
+  }
   document.getElementById('edit-modal').style.display='flex';
 };
 window.closeEditModal = () => { document.getElementById('edit-modal').style.display='none'; editingId=null; };
