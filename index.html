@@ -232,6 +232,38 @@
   #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);padding:10px 17px;border-radius:10px;font-size:0.83rem;transition:transform 0.3s;z-index:999;white-space:nowrap;}
   #toast.show{transform:translateX(-50%) translateY(0);}
 
+  /* PDF 버튼 */
+  .pdf-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.7rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px;}
+  .pdf-btn:hover{border-color:#fb923c;color:#fb923c;}
+
+  /* 인쇄용 스타일 */
+  @media print{
+    body{background:#fff !important;color:#111 !important;}
+    #sync-bar,header,#loading-overlay,#toast,.modal-overlay{display:none !important;}
+    main{padding:0 !important;max-width:100% !important;}
+    .page{display:none !important;}
+    #print-area{display:block !important;}
+    #print-area *{color:#111 !important;border-color:#ddd !important;background:#fff !important;}
+    .print-header{border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:20px;}
+    .print-title{font-size:1.2rem;font-weight:700;}
+    .print-period{font-size:0.8rem;color:#666 !important;margin-top:4px;}
+    .print-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:0.82rem;}
+    .print-table th{background:#f5f5f5 !important;padding:8px 10px;text-align:left;border:1px solid #ddd;font-weight:600;}
+    .print-table td{padding:7px 10px;border:1px solid #ddd;vertical-align:top;}
+    .print-table tr:nth-child(even) td{background:#fafafa !important;}
+    .print-summary{margin-top:20px;padding:12px 16px;border:2px solid #111;border-radius:6px;}
+    .print-summary-row{display:flex;justify-content:space-between;padding:4px 0;font-size:0.85rem;}
+    .print-summary-row.total{font-weight:700;border-top:1px solid #ddd;margin-top:6px;padding-top:8px;}
+    .print-loan-card{border:1px solid #ddd;border-radius:6px;margin-bottom:14px;overflow:hidden;}
+    .print-loan-header{background:#f5f5f5 !important;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+    .print-loan-name{font-weight:700;font-size:0.9rem;}
+    .print-loan-remain{font-weight:700;}
+    .print-loan-body{padding:10px 14px;}
+    .print-repay-row{display:flex;gap:12px;padding:4px 0;font-size:0.78rem;border-bottom:1px solid #eee;}
+    .print-repay-row:last-child{border-bottom:none;}
+  }
+  #print-area{display:none;}
+
   @media(max-width:720px){
     header{padding:11px 13px;}
     main{padding:12px 13px;}
@@ -265,6 +297,8 @@
     <button onclick="showPage('loan',this)">💸 빌려준돈</button>
   </nav>
   <div class="header-right">
+    <button class="pdf-btn" onclick="openPdfModal('living')">🖨 <span>생활비</span></button>
+    <button class="pdf-btn" onclick="openPdfModal('loan')">🖨 <span>빌려준돈</span></button>
     <button class="backup-btn" onclick="openBackupModal()">🗂 <span>백업/복구</span></button>
     <div class="month-nav">
       <button onclick="changeMonth(-1)">‹</button>
@@ -398,6 +432,22 @@
           <button class="method-btn" data-method="BC카드"   onclick="selectMethod('BC카드',this)"><span class="method-icon" style="color:#ff7a9a">💳</span>BC</button>
         </div>
       </div>
+
+      <!-- 챌린지 제외 토글 (지출일 때만 표시) -->
+      <div id="challenge-exclude-section" style="margin-bottom:15px">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;transition:border-color 0.15s;" id="challenge-toggle-label">
+          <span style="font-size:1rem">🎯</span>
+          <span style="flex:1">
+            <span style="font-size:0.83rem;font-weight:600;color:var(--text)">주간 챌린지에서 제외</span><br>
+            <span style="font-size:0.68rem;color:var(--text-muted)">카드값·고정비 등 챌린지와 무관한 지출</span>
+          </span>
+          <div id="challenge-toggle-switch" style="width:38px;height:22px;border-radius:11px;background:var(--border);position:relative;transition:background 0.2s;flex-shrink:0;">
+            <div id="challenge-toggle-knob" style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left 0.2s;"></div>
+          </div>
+          <input type="checkbox" id="input-exclude-challenge" style="display:none" onchange="updateChallengeToggle()">
+        </label>
+      </div>
+
       <button class="submit-btn" id="submit-btn" onclick="addTransaction()">추가하기</button>
     </div>
   </div>
@@ -510,6 +560,29 @@
 <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
 <div id="toast"></div>
 
+<!-- PDF 기간 선택 모달 -->
+<div class="modal-overlay" id="pdf-modal" style="display:none" onclick="if(event.target===this)closePdfModal()">
+  <div class="modal">
+    <h3 id="pdf-modal-title">🖨 PDF 출력</h3>
+    <p id="pdf-modal-desc">기간을 선택하면 해당 기간의 내역을 PDF로 출력해요.<br>브라우저 인쇄 창에서 "PDF로 저장"을 선택하세요.</p>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>시작일</label>
+        <input type="date" id="pdf-date-from">
+      </div>
+      <div class="form-group">
+        <label>종료일</label>
+        <input type="date" id="pdf-date-to">
+      </div>
+    </div>
+    <button class="modal-submit" style="background:var(--accent-orange)" onclick="doPrint()">🖨 인쇄 / PDF 저장</button>
+    <button class="modal-close" onclick="closePdfModal()">취소</button>
+  </div>
+</div>
+
+<!-- 인쇄 전용 영역 (화면엔 안 보임) -->
+<div id="print-area"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -550,12 +623,13 @@ const CATS_EXPENSE = [
   {id:'living',    icon:'🏠', name:'생활비'},
 ];
 const CATS_INCOME = [
-  {id:'salary', icon:'💼', name:'월급'},
-  {id:'part',   icon:'🧑‍💻',name:'알바'},
-  {id:'invest', icon:'📈', name:'투자'},
-  {id:'gift',   icon:'🎁', name:'용돈'},
-  {id:'repay',  icon:'💚', name:'상환받음', isRepay:true},
-  {id:'etc',    icon:'📦', name:'기타'},
+  {id:'salary',   icon:'💼', name:'월급'},
+  {id:'carryover',icon:'🔄', name:'이월금'},
+  {id:'part',     icon:'🧑‍💻',name:'알바'},
+  {id:'invest',   icon:'📈', name:'투자'},
+  {id:'gift',     icon:'🎁', name:'용돈'},
+  {id:'repay',    icon:'💚', name:'상환받음', isRepay:true},
+  {id:'etc',      icon:'📦', name:'기타'},
 ];
 const METHODS = ['현금','통장','신한카드','현대카드','BC카드'];
 const METHOD_COLORS = {'현금':'#ffd166','통장':'#4d9fff','신한카드':'#7aabff','현대카드':'#cccccc','BC카드':'#ff7a9a'};
@@ -626,13 +700,41 @@ window.setType=(type,btn)=>{
   currentType=type; selectedCat=null;
   document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  // 결제수단: 수입의 상환받음은 없어도 됨 (일단 표시)
   document.getElementById('method-section').style.display='';
-  // 부가 섹션 숨기기
   document.getElementById('loan-input-section').style.display='none';
   document.getElementById('repay-input-section').style.display='none';
+  // 챌린지 제외 토글은 지출일 때만 표시
+  document.getElementById('challenge-exclude-section').style.display= type==='expense' ? '' : 'none';
+  // 토글 초기화
+  const cb=document.getElementById('input-exclude-challenge');
+  cb.checked=false; updateChallengeToggle();
   renderCatGrid();
 };
+
+// 챌린지 토글 UI 업데이트
+window.updateChallengeToggle=()=>{
+  const cb=document.getElementById('input-exclude-challenge');
+  const sw=document.getElementById('challenge-toggle-switch');
+  const kn=document.getElementById('challenge-toggle-knob');
+  const lb=document.getElementById('challenge-toggle-label');
+  if(cb.checked){
+    sw.style.background='var(--accent-red)';
+    kn.style.left='19px';
+    lb.style.borderColor='var(--accent-red)';
+  } else {
+    sw.style.background='var(--border)';
+    kn.style.left='3px';
+    lb.style.borderColor='var(--border)';
+  }
+};
+
+// 토글 라벨 클릭 시 체크박스 토글
+document.getElementById('challenge-toggle-label').addEventListener('click', e=>{
+  if(e.target.tagName==='INPUT') return;
+  const cb=document.getElementById('input-exclude-challenge');
+  cb.checked=!cb.checked;
+  updateChallengeToggle();
+});
 
 function renderCatGrid(){
   const cats=currentType==='expense'?CATS_EXPENSE:CATS_INCOME;
@@ -692,6 +794,7 @@ window.addTransaction=async()=>{
   const isLoanCat  = selectedCat==='loan';
   const isRepayCat = selectedCat==='repay';
   const needMethod = currentType==='expense' && !isRepayCat;
+  const excludeChallenge = currentType==='expense' && document.getElementById('input-exclude-challenge').checked;
 
   if(needMethod && !selectedMethod) return toast('결제수단을 선택해주세요');
 
@@ -720,6 +823,7 @@ window.addTransaction=async()=>{
       type:currentType, amount, desc, date, cat:selectedCat,
       method: needMethod ? selectedMethod : null,
       loanId: repayLoanId||null,
+      excludeChallenge: excludeChallenge||false,
       createdAt:new Date().toISOString()
     });
 
@@ -748,6 +852,8 @@ window.addTransaction=async()=>{
     document.getElementById('loan-input-section').style.display='none';
     document.getElementById('repay-input-section').style.display='none';
     document.getElementById('method-section').style.display='';
+    const cb=document.getElementById('input-exclude-challenge');
+    cb.checked=false; updateChallengeToggle();
     selectedCat=null; selectedMethod=null;
     toast('✅ 저장됐어요!');
   }catch(e){toast('❌ 저장 실패: '+e.message);setSyncBar('error','저장 실패');}
@@ -771,7 +877,10 @@ function renderChallenge(){
   const{mon,sun}=getWeekRange(new Date());
   const used=transactions.filter(t=>{
     const d=new Date(t.date);
-    return t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan'&&d>=mon&&d<=sun;
+    return t.type==='expense'
+      && t.cat!=='saving' && t.cat!=='apt' && t.cat!=='loan'
+      && !t.excludeChallenge
+      && d>=mon && d<=sun;
   }).reduce((s,t)=>s+t.amount,0);
   const remain=CHALLENGE_BUDGET-used;
   const pct=Math.min(100,Math.round(used/CHALLENGE_BUDGET*100));
@@ -827,13 +936,14 @@ function renderTxList(txs){
     if(isLoan)   bg='#fb923c18';
     const prefix=t.type==='income'?'+':'-';
     const methodBadge=t.method?`<span class="tx-method-badge ${t.method}">${t.method}</span>`:'';
-    const loanBadge=isLoan?`<span class="tx-loan-badge">💸 대여</span>`:'';
-    const repayBadge=isRepay?`<span class="tx-repay-badge">💚 상환</span>`:'';
+    const loanBadge  =isLoan ?`<span class="tx-loan-badge">💸 대여</span>`:'';
+    const repayBadge =isRepay?`<span class="tx-repay-badge">💚 상환</span>`:'';
+    const exclBadge  =t.excludeChallenge?`<span style="background:#ff4d6d18;border:1px solid #ff4d6d44;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#ff8fa3">챌린지제외</span>`:'';
     return`<div class="tx-item">
       <div class="tx-icon" style="background:${bg}">${cat.icon}</div>
       <div class="tx-info">
         <div class="tx-name">${t.desc}</div>
-        <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}</div>
+        <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}${exclBadge}</div>
       </div>
       <div class="tx-amount ${amtCls}">${prefix}₩${t.amount.toLocaleString()}</div>
       <button class="tx-delete" onclick="deleteTransaction('${t.id}')">✕</button>
@@ -1136,6 +1246,147 @@ window.toast=msg=>{
   const el=document.getElementById('toast');
   el.textContent=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2500);
+};
+
+// ══ PDF 출력 ══
+let pdfMode = 'living'; // 'living' | 'loan'
+
+window.openPdfModal = mode => {
+  pdfMode = mode;
+  const isLoan = mode === 'loan';
+  document.getElementById('pdf-modal-title').textContent = isLoan ? '🖨 빌려준 돈 PDF 출력' : '🖨 생활비 내역 PDF 출력';
+  document.getElementById('pdf-modal-desc').textContent = isLoan
+    ? '기간 내 빌려준 돈 + 상환 내역을 PDF로 출력해요.'
+    : '기간 내 생활비(🏠) 지출 내역을 PDF로 출력해요.';
+  // 기본값: 이번 달 1일 ~ 오늘
+  const now = new Date();
+  const firstDay = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  const today = now.toISOString().split('T')[0];
+  document.getElementById('pdf-date-from').value = firstDay;
+  document.getElementById('pdf-date-to').value   = today;
+  document.getElementById('pdf-modal').style.display = 'flex';
+};
+window.closePdfModal = () => document.getElementById('pdf-modal').style.display = 'none';
+
+window.doPrint = () => {
+  const from = document.getElementById('pdf-date-from').value;
+  const to   = document.getElementById('pdf-date-to').value;
+  if (!from || !to) return toast('기간을 선택해주세요');
+  if (from > to)    return toast('시작일이 종료일보다 늦어요');
+
+  const fromD = new Date(from);
+  const toD   = new Date(to); toD.setHours(23,59,59,999);
+  const fmtDate = d => d.replace(/-/g,'.'); // 2025-01-01 → 2025.01.01
+  const fmtWon  = n => '₩' + n.toLocaleString();
+
+  let html = '';
+
+  if (pdfMode === 'living') {
+    // ── 생활비 내역 ──
+    const rows = transactions
+      .filter(t => {
+        const d = new Date(t.date);
+        return t.type==='expense' && t.cat==='living' && d>=fromD && d<=toD;
+      })
+      .sort((a,b) => new Date(a.date)-new Date(b.date));
+
+    const total = rows.reduce((s,t)=>s+t.amount, 0);
+
+    html = `
+      <div class="print-header">
+        <div class="print-title">🏠 생활비 내역</div>
+        <div class="print-period">기간: ${fmtDate(from)} ~ ${fmtDate(to)} · 총 ${rows.length}건</div>
+      </div>
+      ${rows.length === 0
+        ? '<p style="color:#888;margin-top:20px">해당 기간에 생활비 내역이 없어요.</p>'
+        : `<table class="print-table">
+            <thead><tr>
+              <th>날짜</th><th>내용</th><th>결제수단</th><th style="text-align:right">금액</th>
+            </tr></thead>
+            <tbody>
+              ${rows.map(t=>`<tr>
+                <td>${fmtDate(t.date)}</td>
+                <td>${t.desc}</td>
+                <td>${t.method||'-'}</td>
+                <td style="text-align:right;font-weight:600">${fmtWon(t.amount)}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+          <div class="print-summary">
+            <div class="print-summary-row total">
+              <span>합계</span><span>${fmtWon(total)}</span>
+            </div>
+          </div>`
+      }`;
+
+  } else {
+    // ── 빌려준 돈 내역 ──
+    // 기간 내 대여 등록된 건 + 기간 내 상환 내역이 있는 건 모두 포함
+    const filtered = loans.filter(l => {
+      const loanInRange = new Date(l.date) >= fromD && new Date(l.date) <= toD;
+      const hasRepayInRange = (l.repayments||[]).some(r => {
+        const d = new Date(r.date);
+        return d >= fromD && d <= toD;
+      });
+      return loanInRange || hasRepayInRange;
+    }).sort((a,b) => new Date(a.date)-new Date(b.date));
+
+    const totalLent   = filtered.reduce((s,l)=>s+l.amount, 0);
+    const totalRepaid = filtered.reduce((s,l)=>s+(l.repayments||[]).reduce((sr,r)=>sr+r.amount,0), 0);
+    const totalRemain = totalLent - totalRepaid;
+
+    html = `
+      <div class="print-header">
+        <div class="print-title">💸 빌려준 돈 내역</div>
+        <div class="print-period">기간: ${fmtDate(from)} ~ ${fmtDate(to)} · 총 ${filtered.length}건</div>
+      </div>
+      ${filtered.length === 0
+        ? '<p style="color:#888;margin-top:20px">해당 기간에 대여 내역이 없어요.</p>'
+        : filtered.map(loan => {
+            const remain = loanRemain(loan);
+            const repaid = loan.amount - remain;
+            const isPaid = remain <= 0;
+            const repaysInRange = (loan.repayments||[]).filter(r=>{
+              const d=new Date(r.date); return d>=fromD&&d<=toD;
+            }).sort((a,b)=>new Date(a.date)-new Date(b.date));
+            return `<div class="print-loan-card">
+              <div class="print-loan-header">
+                <div>
+                  <div class="print-loan-name">${loan.person} · ${loan.purpose}</div>
+                  <div style="font-size:0.75rem;color:#666;margin-top:2px">대여일 ${fmtDate(loan.date)} · 원금 ${fmtWon(loan.amount)}</div>
+                </div>
+                <div class="print-loan-remain" style="color:${isPaid?'#16a34a':'#ea580c'}">
+                  ${isPaid ? '완제' : '미수금 '+fmtWon(remain)}
+                </div>
+              </div>
+              <div class="print-loan-body">
+                ${repaysInRange.length > 0
+                  ? repaysInRange.map(r=>`<div class="print-repay-row">
+                      <span style="color:#666">${fmtDate(r.date)}</span>
+                      <span>${r.memo||'상환'}</span>
+                      <span style="font-weight:600;color:#16a34a;margin-left:auto">+${fmtWon(r.amount)}</span>
+                    </div>`).join('')
+                  : '<div style="font-size:0.75rem;color:#888">기간 내 상환 내역 없음</div>'
+                }
+                <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid #eee;font-size:0.8rem;font-weight:600">
+                  <span>누적 상환 ${fmtWon(repaid)}</span>
+                  <span style="color:${isPaid?'#16a34a':'#ea580c'}">잔여 ${fmtWon(remain)}</span>
+                </div>
+              </div>
+            </div>`;
+          }).join('') +
+          `<div class="print-summary">
+            <div class="print-summary-row"><span>총 대여금</span><span>${fmtWon(totalLent)}</span></div>
+            <div class="print-summary-row"><span>총 상환액</span><span>${fmtWon(totalRepaid)}</span></div>
+            <div class="print-summary-row total"><span>총 미수금</span><span>${fmtWon(totalRemain)}</span></div>
+          </div>`
+      }`;
+  }
+
+  // print-area에 넣고 인쇄
+  document.getElementById('print-area').innerHTML = html;
+  closePdfModal();
+  setTimeout(() => window.print(), 100);
 };
 
 // ══ Init ══
