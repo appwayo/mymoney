@@ -7,175 +7,236 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg:#0f0f10; --surface:#1a1a1e; --surface2:#232328; --border:#2e2e36;
-    --accent-green:#00e87a; --accent-red:#ff4d6d; --accent-blue:#4d9fff;
-    --accent-yellow:#ffd166; --accent-purple:#c084fc;
-    --text:#f0f0f4; --text-muted:#7a7a8c; --radius:14px;
+  :root{
+    --bg:#0f0f10;--surface:#1a1a1e;--surface2:#232328;--border:#2e2e36;
+    --accent-green:#00e87a;--accent-red:#ff4d6d;--accent-blue:#4d9fff;
+    --accent-yellow:#ffd166;--accent-purple:#c084fc;--accent-orange:#fb923c;
+    --text:#f0f0f4;--text-muted:#7a7a8c;--radius:14px;
+    --shinhan:#0046ff;--hyundai:#e0e0e0;--bc:#e8003d;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
 
-  /* ── Sync bar ── */
-  #sync-bar{
-    display:flex;align-items:center;justify-content:center;gap:8px;
-    padding:6px 16px;font-size:0.72rem;font-weight:500;
-    background:#1a1a2e;border-bottom:1px solid var(--border);
-    transition:background 0.3s;
-  }
-  #sync-bar.ok     {background:#0d2418;color:var(--accent-green);}
-  #sync-bar.saving {background:#1a1a2e;color:var(--accent-blue);}
-  #sync-bar.error  {background:#2a0e14;color:var(--accent-red);}
-  .sync-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
+  #sync-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 16px;font-size:0.7rem;font-weight:500;background:#1a1a2e;border-bottom:1px solid var(--border);transition:background 0.3s;}
+  #sync-bar.ok{background:#0d2418;color:var(--accent-green);}
+  #sync-bar.saving{background:#1a1a2e;color:var(--accent-blue);}
+  #sync-bar.error{background:#2a0e14;color:var(--accent-red);}
+  .sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
   .sync-dot.pulse{animation:pulse 1.2s infinite;}
   @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
-  /* ── Header ── */
-  header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100;flex-wrap:wrap;gap:10px;}
-  .logo{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 26px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100;flex-wrap:wrap;gap:8px;}
+  .logo{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:7px;}
   .logo span{color:var(--accent-green);}
-  nav{display:flex;gap:4px;}
-  nav button{background:none;border:none;color:var(--text-muted);font-family:inherit;font-size:0.85rem;font-weight:500;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all 0.15s;}
+  nav{display:flex;gap:3px;}
+  nav button{background:none;border:none;color:var(--text-muted);font-family:inherit;font-size:0.82rem;font-weight:500;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all 0.15s;}
   nav button.active,nav button:hover{background:var(--surface2);color:var(--text);}
   nav button.active{color:var(--accent-green);}
-  .header-right{display:flex;align-items:center;gap:10px;}
-  .month-nav{display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:0.85rem;}
-  .month-nav button{background:var(--surface2);border:none;color:var(--text);width:27px;height:27px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+  .header-right{display:flex;align-items:center;gap:9px;}
+  .month-nav{display:flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;font-size:0.82rem;}
+  .month-nav button{background:var(--surface2);border:none;color:var(--text);width:26px;height:26px;border-radius:7px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
   .month-nav button:hover{background:var(--border);}
-  #month-label{min-width:84px;text-align:center;font-weight:500;}
-  .backup-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.72rem;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;}
+  #month-label{min-width:82px;text-align:center;font-weight:500;}
+  .backup-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.7rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:4px;}
   .backup-btn:hover{border-color:var(--accent-blue);color:var(--accent-blue);}
 
-  /* ── Layout ── */
-  main{flex:1;padding:22px 28px;max-width:1200px;margin:0 auto;width:100%;}
+  main{flex:1;padding:20px 26px;max-width:1200px;margin:0 auto;width:100%;}
   .page{display:none;}.page.active{display:block;}
 
-  /* ── Loading ── */
   #loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:999;}
-  .loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent-green);border-radius:50%;animation:spin 0.8s linear infinite;}
+  .loading-spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent-green);border-radius:50%;animation:spin 0.8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
-  #loading-overlay p{font-size:0.875rem;color:var(--text-muted);}
+  #loading-overlay p{font-size:0.85rem;color:var(--text-muted);}
 
-  /* ── Challenge Banner ── */
-  .challenge-banner{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border:1px solid #4d9fff44;border-radius:var(--radius);padding:18px 22px;margin-bottom:18px;position:relative;overflow:hidden;}
-  .challenge-banner::before{content:'';position:absolute;top:-30px;right:-30px;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle,#4d9fff22,transparent 70%);}
-  .challenge-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-  .challenge-title{font-size:0.72rem;font-weight:700;color:var(--accent-blue);letter-spacing:0.1em;text-transform:uppercase;}
-  .challenge-week{font-size:0.68rem;color:var(--text-muted);font-family:'DM Mono',monospace;}
-  .challenge-amounts{display:flex;align-items:baseline;gap:8px;margin-bottom:11px;}
-  .challenge-remain{font-family:'DM Mono',monospace;font-size:1.9rem;font-weight:500;transition:color 0.3s;}
+  /* Challenge */
+  .challenge-banner{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border:1px solid #4d9fff44;border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;position:relative;overflow:hidden;}
+  .challenge-banner::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,#4d9fff22,transparent 70%);}
+  .challenge-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .challenge-title{font-size:0.7rem;font-weight:700;color:var(--accent-blue);letter-spacing:0.1em;text-transform:uppercase;}
+  .challenge-week{font-size:0.66rem;color:var(--text-muted);font-family:'DM Mono',monospace;}
+  .challenge-amounts{display:flex;align-items:baseline;gap:7px;margin-bottom:10px;}
+  .challenge-remain{font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:500;transition:color 0.3s;}
   .challenge-remain.ok{color:var(--accent-green);}
   .challenge-remain.warn{color:var(--accent-yellow);}
   .challenge-remain.danger{color:var(--accent-red);}
-  .challenge-total{font-size:0.78rem;color:var(--text-muted);}
-  .challenge-bar-wrap{background:#ffffff18;border-radius:6px;height:8px;overflow:hidden;}
+  .challenge-total{font-size:0.76rem;color:var(--text-muted);}
+  .challenge-bar-wrap{background:#ffffff18;border-radius:6px;height:7px;overflow:hidden;}
   .challenge-bar{height:100%;border-radius:6px;transition:width 0.5s,background 0.3s;}
-  .challenge-meta{display:flex;justify-content:space-between;margin-top:7px;font-size:0.7rem;color:var(--text-muted);}
+  .challenge-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:0.68rem;color:var(--text-muted);}
 
-  /* ── Summary Cards ── */
-  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px;}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
-  .card-label{font-size:0.68rem;font-weight:600;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:7px;}
-  .card-amount{font-family:'DM Mono',monospace;font-size:1.35rem;font-weight:500;}
+  /* Cards */
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px 17px;}
+  .card-label{font-size:0.66rem;font-weight:600;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
+  .card-amount{font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;}
   .card-amount.income{color:var(--accent-green);}
   .card-amount.expense{color:var(--accent-red);}
   .card-amount.saving{color:var(--accent-purple);}
   .card-amount.balance{color:var(--text);}
-  .card-sub{font-size:0.7rem;color:var(--text-muted);margin-top:4px;}
+  .card-sub{font-size:0.68rem;color:var(--text-muted);margin-top:4px;}
 
-  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
-  .chart-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;}
-  .chart-box h3{font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:13px;letter-spacing:0.05em;}
-  .chart-box canvas{max-height:185px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:18px;}
+  .chart-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px 19px;}
+  .chart-box h3{font-size:0.76rem;font-weight:600;color:var(--text-muted);margin-bottom:12px;letter-spacing:0.05em;}
+  .chart-box canvas{max-height:180px;}
 
-  /* ── TX List ── */
+  /* TX List */
   .tx-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);}
-  .tx-header{display:flex;align-items:center;justify-content:space-between;padding:13px 17px;border-bottom:1px solid var(--border);}
-  .tx-header h3{font-size:0.78rem;font-weight:600;color:var(--text-muted);letter-spacing:0.05em;}
-  .tx-list{max-height:300px;overflow-y:auto;}
+  .tx-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);}
+  .tx-header h3{font-size:0.76rem;font-weight:600;color:var(--text-muted);letter-spacing:0.05em;}
+  .tx-list{max-height:290px;overflow-y:auto;}
   .tx-list::-webkit-scrollbar{width:4px;}
   .tx-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-  .tx-item{display:flex;align-items:center;gap:11px;padding:11px 17px;border-bottom:1px solid var(--border);transition:background 0.1s;}
+  .tx-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);transition:background 0.1s;}
   .tx-item:last-child{border-bottom:none;}
   .tx-item:hover{background:var(--surface2);}
-  .tx-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;}
+  .tx-icon{width:31px;height:31px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.88rem;flex-shrink:0;}
   .tx-info{flex:1;min-width:0;}
-  .tx-name{font-size:0.85rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .tx-meta{font-size:0.7rem;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-  .tx-method-badge{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:0.62rem;font-weight:500;color:var(--text-muted);}
-  .tx-amount{font-family:'DM Mono',monospace;font-size:0.875rem;font-weight:500;white-space:nowrap;}
+  .tx-name{font-size:0.83rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tx-meta{font-size:0.68rem;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .tx-method-badge{border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;border:1px solid;}
+  .tx-method-badge.현금{background:#ffd16618;border-color:#ffd16655;color:#ffd166;}
+  .tx-method-badge.통장{background:#4d9fff18;border-color:#4d9fff55;color:#4d9fff;}
+  .tx-method-badge.신한카드{background:#0046ff18;border-color:#0046ff55;color:#7aabff;}
+  .tx-method-badge.현대카드{background:#e0e0e018;border-color:#e0e0e055;color:#e0e0e0;}
+  .tx-method-badge.BC카드{background:#e8003d18;border-color:#e8003d55;color:#ff6b8a;}
+  .tx-loan-badge{background:#fb923c18;border:1px solid #fb923c55;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#fb923c;}
+  .tx-repay-badge{background:#00e87a18;border:1px solid #00e87a55;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#00e87a;}
+  .tx-amount{font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:500;white-space:nowrap;}
   .tx-amount.income{color:var(--accent-green);}
   .tx-amount.expense{color:var(--accent-red);}
   .tx-amount.saving{color:var(--accent-purple);}
-  .tx-delete{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.72rem;padding:4px 5px;border-radius:6px;opacity:0;transition:opacity 0.15s,background 0.15s;}
+  .tx-amount.loan{color:var(--accent-orange);}
+  .tx-delete{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.7rem;padding:3px 5px;border-radius:5px;opacity:0;transition:opacity 0.15s,background 0.15s;}
   .tx-item:hover .tx-delete{opacity:1;}
   .tx-delete:hover{background:#ff4d6d22;color:var(--accent-red);}
-  .empty-msg{text-align:center;padding:32px;color:var(--text-muted);font-size:0.85rem;}
+  .empty-msg{text-align:center;padding:30px;color:var(--text-muted);font-size:0.83rem;}
 
-  /* ── Add Form ── */
-  .add-form{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;}
-  .add-form h2{font-size:1rem;font-weight:700;margin-bottom:22px;}
-  .type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
-  .type-btn{padding:10px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+  /* Add Form */
+  .add-form{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;}
+  .add-form h2{font-size:0.98rem;font-weight:700;margin-bottom:20px;}
+  .type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px;}
+  .type-btn{padding:10px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.83rem;font-weight:600;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:5px;}
   .type-btn.income.active{border-color:var(--accent-green);background:#00e87a15;color:var(--accent-green);}
   .type-btn.expense.active{border-color:var(--accent-red);background:#ff4d6d15;color:var(--accent-red);}
-  .form-group{margin-bottom:16px;}
-  .form-group label{display:block;font-size:0.68rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:7px;}
+  .form-group{margin-bottom:15px;}
+  .form-group label{display:block;font-size:0.66rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;}
   .form-group input,.form-group select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:0.875rem;padding:10px 12px;outline:none;transition:border-color 0.15s;}
   .form-group input:focus,.form-group select:focus{border-color:var(--accent-blue);}
   .form-group select option{background:var(--surface2);}
-  .category-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
-  .cat-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 3px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.66rem;font-weight:500;cursor:pointer;transition:all 0.15s;}
-  .cat-btn .cat-icon{font-size:1.15rem;}
+
+  /* 빌려줌 연결 안내 박스 */
+  .loan-link-box{background:linear-gradient(135deg,#1c1810,#1a1a1e);border:1px solid #fb923c44;border-radius:10px;padding:12px 14px;margin-bottom:15px;font-size:0.78rem;color:var(--text-muted);line-height:1.6;}
+  .loan-link-box strong{color:var(--accent-orange);}
+  .repay-link-box{background:linear-gradient(135deg,#0d1a12,#1a1a1e);border:1px solid #00e87a44;border-radius:10px;padding:12px 14px;margin-bottom:15px;font-size:0.78rem;color:var(--text-muted);line-height:1.6;}
+  .repay-link-box strong{color:var(--accent-green);}
+
+  .category-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+  .cat-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.63rem;font-weight:500;cursor:pointer;transition:all 0.15s;}
+  .cat-btn .cat-icon{font-size:1.1rem;}
   .cat-btn.active{border-color:var(--accent-blue);background:#4d9fff15;color:var(--accent-blue);}
   .cat-btn.saving-cat.active{border-color:var(--accent-purple);background:#c084fc15;color:var(--accent-purple);}
-  .method-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
-  .method-btn{padding:8px 3px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.68rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center;}
-  .method-btn .method-icon{font-size:1.05rem;display:block;margin-bottom:2px;}
-  .method-btn.active{border-color:var(--accent-yellow);background:#ffd16615;color:var(--accent-yellow);}
+  .cat-btn.loan-cat.active{border-color:var(--accent-orange);background:#fb923c15;color:var(--accent-orange);}
+  .cat-btn.repay-cat.active{border-color:var(--accent-green);background:#00e87a15;color:var(--accent-green);}
+
+  .method-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+  .method-btn{padding:8px 3px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.66rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center;}
+  .method-btn .method-icon{font-size:1rem;display:block;margin-bottom:2px;}
+  .method-btn[data-method="현금"].active{border-color:var(--accent-yellow);background:#ffd16615;color:var(--accent-yellow);}
+  .method-btn[data-method="통장"].active{border-color:var(--accent-blue);background:#4d9fff15;color:var(--accent-blue);}
+  .method-btn[data-method="신한카드"].active{border-color:var(--shinhan);background:#0046ff15;color:#7aabff;}
+  .method-btn[data-method="현대카드"].active{border-color:var(--hyundai);background:#e0e0e012;color:#e0e0e0;}
+  .method-btn[data-method="BC카드"].active{border-color:var(--bc);background:#e8003d15;color:#ff7a9a;}
+  .method-btn[data-method="신한카드"]{color:#4466aa;}
+  .method-btn[data-method="현대카드"]{color:#888;}
+  .method-btn[data-method="BC카드"]{color:#993355;}
+
   .submit-btn{width:100%;padding:12px;border-radius:10px;border:none;background:var(--accent-green);color:#0f0f10;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;transition:opacity 0.15s;margin-top:4px;}
   .submit-btn:hover{opacity:0.88;}
   .submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
 
-  /* ── Stats ── */
-  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+  /* Stats */
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:18px;}
   .cat-breakdown{grid-column:1/-1;}
-  .cat-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .cat-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
   .cat-row:last-child{border-bottom:none;}
-  .cat-bar-wrap{flex:1;background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;}
+  .cat-bar-wrap{flex:1;background:var(--surface2);border-radius:4px;height:5px;overflow:hidden;}
   .cat-bar{height:100%;border-radius:4px;transition:width 0.4s;}
-  .cat-row-name{font-size:0.78rem;width:74px;flex-shrink:0;}
-  .cat-row-amt{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--text-muted);width:110px;text-align:right;flex-shrink:0;}
-  .saving-summary{background:linear-gradient(135deg,#1e1428,#1a1a1e);border:1px solid #c084fc44;border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:18px;}
-  .saving-left h3{font-size:0.68rem;font-weight:700;color:var(--accent-purple);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:5px;}
-  .saving-amount{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:500;color:var(--accent-purple);}
-  .saving-right{font-size:0.75rem;color:var(--text-muted);text-align:right;line-height:1.9;}
+  .cat-row-name{font-size:0.76rem;width:72px;flex-shrink:0;}
+  .cat-row-amt{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--text-muted);width:110px;text-align:right;flex-shrink:0;}
+  .saving-summary{background:linear-gradient(135deg,#1e1428,#1a1a1e);border:1px solid #c084fc44;border-radius:var(--radius);padding:15px 19px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .saving-left h3{font-size:0.66rem;font-weight:700;color:var(--accent-purple);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+  .saving-amount{font-family:'DM Mono',monospace;font-size:1.45rem;font-weight:500;color:var(--accent-purple);}
+  .saving-right{font-size:0.73rem;color:var(--text-muted);text-align:right;line-height:1.9;}
   .saving-right strong{color:var(--text);}
 
-  /* ── Backup Modal ── */
-  .modal-overlay{position:fixed;inset:0;background:#000000aa;display:flex;align-items:center;justify-content:center;z-index:500;padding:20px;}
-  .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:420px;width:100%;}
-  .modal h3{font-size:1rem;font-weight:700;margin-bottom:6px;}
-  .modal p{font-size:0.8rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;}
-  .modal-btns{display:flex;flex-direction:column;gap:10px;}
-  .modal-btn{padding:12px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text);font-family:inherit;font-size:0.875rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:left;display:flex;align-items:center;gap:10px;}
+  /* Loan Page */
+  .loan-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .loan-page-header h2{font-size:1rem;font-weight:700;}
+  .loan-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+  .loan-add-btn{background:var(--accent-orange);color:#0f0f10;border:none;font-family:inherit;font-size:0.82rem;font-weight:700;padding:9px 16px;border-radius:9px;cursor:pointer;transition:opacity 0.15s;}
+  .loan-add-btn:hover{opacity:0.88;}
+  .loan-list{display:flex;flex-direction:column;gap:12px;}
+  .loan-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .loan-card.fully-paid{border-color:#00e87a44;opacity:0.75;}
+  .loan-card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none;}
+  .loan-card-header:hover{background:var(--surface2);}
+  .loan-card-left{display:flex;align-items:center;gap:11px;}
+  .loan-avatar{width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+  .loan-person{font-size:0.88rem;font-weight:600;}
+  .loan-purpose{font-size:0.7rem;color:var(--text-muted);margin-top:2px;}
+  .loan-card-right{text-align:right;}
+  .loan-remain{font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:600;}
+  .loan-remain.unpaid{color:var(--accent-orange);}
+  .loan-remain.paid{color:var(--accent-green);}
+  .loan-date{font-size:0.66rem;color:var(--text-muted);margin-top:2px;}
+  .loan-card-body{border-top:1px solid var(--border);padding:14px 16px;display:none;}
+  .loan-card-body.open{display:block;}
+  .loan-progress-wrap{background:var(--surface2);border-radius:5px;height:6px;overflow:hidden;margin-bottom:10px;}
+  .loan-progress-bar{height:100%;border-radius:5px;transition:width 0.4s;}
+  .loan-repay-list{margin-bottom:12px;}
+  .loan-repay-item{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.76rem;gap:8px;}
+  .loan-repay-item:last-child{border-bottom:none;}
+  .loan-repay-date{color:var(--text-muted);font-family:'DM Mono',monospace;flex-shrink:0;}
+  .loan-repay-memo{color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .loan-repay-amount{color:var(--accent-green);font-family:'DM Mono',monospace;font-weight:600;flex-shrink:0;}
+  .loan-repay-source{font-size:0.6rem;color:var(--text-muted);background:var(--surface2);border-radius:4px;padding:1px 5px;flex-shrink:0;}
+  .loan-actions{display:flex;gap:8px;}
+  .loan-action-btn{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.15s;}
+  .loan-action-btn.repay{border-color:var(--accent-green);color:var(--accent-green);}
+  .loan-action-btn.repay:hover{background:#00e87a12;}
+  .loan-action-btn.delete{border-color:var(--accent-red);color:var(--accent-red);}
+  .loan-action-btn.delete:hover{background:#ff4d6d12;}
+  .loan-empty{text-align:center;padding:40px;color:var(--text-muted);font-size:0.85rem;}
+
+  /* Modals */
+  .modal-overlay{position:fixed;inset:0;background:#000000bb;display:flex;align-items:center;justify-content:center;z-index:500;padding:20px;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px;max-width:400px;width:100%;max-height:90vh;overflow-y:auto;}
+  .modal h3{font-size:0.98rem;font-weight:700;margin-bottom:6px;}
+  .modal p{font-size:0.78rem;color:var(--text-muted);margin-bottom:18px;line-height:1.6;}
+  .modal-btns{display:flex;flex-direction:column;gap:9px;}
+  .modal-btn{padding:11px;border-radius:10px;border:1.5px solid var(--border);background:none;color:var(--text);font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:left;display:flex;align-items:center;gap:10px;}
   .modal-btn:hover{background:var(--surface2);}
   .modal-btn.primary{border-color:var(--accent-green);color:var(--accent-green);}
   .modal-btn.primary:hover{background:#00e87a12;}
   .modal-btn.danger{border-color:var(--accent-red);color:var(--accent-red);}
   .modal-btn.danger:hover{background:#ff4d6d12;}
-  .modal-close{width:100%;margin-top:8px;padding:10px;border-radius:10px;border:none;background:var(--surface2);color:var(--text-muted);font-family:inherit;font-size:0.85rem;cursor:pointer;}
+  .modal-close{width:100%;margin-top:7px;padding:9px;border-radius:9px;border:none;background:var(--surface2);color:var(--text-muted);font-family:inherit;font-size:0.83rem;cursor:pointer;}
+  .modal-form .form-group{margin-bottom:13px;}
+  .modal-form .form-group label{font-size:0.64rem;}
+  .modal-submit{width:100%;padding:11px;border-radius:10px;border:none;background:var(--accent-orange);color:#0f0f10;font-family:inherit;font-size:0.88rem;font-weight:700;cursor:pointer;margin-top:4px;transition:opacity 0.15s;}
+  .modal-submit:hover{opacity:0.88;}
+  .modal-submit.green{background:var(--accent-green);}
 
-  /* ── Toast ── */
-  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);padding:10px 18px;border-radius:10px;font-size:0.85rem;transition:transform 0.3s;z-index:999;white-space:nowrap;}
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border);padding:10px 17px;border-radius:10px;font-size:0.83rem;transition:transform 0.3s;z-index:999;white-space:nowrap;}
   #toast.show{transform:translateX(-50%) translateY(0);}
 
   @media(max-width:720px){
-    header{padding:12px 14px;}
-    main{padding:12px 14px;}
+    header{padding:11px 13px;}
+    main{padding:12px 13px;}
     .summary-grid{grid-template-columns:repeat(2,1fr);}
-    .two-col,.stats-grid{grid-template-columns:1fr;}
-    .add-form{padding:18px;}
+    .two-col,.stats-grid,.loan-summary-grid{grid-template-columns:1fr;}
+    .add-form{padding:16px;}
     .saving-summary{flex-direction:column;align-items:flex-start;}
     .saving-right{text-align:left;}
     .backup-btn span{display:none;}
@@ -184,13 +245,11 @@
 </head>
 <body>
 
-<!-- 로딩 -->
 <div id="loading-overlay">
   <div class="loading-spinner"></div>
   <p>Firebase 연결 중...</p>
 </div>
 
-<!-- 동기화 상태바 -->
 <div id="sync-bar" class="saving">
   <div class="sync-dot pulse"></div>
   <span id="sync-text">연결 중...</span>
@@ -202,6 +261,7 @@
     <button class="active" onclick="showPage('home',this)">홈</button>
     <button onclick="showPage('add',this)">+ 입력</button>
     <button onclick="showPage('stats',this)">통계</button>
+    <button onclick="showPage('loan',this)">💸 빌려준돈</button>
   </nav>
   <div class="header-right">
     <button class="backup-btn" onclick="openBackupModal()">🗂 <span>백업/복구</span></button>
@@ -234,7 +294,6 @@
         <span id="challenge-status">여유있어요 😊</span>
       </div>
     </div>
-
     <div class="summary-grid">
       <div class="card">
         <div class="card-label">수입</div>
@@ -244,7 +303,7 @@
       <div class="card">
         <div class="card-label">지출</div>
         <div class="card-amount expense" id="sum-expense">₩0</div>
-        <div class="card-sub">저축 제외</div>
+        <div class="card-sub">저축·대여 제외</div>
       </div>
       <div class="card">
         <div class="card-label">저축</div>
@@ -257,7 +316,6 @@
         <div class="card-sub">수입 − 지출 − 저축</div>
       </div>
     </div>
-
     <div class="two-col">
       <div class="chart-box">
         <h3>카테고리별 지출</h3>
@@ -268,7 +326,6 @@
         <canvas id="chart-line"></canvas>
       </div>
     </div>
-
     <div class="tx-section">
       <div class="tx-header"><h3>이번 달 거래내역</h3></div>
       <div class="tx-list" id="tx-list"></div>
@@ -299,14 +356,45 @@
         <label>카테고리</label>
         <div class="category-grid" id="cat-grid"></div>
       </div>
+
+      <!-- 빌려줌 선택 시: 이름/명목 입력 -->
+      <div id="loan-input-section" style="display:none">
+        <div class="loan-link-box">
+          💸 <strong>빌려준 돈</strong>으로 자동 등록돼요.<br>
+          아래에 이름과 명목을 입력하면 <strong>빌려준돈 탭</strong>에 바로 나타나요.
+        </div>
+        <div class="form-group">
+          <label>빌려준 상대 이름</label>
+          <input type="text" id="input-loan-person" placeholder="예) 홍길동">
+        </div>
+        <div class="form-group">
+          <label>명목</label>
+          <input type="text" id="input-loan-purpose" placeholder="예) 밥값, 교통비">
+        </div>
+      </div>
+
+      <!-- 상환받음 선택 시: 대여 드롭다운 -->
+      <div id="repay-input-section" style="display:none">
+        <div class="repay-link-box">
+          💚 <strong>상환받음</strong>으로 기록돼요.<br>
+          어떤 대여건인지 선택하면 <strong>빌려준돈 탭</strong>에 자동 반영돼요.
+        </div>
+        <div class="form-group">
+          <label>어떤 대여건인가요?</label>
+          <select id="input-repay-loan">
+            <option value="">— 선택해주세요 —</option>
+          </select>
+        </div>
+      </div>
+
       <div class="form-group" id="method-section">
         <label>결제수단</label>
         <div class="method-grid">
-          <button class="method-btn" onclick="selectMethod('현금',this)"><span class="method-icon">💵</span>현금</button>
-          <button class="method-btn" onclick="selectMethod('통장',this)"><span class="method-icon">🏦</span>통장</button>
-          <button class="method-btn" onclick="selectMethod('신한카드',this)"><span class="method-icon">💳</span>신한</button>
-          <button class="method-btn" onclick="selectMethod('현대카드',this)"><span class="method-icon">💳</span>현대</button>
-          <button class="method-btn" onclick="selectMethod('BC카드',this)"><span class="method-icon">💳</span>BC</button>
+          <button class="method-btn" data-method="현금"    onclick="selectMethod('현금',this)"><span class="method-icon">💵</span>현금</button>
+          <button class="method-btn" data-method="통장"    onclick="selectMethod('통장',this)"><span class="method-icon">🏦</span>통장</button>
+          <button class="method-btn" data-method="신한카드" onclick="selectMethod('신한카드',this)"><span class="method-icon" style="color:#7aabff">💳</span>신한</button>
+          <button class="method-btn" data-method="현대카드" onclick="selectMethod('현대카드',this)"><span class="method-icon" style="color:#e0e0e0">💳</span>현대</button>
+          <button class="method-btn" data-method="BC카드"   onclick="selectMethod('BC카드',this)"><span class="method-icon" style="color:#ff7a9a">💳</span>BC</button>
         </div>
       </div>
       <button class="submit-btn" id="submit-btn" onclick="addTransaction()">추가하기</button>
@@ -332,13 +420,41 @@
         <canvas id="chart-income-cat"></canvas>
       </div>
       <div class="chart-box cat-breakdown">
-        <h3>지출 카테고리 상세 (저축 제외)</h3>
+        <h3>지출 카테고리 상세</h3>
         <div id="cat-detail-list"></div>
       </div>
     </div>
-    <div class="chart-box" style="margin-bottom:20px">
+    <div class="chart-box" style="margin-bottom:18px">
       <h3>결제수단별 지출</h3>
-      <canvas id="chart-method" style="max-height:175px"></canvas>
+      <canvas id="chart-method" style="max-height:170px"></canvas>
+    </div>
+  </div>
+
+  <!-- ══ LOAN ══ -->
+  <div id="page-loan" class="page">
+    <div class="loan-page-header">
+      <h2>💸 빌려준 돈 관리</h2>
+      <button class="loan-add-btn" onclick="openLoanAddModal()">+ 직접 등록</button>
+    </div>
+    <div class="loan-summary-grid">
+      <div class="card">
+        <div class="card-label">총 빌려준 금액</div>
+        <div class="card-amount" style="color:var(--accent-orange)" id="loan-sum-total">₩0</div>
+        <div class="card-sub" id="loan-sum-count">0건</div>
+      </div>
+      <div class="card">
+        <div class="card-label">받은 금액</div>
+        <div class="card-amount income" id="loan-sum-repaid">₩0</div>
+        <div class="card-sub">상환 완료분 포함</div>
+      </div>
+      <div class="card">
+        <div class="card-label">미수금</div>
+        <div class="card-amount expense" id="loan-sum-remain">₩0</div>
+        <div class="card-sub">아직 못 받은 금액</div>
+      </div>
+    </div>
+    <div class="loan-list" id="loan-list">
+      <div class="loan-empty">아직 등록된 대여가 없어요</div>
     </div>
   </div>
 
@@ -348,36 +464,58 @@
 <div class="modal-overlay" id="backup-modal" style="display:none" onclick="if(event.target===this)closeBackupModal()">
   <div class="modal">
     <h3>🗂 백업 / 복구</h3>
-    <p>데이터를 JSON 파일로 내보내거나, 이전에 저장한 파일로 복구할 수 있어요.<br>Firebase에 저장되어 있지만 만약을 대비해 주기적으로 백업해두는 걸 추천해요.</p>
+    <p>데이터를 JSON 파일로 내보내거나 복구할 수 있어요.</p>
     <div class="modal-btns">
-      <button class="modal-btn primary" onclick="exportJSON()">
-        <span>⬇️</span>
-        <div><div>JSON으로 내보내기</div><div style="font-size:0.72rem;font-weight:400;opacity:0.7;margin-top:2px">모든 거래내역을 파일로 저장</div></div>
-      </button>
-      <button class="modal-btn" onclick="triggerImport()">
-        <span>⬆️</span>
-        <div><div>JSON에서 가져오기</div><div style="font-size:0.72rem;font-weight:400;opacity:0.7;margin-top:2px">기존 백업 파일로 복구 (병합됨)</div></div>
-      </button>
-      <button class="modal-btn danger" onclick="confirmClearAll()">
-        <span>🗑</span>
-        <div><div>전체 데이터 삭제</div><div style="font-size:0.72rem;font-weight:400;opacity:0.7;margin-top:2px">Firebase의 모든 거래내역 삭제</div></div>
-      </button>
+      <button class="modal-btn primary" onclick="exportJSON()"><span>⬇️</span><div><div>JSON으로 내보내기</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7;margin-top:2px">모든 거래·대여 내역 저장</div></div></button>
+      <button class="modal-btn" onclick="triggerImport()"><span>⬆️</span><div><div>JSON에서 가져오기</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7;margin-top:2px">백업 파일로 복구 (병합)</div></div></button>
+      <button class="modal-btn danger" onclick="confirmClearAll()"><span>🗑</span><div><div>전체 데이터 삭제</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7;margin-top:2px">되돌릴 수 없어요</div></div></button>
     </div>
     <button class="modal-close" onclick="closeBackupModal()">닫기</button>
+  </div>
+</div>
+
+<!-- 대여 직접 등록 모달 -->
+<div class="modal-overlay" id="loan-add-modal" style="display:none" onclick="if(event.target===this)closeLoanAddModal()">
+  <div class="modal">
+    <h3>💸 대여 직접 등록</h3>
+    <p>입력 탭에서 "빌려줌" 카테고리를 써도 자동 등록돼요.<br>여기서는 별도로 추가할 때 사용하세요.</p>
+    <div class="modal-form">
+      <div class="form-group"><label>상대방 이름</label><input type="text" id="loan-person" placeholder="예) 홍길동"></div>
+      <div class="form-group"><label>명목 / 사유</label><input type="text" id="loan-purpose" placeholder="예) 밥값, 교통비"></div>
+      <div class="form-group"><label>빌려준 금액</label><input type="number" id="loan-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>날짜</label><input type="date" id="loan-date"></div>
+      <div class="form-group"><label>메모 (선택)</label><input type="text" id="loan-memo" placeholder="추가 메모"></div>
+    </div>
+    <button class="modal-submit" onclick="addLoanDirect()">등록하기</button>
+    <button class="modal-close" onclick="closeLoanAddModal()">취소</button>
+  </div>
+</div>
+
+<!-- 상환 직접 등록 모달 -->
+<div class="modal-overlay" id="repay-modal" style="display:none" onclick="if(event.target===this)closeRepayModal()">
+  <div class="modal">
+    <h3>💚 상환 기록</h3>
+    <p id="repay-modal-desc"></p>
+    <div class="modal-form">
+      <div class="form-group"><label>받은 금액</label><input type="number" id="repay-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>날짜</label><input type="date" id="repay-date"></div>
+      <div class="form-group"><label>메모 (선택)</label><input type="text" id="repay-memo" placeholder="예) 계좌이체"></div>
+    </div>
+    <button class="modal-submit green" onclick="addRepaymentDirect()">기록하기</button>
+    <button class="modal-close" onclick="closeRepayModal()">취소</button>
   </div>
 </div>
 
 <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
 <div id="toast"></div>
 
-<!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, writeBatch, query, orderBy
+  getFirestore, collection, addDoc, getDocs, deleteDoc, doc,
+  onSnapshot, writeBatch, query, orderBy, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ════════ Firebase Init ════════
 const firebaseConfig = {
   apiKey: "AIzaSyCKDiKn1y5CkuFOTjB4aL2DgFJB3pdWAEA",
   authDomain: "mymoney-f7829.firebaseapp.com",
@@ -386,238 +524,306 @@ const firebaseConfig = {
   messagingSenderId: "184066268986",
   appId: "1:184066268986:web:2cab387f648f58f7203a03"
 };
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-const COL = collection(db, 'transactions');
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const COL  = collection(db, 'transactions');
+const LCOL = collection(db, 'loans');
 
-// ════════ State ════════
+// ══ Constants ══
 const CATS_EXPENSE = [
   {id:'food',      icon:'🍽',  name:'식비'},
   {id:'coffee',    icon:'☕',  name:'카페'},
   {id:'transport', icon:'🚌',  name:'교통'},
+  {id:'living',    icon:'🏠',  name:'생활비'},
   {id:'shopping',  icon:'🛍',  name:'쇼핑'},
   {id:'health',    icon:'💊',  name:'의료'},
   {id:'culture',   icon:'🎬',  name:'여가'},
   {id:'beauty',    icon:'💄',  name:'미용'},
-  {id:'saving',    icon:'🏦',  name:'저축', isSaving:true},
-  {id:'etc',       icon:'📦',  name:'기타'},
+  {id:'saving',    icon:'🏦',  name:'저축',   isSaving:true},
+  {id:'loan',      icon:'💸',  name:'빌려줌', isLoan:true},
 ];
 const CATS_INCOME = [
-  {id:'salary',icon:'💼',name:'월급'},
-  {id:'part',  icon:'🧑‍💻',name:'알바'},
-  {id:'invest',icon:'📈',name:'투자'},
-  {id:'gift',  icon:'🎁',name:'용돈'},
-  {id:'etc',   icon:'📦',name:'기타'},
+  {id:'salary', icon:'💼', name:'월급'},
+  {id:'part',   icon:'🧑‍💻',name:'알바'},
+  {id:'invest', icon:'📈', name:'투자'},
+  {id:'gift',   icon:'🎁', name:'용돈'},
+  {id:'repay',  icon:'💚', name:'상환받음', isRepay:true},
+  {id:'etc',    icon:'📦', name:'기타'},
 ];
-const METHODS    = ['현금','통장','신한카드','현대카드','BC카드'];
-const CAT_COLORS = ['#00e87a','#4d9fff','#ffd166','#ff4d6d','#c084fc','#fb923c','#34d399','#a78bfa','#f472b6'];
+const METHODS = ['현금','통장','신한카드','현대카드','BC카드'];
+const METHOD_COLORS = {'현금':'#ffd166','통장':'#4d9fff','신한카드':'#7aabff','현대카드':'#cccccc','BC카드':'#ff7a9a'};
+const CAT_COLORS = ['#00e87a','#4d9fff','#ffd166','#ff4d6d','#c084fc','#fb923c','#34d399','#a78bfa','#f472b6','#38bdf8'];
 const CHALLENGE_BUDGET = 100000;
 
-let transactions = [];   // {id(firestore), type, amount, desc, date, cat, method}
-let currentType  = 'expense';
-let selectedCat  = null;
-let selectedMethod = null;
-let currentYear  = new Date().getFullYear();
-let currentMonth = new Date().getMonth();
-let charts = {};
-let unsubscribe  = null;
+// ══ State ══
+let transactions=[], loans=[];
+let currentType='expense', selectedCat=null, selectedMethod=null;
+let currentYear=new Date().getFullYear(), currentMonth=new Date().getMonth();
+let charts={}, currentLoanId=null;
 
-// ════════ Sync Status ════════
-function setSyncBar(state, text) {
-  const bar  = document.getElementById('sync-bar');
-  const dot  = bar.querySelector('.sync-dot');
-  const span = document.getElementById('sync-text');
-  bar.className = state;
-  dot.className = 'sync-dot' + (state==='saving'?' pulse':'');
-  span.textContent = text;
+// ══ Sync ══
+function setSyncBar(state,text){
+  const bar=document.getElementById('sync-bar');
+  bar.className=state;
+  bar.querySelector('.sync-dot').className='sync-dot'+(state==='saving'?' pulse':'');
+  document.getElementById('sync-text').textContent=text;
 }
 
-// ════════ Realtime Listener ════════
-function startListener() {
-  if (unsubscribe) unsubscribe();
-  const q = query(COL, orderBy('date','desc'));
-  unsubscribe = onSnapshot(q,
-    snap => {
-      transactions = snap.docs.map(d => ({...d.data(), id:d.id}));
-      setSyncBar('ok','실시간 동기화 중 ✓');
-      document.getElementById('loading-overlay').style.display='none';
-      updateAll();
-      if (document.getElementById('page-stats').classList.contains('active')) renderStats();
-    },
-    err => {
-      setSyncBar('error','연결 오류 — 재시도 중');
-      console.error(err);
-    }
-  );
+// ══ Listeners ══
+function startListeners(){
+  onSnapshot(query(COL,orderBy('date','desc')), snap=>{
+    transactions=snap.docs.map(d=>({...d.data(),id:d.id}));
+    setSyncBar('ok','실시간 동기화 중 ✓');
+    document.getElementById('loading-overlay').style.display='none';
+    updateAll();
+    if(document.getElementById('page-stats').classList.contains('active')) renderStats();
+  }, err=>{setSyncBar('error','연결 오류');console.error(err);});
+
+  onSnapshot(query(LCOL,orderBy('date','desc')), snap=>{
+    loans=snap.docs.map(d=>({...d.data(),id:d.id}));
+    if(document.getElementById('page-loan').classList.contains('active')) renderLoanPage();
+    updateRepayDropdown(); // 상환 드롭다운 항상 최신 유지
+  }, err=>console.error(err));
 }
 
-// ════════ Month ════════
-window.changeMonth = function(d) {
-  currentMonth += d;
-  if (currentMonth>11){currentMonth=0;currentYear++;}
-  if (currentMonth<0) {currentMonth=11;currentYear--;}
+// ══ Month ══
+window.changeMonth=d=>{
+  currentMonth+=d;
+  if(currentMonth>11){currentMonth=0;currentYear++;}
+  if(currentMonth<0) {currentMonth=11;currentYear--;}
   updateAll();
 };
-function updateMonthLabel() {
+function updateMonthLabel(){
   document.getElementById('month-label').textContent=
     `${currentYear}.${String(currentMonth+1).padStart(2,'0')}`;
 }
-function getMonthTxs() {
+function getMonthTxs(){
   return transactions.filter(t=>{
     const d=new Date(t.date);
-    return d.getFullYear()===currentYear && d.getMonth()===currentMonth;
+    return d.getFullYear()===currentYear&&d.getMonth()===currentMonth;
   });
 }
 
-// ════════ Pages ════════
-window.showPage = function(page, btn) {
+// ══ Pages ══
+window.showPage=(page,btn)=>{
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   btn.classList.add('active');
-  if (page==='stats') renderStats();
+  if(page==='stats') renderStats();
+  if(page==='loan')  renderLoanPage();
 };
 
-// ════════ Add Form ════════
-window.setType = function(type, btn) {
+// ══ Add Form ══
+window.setType=(type,btn)=>{
   currentType=type; selectedCat=null;
   document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('method-section').style.display=type==='expense'?'':'none';
+  // 결제수단: 수입의 상환받음은 없어도 됨 (일단 표시)
+  document.getElementById('method-section').style.display='';
+  // 부가 섹션 숨기기
+  document.getElementById('loan-input-section').style.display='none';
+  document.getElementById('repay-input-section').style.display='none';
   renderCatGrid();
 };
-function renderCatGrid() {
+
+function renderCatGrid(){
   const cats=currentType==='expense'?CATS_EXPENSE:CATS_INCOME;
-  document.getElementById('cat-grid').innerHTML=cats.map(c=>
-    `<button class="cat-btn${c.isSaving?' saving-cat':''}" onclick="selectCat('${c.id}',this)">
+  document.getElementById('cat-grid').innerHTML=cats.map(c=>{
+    let extra='';
+    if(c.isLoan) extra=' loan-cat';
+    if(c.isSaving) extra=' saving-cat';
+    if(c.isRepay) extra=' repay-cat';
+    return`<button class="cat-btn${extra}" onclick="selectCat('${c.id}',this)">
       <span class="cat-icon">${c.icon}</span>${c.name}
-    </button>`
-  ).join('');
+    </button>`;
+  }).join('');
 }
-window.selectCat = function(id, btn) {
+
+window.selectCat=(id,btn)=>{
   document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active'); selectedCat=id;
+
+  // 빌려줌 선택
+  const loanSec=document.getElementById('loan-input-section');
+  const repaySec=document.getElementById('repay-input-section');
+  loanSec.style.display= id==='loan' ? '' : 'none';
+  repaySec.style.display= id==='repay' ? '' : 'none';
+
+  // 상환받음이면 결제수단 숨김 (현금/계좌 선택 불필요)
+  document.getElementById('method-section').style.display=
+    (currentType==='income'&&id==='repay') ? 'none' : '';
+
+  // 상환 드롭다운 최신화
+  if(id==='repay') updateRepayDropdown();
 };
-window.selectMethod = function(method, btn) {
+
+window.selectMethod=(method,btn)=>{
   document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active'); selectedMethod=method;
 };
 
-window.addTransaction = async function() {
+// 상환 드롭다운 업데이트
+function updateRepayDropdown(){
+  const sel=document.getElementById('input-repay-loan');
+  const unpaid=loans.filter(l=>loanRemain(l)>0);
+  sel.innerHTML='<option value="">— 선택해주세요 —</option>'+
+    unpaid.map(l=>`<option value="${l.id}">${l.person} · ${l.purpose} (미수금 ₩${loanRemain(l).toLocaleString()})</option>`).join('');
+}
+
+// ══ Add Transaction ══
+window.addTransaction=async()=>{
   const amount=parseInt(document.getElementById('input-amount').value);
   const desc  =document.getElementById('input-desc').value.trim();
   const date  =document.getElementById('input-date').value;
-  if (!amount||amount<=0) return toast('금액을 입력해주세요');
-  if (!desc)              return toast('내용을 입력해주세요');
-  if (!date)              return toast('날짜를 선택해주세요');
-  if (!selectedCat)       return toast('카테고리를 선택해주세요');
-  if (currentType==='expense'&&!selectedMethod) return toast('결제수단을 선택해주세요');
+  if(!amount||amount<=0) return toast('금액을 입력해주세요');
+  if(!desc)              return toast('내용을 입력해주세요');
+  if(!date)              return toast('날짜를 선택해주세요');
+  if(!selectedCat)       return toast('카테고리를 선택해주세요');
+
+  const isLoanCat  = selectedCat==='loan';
+  const isRepayCat = selectedCat==='repay';
+  const needMethod = currentType==='expense' && !isRepayCat;
+
+  if(needMethod && !selectedMethod) return toast('결제수단을 선택해주세요');
+
+  // 빌려줌 유효성
+  let loanPerson='', loanPurpose='', repayLoanId='';
+  if(isLoanCat){
+    loanPerson =document.getElementById('input-loan-person').value.trim();
+    loanPurpose=document.getElementById('input-loan-purpose').value.trim();
+    if(!loanPerson)  return toast('빌려준 상대 이름을 입력해주세요');
+    if(!loanPurpose) return toast('명목을 입력해주세요');
+  }
+  if(isRepayCat){
+    repayLoanId=document.getElementById('input-repay-loan').value;
+    if(!repayLoanId) return toast('어떤 대여건인지 선택해주세요');
+    const loan=loans.find(l=>l.id===repayLoanId);
+    if(amount>loanRemain(loan)) return toast(`미수금(₩${loanRemain(loan).toLocaleString()})보다 많아요`);
+  }
 
   const btn=document.getElementById('submit-btn');
   btn.disabled=true; btn.textContent='저장 중...';
-  setSyncBar('saving','Firebase에 저장 중...');
+  setSyncBar('saving','저장 중...');
 
-  try {
-    await addDoc(COL, {
-      type:currentType, amount, desc, date,
-      cat:selectedCat,
-      method:currentType==='expense'?selectedMethod:null,
-      createdAt: new Date().toISOString()
+  try{
+    // 거래내역 저장
+    await addDoc(COL,{
+      type:currentType, amount, desc, date, cat:selectedCat,
+      method: needMethod ? selectedMethod : null,
+      loanId: repayLoanId||null,
+      createdAt:new Date().toISOString()
     });
+
+    // 빌려줌 → loans 컬렉션에도 자동 등록
+    if(isLoanCat){
+      await addDoc(LCOL,{
+        person:loanPerson, purpose:loanPurpose, amount, date,
+        memo:desc, repayments:[], createdAt:new Date().toISOString()
+      });
+    }
+
+    // 상환받음 → 해당 대여에 상환 내역 추가
+    if(isRepayCat){
+      const loan=loans.find(l=>l.id===repayLoanId);
+      const newRepayments=[...(loan.repayments||[]),{amount,date,memo:desc,source:'입력탭'}];
+      await updateDoc(doc(db,'loans',repayLoanId),{repayments:newRepayments});
+    }
+
+    // 폼 초기화
     document.getElementById('input-amount').value='';
     document.getElementById('input-desc').value='';
-    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('input-loan-person').value='';
+    document.getElementById('input-loan-purpose').value='';
+    document.getElementById('input-repay-loan').value='';
+    document.querySelectorAll('.cat-btn,.method-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('loan-input-section').style.display='none';
+    document.getElementById('repay-input-section').style.display='none';
+    document.getElementById('method-section').style.display='';
     selectedCat=null; selectedMethod=null;
     toast('✅ 저장됐어요!');
-  } catch(e) {
-    toast('❌ 저장 실패: '+e.message);
-    setSyncBar('error','저장 실패');
-  } finally {
-    btn.disabled=false; btn.textContent='추가하기';
-  }
+  }catch(e){toast('❌ 저장 실패: '+e.message);setSyncBar('error','저장 실패');}
+  finally{btn.disabled=false;btn.textContent='추가하기';}
 };
 
-// ════════ Delete ════════
-window.deleteTransaction = async function(id) {
-  if (!confirm('이 거래내역을 삭제할까요?')) return;
-  try {
-    await deleteDoc(doc(db,'transactions',id));
-    toast('삭제됐어요');
-  } catch(e) {
-    toast('❌ 삭제 실패');
-  }
+window.deleteTransaction=async id=>{
+  if(!confirm('이 거래내역을 삭제할까요?')) return;
+  try{await deleteDoc(doc(db,'transactions',id));toast('삭제됐어요');}
+  catch(e){toast('❌ 삭제 실패');}
 };
 
-// ════════ Weekly Challenge ════════
-function getWeekRange(date) {
-  const d=new Date(date), dow=d.getDay();
-  const toMon=dow===0?-6:1-dow;
-  const mon=new Date(d); mon.setDate(d.getDate()+toMon); mon.setHours(0,0,0,0);
-  const sun=new Date(mon); sun.setDate(mon.getDate()+6); sun.setHours(23,59,59,999);
-  return {mon,sun};
+// ══ Challenge ══
+function getWeekRange(date){
+  const d=new Date(date),dow=d.getDay(),toMon=dow===0?-6:1-dow;
+  const mon=new Date(d);mon.setDate(d.getDate()+toMon);mon.setHours(0,0,0,0);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);sun.setHours(23,59,59,999);
+  return{mon,sun};
 }
-function renderChallenge() {
-  const {mon,sun}=getWeekRange(new Date());
+function renderChallenge(){
+  const{mon,sun}=getWeekRange(new Date());
   const used=transactions.filter(t=>{
     const d=new Date(t.date);
-    return t.type==='expense'&&t.cat!=='saving'&&d>=mon&&d<=sun;
+    return t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan'&&d>=mon&&d<=sun;
   }).reduce((s,t)=>s+t.amount,0);
   const remain=CHALLENGE_BUDGET-used;
   const pct=Math.min(100,Math.round(used/CHALLENGE_BUDGET*100));
-
-  const fmt=n=>(n<0?'-₩':'₩')+Math.abs(n).toLocaleString();
-  document.getElementById('challenge-remain').textContent=fmt(remain);
+  document.getElementById('challenge-remain').textContent=(remain<0?'-₩':'₩')+Math.abs(remain).toLocaleString();
   document.getElementById('challenge-used').textContent='₩'+used.toLocaleString();
-
   const bar=document.getElementById('challenge-bar');
   const rem=document.getElementById('challenge-remain');
   bar.style.width=pct+'%';
-  if (pct<60){bar.style.background='var(--accent-green)';rem.className='challenge-remain ok';document.getElementById('challenge-status').textContent='여유있어요 😊';}
+  if(pct<60){bar.style.background='var(--accent-green)';rem.className='challenge-remain ok';document.getElementById('challenge-status').textContent='여유있어요 😊';}
   else if(pct<90){bar.style.background='var(--accent-yellow)';rem.className='challenge-remain warn';document.getElementById('challenge-status').textContent='조금 아껴요 🤔';}
   else if(pct<100){bar.style.background='var(--accent-red)';rem.className='challenge-remain danger';document.getElementById('challenge-status').textContent='위험해요 😬';}
   else{bar.style.background='var(--accent-red)';rem.className='challenge-remain danger';document.getElementById('challenge-status').textContent='초과했어요 😱';}
-
   document.getElementById('challenge-week-label').textContent=
     `${mon.getMonth()+1}/${mon.getDate()}(월) ~ ${sun.getMonth()+1}/${sun.getDate()}(일)`;
 }
 
-// ════════ Home Render ════════
-function renderHome() {
+// ══ Home ══
+function renderHome(){
   const txs=getMonthTxs();
   const income =txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const saving =txs.filter(t=>t.type==='expense'&&t.cat==='saving').reduce((s,t)=>s+t.amount,0);
-  const expense=txs.filter(t=>t.type==='expense'&&t.cat!=='saving').reduce((s,t)=>s+t.amount,0);
+  const loanOut=txs.filter(t=>t.type==='expense'&&t.cat==='loan').reduce((s,t)=>s+t.amount,0);
+  const expense=txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan').reduce((s,t)=>s+t.amount,0);
   const balance=income-expense-saving;
-
   document.getElementById('sum-income').textContent ='₩'+income.toLocaleString();
   document.getElementById('sum-expense').textContent='₩'+expense.toLocaleString();
   document.getElementById('sum-saving').textContent ='₩'+saving.toLocaleString();
   document.getElementById('sum-balance').textContent=(balance<0?'-₩':'₩')+Math.abs(balance).toLocaleString();
   document.getElementById('sum-income-count').textContent=txs.filter(t=>t.type==='income').length+'건';
   document.getElementById('sum-saving-count').textContent=txs.filter(t=>t.type==='expense'&&t.cat==='saving').length+'건';
-
-  renderTxList(txs); renderDonut(txs); renderLine(txs); renderChallenge();
+  renderTxList(txs);renderDonut(txs);renderLine(txs);renderChallenge();
 }
 
-// ════════ TX List ════════
-function renderTxList(txs) {
+// ══ TX List ══
+function renderTxList(txs){
   const el=document.getElementById('tx-list');
   const sorted=[...txs].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if (!sorted.length){el.innerHTML='<div class="empty-msg">이번 달 거래내역이 없어요</div>';return;}
+  if(!sorted.length){el.innerHTML='<div class="empty-msg">이번 달 거래내역이 없어요</div>';return;}
   const allCats=[...CATS_EXPENSE,...CATS_INCOME];
   el.innerHTML=sorted.map(t=>{
     const cat=allCats.find(c=>c.id===t.cat)||{icon:'📦',name:'기타'};
     const isSaving=t.cat==='saving';
-    const amtCls=t.type==='income'?'income':(isSaving?'saving':'expense');
-    const bg=t.type==='income'?'#00e87a18':(isSaving?'#c084fc18':'#ff4d6d18');
+    const isLoan=t.cat==='loan';
+    const isRepay=t.cat==='repay';
+    let amtCls=t.type==='income'?'income':'expense';
+    if(isSaving) amtCls='saving';
+    if(isLoan)   amtCls='loan';
+    if(isRepay)  amtCls='income';
+    let bg=t.type==='income'?'#00e87a18':'#ff4d6d18';
+    if(isSaving) bg='#c084fc18';
+    if(isLoan)   bg='#fb923c18';
     const prefix=t.type==='income'?'+':'-';
-    const badge=t.method?`<span class="tx-method-badge">${t.method}</span>`:'';
-    return `<div class="tx-item">
+    const methodBadge=t.method?`<span class="tx-method-badge ${t.method}">${t.method}</span>`:'';
+    const loanBadge=isLoan?`<span class="tx-loan-badge">💸 대여</span>`:'';
+    const repayBadge=isRepay?`<span class="tx-repay-badge">💚 상환</span>`:'';
+    return`<div class="tx-item">
       <div class="tx-icon" style="background:${bg}">${cat.icon}</div>
       <div class="tx-info">
         <div class="tx-name">${t.desc}</div>
-        <div class="tx-meta">${t.date} · ${cat.name} ${badge}</div>
+        <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}</div>
       </div>
       <div class="tx-amount ${amtCls}">${prefix}₩${t.amount.toLocaleString()}</div>
       <button class="tx-delete" onclick="deleteTransaction('${t.id}')">✕</button>
@@ -625,29 +831,28 @@ function renderTxList(txs) {
   }).join('');
 }
 
-// ════════ Charts ════════
+// ══ Charts ══
 function dc(k){if(charts[k]){charts[k].destroy();delete charts[k];}}
 
-function renderDonut(txs) {
+function renderDonut(txs){
   dc('donut');
   const ctx=document.getElementById('chart-donut').getContext('2d');
   const catMap={};
-  txs.filter(t=>t.type==='expense'&&t.cat!=='saving').forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
+  txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan').forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
   const labels=[],data=[],colors=[];
-  CATS_EXPENSE.filter(c=>!c.isSaving).forEach((c,i)=>{
+  CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan).forEach((c,i)=>{
     if(catMap[c.id]>0){labels.push(c.icon+' '+c.name);data.push(catMap[c.id]);colors.push(CAT_COLORS[i%CAT_COLORS.length]);}
   });
   if(!data.length){ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);ctx.fillStyle='#7a7a8c';ctx.font='13px Noto Sans KR';ctx.textAlign='center';ctx.fillText('지출 내역이 없어요',ctx.canvas.width/2,80);return;}
   charts.donut=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:6}]},
     options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{position:'right',labels:{color:'#f0f0f4',font:{size:11},boxWidth:12,padding:9}}}}});
 }
-
-function renderLine(txs) {
+function renderLine(txs){
   dc('line');
   const ctx=document.getElementById('chart-line').getContext('2d');
   const days=new Date(currentYear,currentMonth+1,0).getDate();
   const daily=Array(days).fill(0);
-  txs.filter(t=>t.type==='expense'&&t.cat!=='saving').forEach(t=>{daily[new Date(t.date).getDate()-1]+=t.amount;});
+  txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan').forEach(t=>{daily[new Date(t.date).getDate()-1]+=t.amount;});
   const cum=daily.reduce((acc,v,i)=>{acc.push((acc[i-1]||0)+v);return acc;},[]);
   charts.line=new Chart(ctx,{type:'line',
     data:{labels:Array.from({length:days},(_,i)=>i+1),datasets:[{data:cum,borderColor:'#ff4d6d',backgroundColor:'rgba(255,77,109,0.08)',borderWidth:2,fill:true,tension:0.4,pointRadius:0,pointHoverRadius:4}]},
@@ -655,9 +860,8 @@ function renderLine(txs) {
       scales:{x:{ticks:{color:'#7a7a8c',font:{size:10}},grid:{color:'#2e2e36'}},y:{ticks:{color:'#7a7a8c',font:{size:10},callback:v=>'₩'+v.toLocaleString()},grid:{color:'#2e2e36'}}}}});
 }
 
-// ════════ Stats ════════
+// ══ Stats ══
 function renderStats(){renderSavingSummary();renderMonthly();renderIncomeCat();renderCatDetail();renderMethodChart();}
-
 function renderSavingSummary(){
   const txs=getMonthTxs().filter(t=>t.type==='expense'&&t.cat==='saving');
   const total=txs.reduce((s,t)=>s+t.amount,0);
@@ -669,7 +873,6 @@ function renderSavingSummary(){
     Object.entries(byMethod).map(([k,v])=>`<div><strong>${k}</strong> ₩${v.toLocaleString()}</div>`).join('')+
     `<div style="margin-top:4px">총 <strong>${txs.length}건</strong></div>`;
 }
-
 function renderMonthly(){
   dc('monthly');
   const ctx=document.getElementById('chart-monthly').getContext('2d');
@@ -680,7 +883,7 @@ function renderMonthly(){
     months.push(String(m+1)+'월');
     const mt=transactions.filter(t=>{const d=new Date(t.date);return d.getFullYear()===y&&d.getMonth()===m;});
     incomes.push(mt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));
-    expenses.push(mt.filter(t=>t.type==='expense'&&t.cat!=='saving').reduce((s,t)=>s+t.amount,0));
+    expenses.push(mt.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan').reduce((s,t)=>s+t.amount,0));
     savings.push(mt.filter(t=>t.type==='expense'&&t.cat==='saving').reduce((s,t)=>s+t.amount,0));
   }
   charts.monthly=new Chart(ctx,{type:'bar',
@@ -693,130 +896,243 @@ function renderMonthly(){
       plugins:{legend:{labels:{color:'#f0f0f4',font:{size:11},boxWidth:12}}},
       scales:{x:{ticks:{color:'#7a7a8c',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#7a7a8c',font:{size:10},callback:v=>'₩'+(v/10000)+'만'},grid:{color:'#2e2e36'}}}}});
 }
-
 function renderIncomeCat(){
   dc('incomecat');
   const ctx=document.getElementById('chart-income-cat').getContext('2d');
   const txs=getMonthTxs().filter(t=>t.type==='income');
-  const catMap={};
-  txs.forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
+  const catMap={};txs.forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
   const labels=[],data=[],colors=[];
   CATS_INCOME.forEach((c,i)=>{if(catMap[c.id]>0){labels.push(c.icon+' '+c.name);data.push(catMap[c.id]);colors.push(CAT_COLORS[i]);}});
   if(!data.length){ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);ctx.fillStyle='#7a7a8c';ctx.font='13px Noto Sans KR';ctx.textAlign='center';ctx.fillText('수입 내역이 없어요',ctx.canvas.width/2,80);return;}
   charts.incomecat=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},
     options:{responsive:true,maintainAspectRatio:true,cutout:'60%',plugins:{legend:{position:'right',labels:{color:'#f0f0f4',font:{size:11},boxWidth:12,padding:8}}}}});
 }
-
 function renderCatDetail(){
-  const txs=getMonthTxs().filter(t=>t.type==='expense'&&t.cat!=='saving');
+  const txs=getMonthTxs().filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='loan');
   const catMap={};
-  CATS_EXPENSE.filter(c=>!c.isSaving).forEach(c=>catMap[c.id]=0);
+  CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan).forEach(c=>catMap[c.id]=0);
   txs.forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amount;});
   const total=Object.values(catMap).reduce((s,v)=>s+v,0);
   const el=document.getElementById('cat-detail-list');
-  if(!total){el.innerHTML='<div style="color:var(--text-muted);font-size:.85rem;padding:12px 0">지출 내역이 없어요</div>';return;}
-  el.innerHTML=CATS_EXPENSE.filter(c=>!c.isSaving&&catMap[c.id]>0)
+  if(!total){el.innerHTML='<div style="color:var(--text-muted);font-size:.83rem;padding:12px 0">지출 내역이 없어요</div>';return;}
+  el.innerHTML=CATS_EXPENSE.filter(c=>!c.isSaving&&!c.isLoan&&catMap[c.id]>0)
     .sort((a,b)=>catMap[b.id]-catMap[a.id])
     .map((c,i)=>{
       const pct=Math.round(catMap[c.id]/total*100);
-      return `<div class="cat-row">
+      return`<div class="cat-row">
         <div class="cat-row-name">${c.icon} ${c.name}</div>
         <div class="cat-bar-wrap"><div class="cat-bar" style="width:${pct}%;background:${CAT_COLORS[i%CAT_COLORS.length]}"></div></div>
         <div class="cat-row-amt">₩${catMap[c.id].toLocaleString()} <span style="color:#7a7a8c">(${pct}%)</span></div>
       </div>`;
     }).join('');
 }
-
 function renderMethodChart(){
   dc('method');
   const ctx=document.getElementById('chart-method').getContext('2d');
   const txs=getMonthTxs().filter(t=>t.type==='expense');
-  const methodMap={};
-  METHODS.forEach(m=>methodMap[m]=0);
+  const methodMap={};METHODS.forEach(m=>methodMap[m]=0);
   txs.forEach(t=>{if(t.method)methodMap[t.method]=(methodMap[t.method]||0)+t.amount;});
-  const colors=['#ffd166','#4d9fff','#00e87a','#c084fc','#fb923c'];
+  const colors=METHODS.map(m=>METHOD_COLORS[m]||'#888');
   charts.method=new Chart(ctx,{type:'bar',
     data:{labels:METHODS,datasets:[{data:METHODS.map(m=>methodMap[m]),backgroundColor:colors.map(c=>c+'99'),borderColor:colors,borderWidth:1.5,borderRadius:6}]},
     options:{responsive:true,maintainAspectRatio:true,indexAxis:'y',plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#7a7a8c',font:{size:10},callback:v=>'₩'+(v/10000)+'만'},grid:{color:'#2e2e36'}},y:{ticks:{color:'#f0f0f4',font:{size:11}},grid:{display:false}}}}});
 }
 
-// ════════ Backup / Restore ════════
-window.openBackupModal  = ()=>document.getElementById('backup-modal').style.display='flex';
-window.closeBackupModal = ()=>document.getElementById('backup-modal').style.display='none';
+// ══════════════════════════════
+//  빌려준 돈 탭
+// ══════════════════════════════
+function loanRemain(loan){
+  return loan.amount-(loan.repayments||[]).reduce((s,r)=>s+r.amount,0);
+}
+window.loanRemain=loanRemain;
 
-window.exportJSON = function() {
-  const data = { exportedAt: new Date().toISOString(), count: transactions.length, transactions };
-  const blob  = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url   = URL.createObjectURL(blob);
-  const a     = document.createElement('a');
-  const date  = new Date().toISOString().split('T')[0];
-  a.href=url; a.download=`가계부_백업_${date}.json`; a.click();
-  URL.revokeObjectURL(url);
-  closeBackupModal();
-  toast('📁 백업 파일이 다운로드됐어요!');
-};
+function renderLoanPage(){
+  const el=document.getElementById('loan-list');
+  const totalLent=loans.reduce((s,l)=>s+l.amount,0);
+  const totalRepaid=loans.reduce((s,l)=>s+(l.repayments||[]).reduce((sr,r)=>sr+r.amount,0),0);
+  document.getElementById('loan-sum-total').textContent='₩'+totalLent.toLocaleString();
+  document.getElementById('loan-sum-repaid').textContent='₩'+totalRepaid.toLocaleString();
+  document.getElementById('loan-sum-remain').textContent='₩'+(totalLent-totalRepaid).toLocaleString();
+  document.getElementById('loan-sum-count').textContent=loans.length+'건';
 
-window.triggerImport = ()=>{
-  closeBackupModal();
-  document.getElementById('import-input').click();
-};
-
-window.importJSON = async function(e) {
-  const file=e.target.files[0]; if(!file) return;
-  try {
-    const text=await file.text();
-    const data=JSON.parse(text);
-    const txs=data.transactions||data; // 구버전 배열도 지원
-    if (!Array.isArray(txs)) throw new Error('올바른 백업 파일이 아니에요');
-
-    const existingIds=new Set(transactions.map(t=>t.createdAt));
-    let added=0;
-    setSyncBar('saving','가져오는 중...');
-
-    for (const t of txs) {
-      // createdAt 기준으로 중복 방지
-      if (t.createdAt && existingIds.has(t.createdAt)) continue;
-      const {id:_,...rest}=t;
-      await addDoc(COL, {...rest, createdAt: t.createdAt||new Date().toISOString()});
-      added++;
-    }
-    toast(`✅ ${added}건 가져왔어요! (중복 제외)`);
-  } catch(err) {
-    toast('❌ 가져오기 실패: '+err.message);
+  if(!loans.length){
+    el.innerHTML='<div class="loan-empty">아직 등록된 대여가 없어요<br>입력 탭에서 "빌려줌" 카테고리를 선택하거나<br>"+ 직접 등록" 버튼을 이용해주세요 🙂</div>';
+    return;
   }
+  const sorted=[...loans].sort((a,b)=>{
+    const ra=loanRemain(a),rb=loanRemain(b);
+    if(ra>0&&rb<=0) return-1; if(ra<=0&&rb>0) return 1;
+    return new Date(b.date)-new Date(a.date);
+  });
+  el.innerHTML=sorted.map(loan=>{
+    const remain=loanRemain(loan);
+    const repaid=loan.amount-remain;
+    const pct=Math.min(100,Math.round(repaid/loan.amount*100));
+    const isPaid=remain<=0;
+    const repayRows=(loan.repayments||[]).slice()
+      .sort((a,b)=>new Date(b.date)-new Date(a.date))
+      .map((r,ri)=>`<div class="loan-repay-item">
+        <span class="loan-repay-date">${r.date}</span>
+        <span class="loan-repay-memo">${r.memo||''}</span>
+        ${r.source==='입력탭'?`<span class="loan-repay-source">입력탭</span>`:''}
+        <span class="loan-repay-amount">+₩${r.amount.toLocaleString()}</span>
+        <button class="loan-repay-delete" onclick="deleteRepayment('${loan.id}',${ri})" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.7rem;padding:2px 4px;border-radius:4px;opacity:0;transition:opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">✕</button>
+      </div>`).join('');
+    return`<div class="loan-card${isPaid?' fully-paid':''}" id="lc-${loan.id}">
+      <div class="loan-card-header" onclick="toggleLoanCard('${loan.id}')">
+        <div class="loan-card-left">
+          <div class="loan-avatar">${loan.person.charAt(0)}</div>
+          <div>
+            <div class="loan-person">${loan.person}${isPaid?' <span style="font-size:0.62rem;color:var(--accent-green);background:#00e87a18;padding:2px 6px;border-radius:4px;margin-left:4px">완제</span>':''}</div>
+            <div class="loan-purpose">${loan.purpose}${loan.memo?` · ${loan.memo}`:''}</div>
+          </div>
+        </div>
+        <div class="loan-card-right">
+          <div class="loan-remain ${isPaid?'paid':'unpaid'}">${isPaid?'완제':'미수 ₩'+remain.toLocaleString()}</div>
+          <div class="loan-date">대여 ${loan.date} · 원금 ₩${loan.amount.toLocaleString()}</div>
+        </div>
+      </div>
+      <div class="loan-card-body" id="lb-${loan.id}">
+        <div class="loan-progress-wrap">
+          <div class="loan-progress-bar" style="width:${pct}%;background:${isPaid?'var(--accent-green)':'var(--accent-orange)'}"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin:5px 0 12px">
+          <span>상환 ₩${repaid.toLocaleString()} (${pct}%)</span>
+          <span>원금 ₩${loan.amount.toLocaleString()}</span>
+        </div>
+        ${repayRows?`<div class="loan-repay-list">${repayRows}</div>`:'<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">상환 내역이 없어요</div>'}
+        <div class="loan-actions">
+          ${!isPaid?`<button class="loan-action-btn repay" onclick="openRepayModal('${loan.id}')">💚 상환 기록</button>`:''}
+          <button class="loan-action-btn delete" onclick="deleteLoan('${loan.id}')">🗑 삭제</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.toggleLoanCard=id=>{document.getElementById('lb-'+id).classList.toggle('open');};
+
+// 직접 등록
+window.openLoanAddModal=()=>{
+  document.getElementById('loan-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('loan-add-modal').style.display='flex';
+};
+window.closeLoanAddModal=()=>document.getElementById('loan-add-modal').style.display='none';
+window.addLoanDirect=async()=>{
+  const person =document.getElementById('loan-person').value.trim();
+  const purpose=document.getElementById('loan-purpose').value.trim();
+  const amount =parseInt(document.getElementById('loan-amount').value);
+  const date   =document.getElementById('loan-date').value;
+  const memo   =document.getElementById('loan-memo').value.trim();
+  if(!person)           return toast('이름을 입력해주세요');
+  if(!purpose)          return toast('명목을 입력해주세요');
+  if(!amount||amount<=0)return toast('금액을 입력해주세요');
+  if(!date)             return toast('날짜를 선택해주세요');
+  try{
+    await addDoc(LCOL,{person,purpose,amount,date,memo,repayments:[],createdAt:new Date().toISOString()});
+    ['loan-person','loan-purpose','loan-amount','loan-memo'].forEach(id=>document.getElementById(id).value='');
+    closeLoanAddModal(); toast('✅ 등록됐어요!');
+  }catch(e){toast('❌ 저장 실패: '+e.message);}
+};
+
+// 상환 직접 기록
+window.openRepayModal=id=>{
+  currentLoanId=id;
+  const loan=loans.find(l=>l.id===id);
+  document.getElementById('repay-modal-desc').textContent=
+    `${loan.person}님 · ${loan.purpose} — 미수금 ₩${loanRemain(loan).toLocaleString()}`;
+  document.getElementById('repay-amount').value='';
+  document.getElementById('repay-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('repay-memo').value='';
+  document.getElementById('repay-modal').style.display='flex';
+};
+window.closeRepayModal=()=>document.getElementById('repay-modal').style.display='none';
+window.addRepaymentDirect=async()=>{
+  const amount=parseInt(document.getElementById('repay-amount').value);
+  const date  =document.getElementById('repay-date').value;
+  const memo  =document.getElementById('repay-memo').value.trim();
+  if(!amount||amount<=0)return toast('금액을 입력해주세요');
+  if(!date)             return toast('날짜를 선택해주세요');
+  const loan=loans.find(l=>l.id===currentLoanId);
+  if(!loan) return;
+  if(amount>loanRemain(loan)) return toast(`미수금(₩${loanRemain(loan).toLocaleString()})보다 많아요`);
+  try{
+    await updateDoc(doc(db,'loans',currentLoanId),{
+      repayments:[...(loan.repayments||[]),{amount,date,memo}]
+    });
+    closeRepayModal(); toast('💚 상환 기록됐어요!');
+  }catch(e){toast('❌ 저장 실패');}
+};
+window.deleteRepayment=async(loanId,idx)=>{
+  if(!confirm('이 상환 내역을 삭제할까요?')) return;
+  const loan=loans.find(l=>l.id===loanId);
+  if(!loan) return;
+  try{
+    await updateDoc(doc(db,'loans',loanId),{repayments:(loan.repayments||[]).filter((_,i)=>i!==idx)});
+    toast('삭제됐어요');
+  }catch(e){toast('❌ 삭제 실패');}
+};
+window.deleteLoan=async id=>{
+  const loan=loans.find(l=>l.id===id);
+  if(!confirm(`"${loan?.person}" 대여 내역을 삭제할까요?`)) return;
+  try{await deleteDoc(doc(db,'loans',id));toast('삭제됐어요');}
+  catch(e){toast('❌ 삭제 실패');}
+};
+
+// ══ Backup ══
+window.openBackupModal  =()=>document.getElementById('backup-modal').style.display='flex';
+window.closeBackupModal =()=>document.getElementById('backup-modal').style.display='none';
+window.exportJSON=()=>{
+  const data={exportedAt:new Date().toISOString(),transactions,loans};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`가계부_백업_${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); closeBackupModal(); toast('📁 백업 완료!');
+};
+window.triggerImport=()=>{closeBackupModal();document.getElementById('import-input').click();};
+window.importJSON=async e=>{
+  const file=e.target.files[0];if(!file)return;
+  try{
+    const data=JSON.parse(await file.text());
+    const txs=data.transactions||[], lns=data.loans||[];
+    const existTx=new Set(transactions.map(t=>t.createdAt));
+    const existLn=new Set(loans.map(l=>l.createdAt));
+    let at=0,al=0;
+    setSyncBar('saving','가져오는 중...');
+    for(const t of txs){if(t.createdAt&&existTx.has(t.createdAt))continue;const{id:_,...r}=t;await addDoc(COL,{...r,createdAt:t.createdAt||new Date().toISOString()});at++;}
+    for(const l of lns){if(l.createdAt&&existLn.has(l.createdAt))continue;const{id:_,...r}=l;await addDoc(LCOL,{...r,createdAt:l.createdAt||new Date().toISOString()});al++;}
+    toast(`✅ 거래 ${at}건, 대여 ${al}건 가져왔어요!`);
+  }catch(err){toast('❌ 가져오기 실패: '+err.message);}
   e.target.value='';
 };
-
-window.confirmClearAll = async function() {
+window.confirmClearAll=async()=>{
   closeBackupModal();
-  if (!confirm(`⚠️ Firebase의 모든 거래내역(${transactions.length}건)이 삭제돼요.\n정말 삭제할까요?`)) return;
-  if (!confirm('한 번 더 확인할게요. 정말 전체 삭제할까요?')) return;
-  try {
+  if(!confirm(`거래 ${transactions.length}건 + 대여 ${loans.length}건 전체 삭제할까요?`))return;
+  if(!confirm('정말요? 되돌릴 수 없어요!'))return;
+  try{
     setSyncBar('saving','삭제 중...');
-    const snap=await getDocs(COL);
     const batch=writeBatch(db);
-    snap.docs.forEach(d=>batch.delete(d.ref));
-    await batch.commit();
-    toast('🗑 전체 삭제됐어요');
-  } catch(e) {
-    toast('❌ 삭제 실패: '+e.message);
-  }
+    (await getDocs(COL)).docs.forEach(d=>batch.delete(d.ref));
+    (await getDocs(LCOL)).docs.forEach(d=>batch.delete(d.ref));
+    await batch.commit(); toast('🗑 전체 삭제됐어요');
+  }catch(e){toast('❌ 삭제 실패');}
 };
 
-// ════════ Toast ════════
-window.toast = function(msg) {
+// ══ Toast ══
+window.toast=msg=>{
   const el=document.getElementById('toast');
   el.textContent=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2500);
 };
 
-// ════════ Init ════════
+// ══ Init ══
 function updateAll(){updateMonthLabel();renderHome();}
 document.getElementById('input-date').value=new Date().toISOString().split('T')[0];
 renderCatGrid();
 updateMonthLabel();
-startListener();
+startListeners();
 </script>
 </body>
 </html>
