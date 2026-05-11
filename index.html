@@ -413,6 +413,7 @@
         <span>이번 주 지출 <strong id="challenge-used" style="font-family:'DM Mono',monospace">₩0</strong></span>
         <span id="challenge-status">여유있어요 😊</span>
       </div>
+      <div id="challenge-carry-badge" style="margin-top:8px;padding:6px 10px;border-radius:7px;font-size:0.72rem;font-weight:600;display:none"></div>
     </div>
     <div class="summary-grid">
       <div class="card" style="grid-column:span 2;background:linear-gradient(135deg,#0d2418,#1a1a1e);border-color:#00e87a33">
@@ -447,7 +448,10 @@
       </div>
     </div>
     <div class="tx-section">
-      <div class="tx-header"><h3>이번 달 거래내역</h3></div>
+      <div class="tx-header">
+        <h3>이번 달 거래내역</h3>
+        <button onclick="showPage('txall',null)" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.7rem;font-weight:600;padding:4px 10px;border-radius:7px;cursor:pointer;transition:all 0.15s;" onmouseenter="this.style.borderColor='var(--accent-blue)';this.style.color='var(--accent-blue)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">전체보기 →</button>
+      </div>
       <div class="tx-list" id="tx-list"></div>
     </div>
   </div>
@@ -560,6 +564,38 @@
     <div class="chart-box" style="margin-bottom:18px">
       <h3>결제수단별 지출</h3>
       <canvas id="chart-method" style="max-height:170px"></canvas>
+    </div>
+  </div>
+
+  <!-- ══ TX ALL (전체보기) ══ -->
+  <div id="page-txall" class="page">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
+      <button onclick="showPage('home',document.querySelector('nav button:nth-child(1)'))" style="background:none;border:none;color:var(--text-muted);font-family:inherit;font-size:0.82rem;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;">← 홈으로</button>
+      <h2 style="font-size:1rem;font-weight:700;flex:1">전체 거래내역</h2>
+    </div>
+    <!-- 기간 필터 -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
+      <span style="font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;flex-shrink:0">기간</span>
+      <input type="date" id="txall-from" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.83rem;padding:7px 10px;outline:none;flex:1;min-width:120px;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'">
+      <span style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0">~</span>
+      <input type="date" id="txall-to" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.83rem;padding:7px 10px;outline:none;flex:1;min-width:120px;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'">
+      <button onclick="renderTxAll()" style="background:var(--accent-blue);border:none;color:#fff;font-family:inherit;font-size:0.8rem;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;flex-shrink:0;transition:opacity 0.15s;" onmouseenter="this.style.opacity=0.85" onmouseleave="this.style.opacity=1">조회</button>
+      <button onclick="setTxAllRange('month')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">이번달</button>
+      <button onclick="setTxAllRange('3month')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">최근3달</button>
+      <button onclick="setTxAllRange('all')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">전체</button>
+    </div>
+    <!-- 요약 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+      <div class="card"><div class="card-label">수입</div><div class="card-amount income" id="txall-sum-income">₩0</div></div>
+      <div class="card"><div class="card-label">지출</div><div class="card-amount expense" id="txall-sum-expense">₩0</div></div>
+      <div class="card"><div class="card-label">건수</div><div class="card-amount balance" id="txall-sum-count">0건</div></div>
+    </div>
+    <!-- 목록 -->
+    <div class="tx-section">
+      <div class="tx-header">
+        <h3 id="txall-list-title">거래내역</h3>
+      </div>
+      <div class="tx-list" id="txall-list" style="max-height:none"></div>
     </div>
   </div>
 
@@ -848,10 +884,19 @@ window.showPage=(page,btn)=>{
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   if(page==='stats')     renderStats();
   if(page==='loan')      renderLoanPage();
   if(page==='challenge') renderChallengePage();
+  if(page==='txall'){
+    // 기본값: 이번 달
+    const now=new Date();
+    const from=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+    const to=now.toISOString().split('T')[0];
+    document.getElementById('txall-from').value=from;
+    document.getElementById('txall-to').value=to;
+    renderTxAll();
+  }
 };
 
 // ══ Add Form ══
@@ -1014,18 +1059,22 @@ function getWeekRange(date){
   return{mon,sun};
 }
 function renderChallenge(){
-  const{mon,sun}=getWeekRange(new Date());
-  const used=transactions.filter(t=>{
-    const d=new Date(t.date);
-    return t.type==='expense'
-      && t.cat!=='saving' && t.cat!=='apt' && t.cat!=='loan'
-      && !t.excludeChallenge
-      && d>=mon && d<=sun;
-  }).reduce((s,t)=>s+t.amount,0);
-  const remain=CHALLENGE_BUDGET-used;
-  const pct=Math.min(100,Math.round(used/CHALLENGE_BUDGET*100));
-  document.getElementById('challenge-remain').textContent=(remain<0?'-₩':'₩')+Math.abs(remain).toLocaleString();
+  // 챌린지 탭과 동일한 이월 계산 사용
+  const today=new Date();
+  const year=today.getFullYear(), month=today.getMonth();
+  const weekBudgets=calcWeekBudgets(year,month);
+  const curWeek=weekBudgets.find(w=>w.isCurrentWeek);
+  if(!curWeek) return;
+
+  const{mon,sun,used,budget,diff,carry}=curWeek;
+  const pct=Math.min(100,Math.round(used/budget*100));
+  const fmt=n=>(n<0?'-₩':'₩')+Math.abs(n).toLocaleString();
+
+  document.getElementById('challenge-remain').textContent=fmt(diff);
   document.getElementById('challenge-used').textContent='₩'+used.toLocaleString();
+  document.getElementById('challenge-week-label').textContent=
+    `${mon.getMonth()+1}/${mon.getDate()}(월) ~ ${sun.getMonth()+1}/${sun.getDate()}(일) · 예산 ₩${budget.toLocaleString()}`;
+
   const bar=document.getElementById('challenge-bar');
   const rem=document.getElementById('challenge-remain');
   bar.style.width=pct+'%';
@@ -1033,8 +1082,20 @@ function renderChallenge(){
   else if(pct<90){bar.style.background='var(--accent-yellow)';rem.className='challenge-remain warn';document.getElementById('challenge-status').textContent='조금 아껴요 🤔';}
   else if(pct<100){bar.style.background='var(--accent-red)';rem.className='challenge-remain danger';document.getElementById('challenge-status').textContent='위험해요 😬';}
   else{bar.style.background='var(--accent-red)';rem.className='challenge-remain danger';document.getElementById('challenge-status').textContent='초과했어요 😱';}
-  document.getElementById('challenge-week-label').textContent=
-    `${mon.getMonth()+1}/${mon.getDate()}(월) ~ ${sun.getMonth()+1}/${sun.getDate()}(일)`;
+
+  // 이월 뱃지
+  const badge=document.getElementById('challenge-carry-badge');
+  if(carry===0){
+    badge.style.display='none';
+  } else if(carry>0){
+    badge.style.display='';
+    badge.style.background='#00e87a18'; badge.style.color='var(--accent-green)'; badge.style.border='1px solid #00e87a44';
+    badge.textContent=`지난 주 절약 +₩${carry.toLocaleString()} 이월 → 이번 주 예산 ₩${budget.toLocaleString()}`;
+  } else {
+    badge.style.display='';
+    badge.style.background='#ff4d6d18'; badge.style.color='var(--accent-red)'; badge.style.border='1px solid #ff4d6d44';
+    badge.textContent=`지난 주 초과 -₩${Math.abs(carry).toLocaleString()} 차감 → 이번 주 예산 ₩${budget.toLocaleString()}`;
+  }
 }
 
 // ══ Home ══
@@ -1055,43 +1116,85 @@ function renderHome(){
   renderTxList(txs);renderDonut(txs);renderLine(txs);renderChallenge();
 }
 
-// ══ TX List ══
+// ══ TX List (홈 - 최대 12개) ══
+function makeTxHTML(t){
+  const allCats=[...CATS_EXPENSE,...CATS_INCOME];
+  const cat=allCats.find(c=>c.id===t.cat)||{icon:'📦',name:'기타'};
+  const isSaving=t.cat==='saving', isApt=t.cat==='apt', isLoan=t.cat==='loan', isRepay=t.cat==='repay';
+  let amtCls=t.type==='income'?'income':'expense';
+  if(isSaving||isApt) amtCls='saving';
+  if(isLoan)  amtCls='loan';
+  if(isRepay) amtCls='income';
+  let bg=t.type==='income'?'#00e87a18':'#ff4d6d18';
+  if(isSaving) bg='#c084fc18';
+  if(isApt)    bg='#38bdf818';
+  if(isLoan)   bg='#fb923c18';
+  const prefix=t.type==='income'?'+':'-';
+  const methodBadge=t.method?`<span class="tx-method-badge ${t.method}">${t.method}</span>`:'';
+  const loanBadge  =isLoan ?`<span class="tx-loan-badge">💸 대여</span>`:'';
+  const repayBadge =isRepay?`<span class="tx-repay-badge">💚 상환</span>`:'';
+  const exclBadge  =t.excludeChallenge?`<span style="background:#ff4d6d18;border:1px solid #ff4d6d44;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#ff8fa3">챌린지제외</span>`:'';
+  return`<div class="tx-item">
+    <div class="tx-icon" style="background:${bg}">${cat.icon}</div>
+    <div class="tx-info">
+      <div class="tx-name">${t.desc}</div>
+      <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}${exclBadge}</div>
+    </div>
+    <div class="tx-amount ${amtCls}">${prefix}₩${t.amount.toLocaleString()}</div>
+    <button style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.8rem;padding:3px 5px;border-radius:5px;flex-shrink:0;opacity:0.6;transition:opacity 0.15s;" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0.6" onclick="openEditModal('${t.id}')">✏️</button>
+    <button class="tx-delete" onclick="deleteTransaction('${t.id}')">✕</button>
+  </div>`;
+}
+
 function renderTxList(txs){
   const el=document.getElementById('tx-list');
   const sorted=[...txs].sort((a,b)=>new Date(b.date)-new Date(a.date));
   if(!sorted.length){el.innerHTML='<div class="empty-msg">이번 달 거래내역이 없어요</div>';return;}
-  const allCats=[...CATS_EXPENSE,...CATS_INCOME];
-  el.innerHTML=sorted.map(t=>{
-    const cat=allCats.find(c=>c.id===t.cat)||{icon:'📦',name:'기타'};
-    const isSaving=t.cat==='saving';
-    const isApt   =t.cat==='apt';
-    const isLoan  =t.cat==='loan';
-    const isRepay =t.cat==='repay';
-    let amtCls=t.type==='income'?'income':'expense';
-    if(isSaving||isApt) amtCls='saving';
-    if(isLoan)  amtCls='loan';
-    if(isRepay) amtCls='income';
-    let bg=t.type==='income'?'#00e87a18':'#ff4d6d18';
-    if(isSaving) bg='#c084fc18';
-    if(isApt)    bg='#38bdf818';
-    if(isLoan)   bg='#fb923c18';
-    const prefix=t.type==='income'?'+':'-';
-    const methodBadge=t.method?`<span class="tx-method-badge ${t.method}">${t.method}</span>`:'';
-    const loanBadge  =isLoan ?`<span class="tx-loan-badge">💸 대여</span>`:'';
-    const repayBadge =isRepay?`<span class="tx-repay-badge">💚 상환</span>`:'';
-    const exclBadge  =t.excludeChallenge?`<span style="background:#ff4d6d18;border:1px solid #ff4d6d44;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#ff8fa3">챌린지제외</span>`:'';
-    return`<div class="tx-item">
-      <div class="tx-icon" style="background:${bg}">${cat.icon}</div>
-      <div class="tx-info">
-        <div class="tx-name">${t.desc}</div>
-        <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}${exclBadge}</div>
-      </div>
-      <div class="tx-amount ${amtCls}">${prefix}₩${t.amount.toLocaleString()}</div>
-      <button class="tx-delete" style="opacity:0;color:var(--accent-blue);margin-right:2px" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0" onclick="openEditModal('${t.id}')">✏️</button>
-      <button class="tx-delete" onclick="deleteTransaction('${t.id}')">✕</button>
-    </div>`;
-  }).join('');
+  el.innerHTML=sorted.slice(0,12).map(t=>makeTxHTML(t)).join('')
+    +(sorted.length>12?`<div style="text-align:center;padding:12px;font-size:0.78rem;color:var(--text-muted)">+${sorted.length-12}개 더 있어요 · 전체보기를 눌러주세요</div>`:'');
 }
+
+// ══ TX 전체보기 ══
+window.setTxAllRange=range=>{
+  const today=new Date();
+  const to=today.toISOString().split('T')[0];
+  let from;
+  if(range==='month'){
+    from=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-01`;
+  } else if(range==='3month'){
+    const d=new Date(today); d.setMonth(d.getMonth()-2); d.setDate(1);
+    from=d.toISOString().split('T')[0];
+  } else {
+    // 전체: 가장 오래된 거래 날짜
+    const dates=transactions.map(t=>t.date).sort();
+    from=dates[0]||to;
+  }
+  document.getElementById('txall-from').value=from;
+  document.getElementById('txall-to').value=to;
+  renderTxAll();
+};
+
+window.renderTxAll=()=>{
+  const from=document.getElementById('txall-from').value;
+  const to  =document.getElementById('txall-to').value;
+  if(!from||!to) return toast('기간을 선택해주세요');
+  const fromD=new Date(from), toD=new Date(to); toD.setHours(23,59,59,999);
+  const filtered=transactions.filter(t=>{
+    const d=new Date(t.date); return d>=fromD&&d<=toD;
+  }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  const income =filtered.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense=filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  document.getElementById('txall-sum-income').textContent='₩'+income.toLocaleString();
+  document.getElementById('txall-sum-expense').textContent='₩'+expense.toLocaleString();
+  document.getElementById('txall-sum-count').textContent=filtered.length+'건';
+  document.getElementById('txall-list-title').textContent=
+    `${from.replace(/-/g,'.')} ~ ${to.replace(/-/g,'.')} · ${filtered.length}건`;
+
+  const el=document.getElementById('txall-list');
+  if(!filtered.length){el.innerHTML='<div class="empty-msg">해당 기간에 거래내역이 없어요</div>';return;}
+  el.innerHTML=filtered.map(t=>makeTxHTML(t)).join('');
+};
 
 // ══ Charts ══
 function dc(k){if(charts[k]){charts[k].destroy();delete charts[k];}}
