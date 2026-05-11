@@ -295,7 +295,51 @@
     .backup-btn span{display:none;}
   }
 
-  /* ══ 챌린지 탭 ══ */
+  /* ══ 설정 탭 ══ */
+  .settings-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:18px;overflow:hidden;}
+  .settings-section-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .settings-section-header h3{font-size:0.82rem;font-weight:700;display:flex;align-items:center;gap:7px;}
+  .settings-section-body{padding:16px 18px;}
+  .settings-add-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;}
+  .settings-add-btn:hover{border-color:var(--accent-green);color:var(--accent-green);}
+
+  /* 카테고리/결제수단 아이템 */
+  .settings-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+  .settings-item:last-child{border-bottom:none;}
+  .settings-item-icon{font-size:1.2rem;width:28px;text-align:center;flex-shrink:0;}
+  .settings-item-name{flex:1;font-size:0.875rem;font-weight:500;}
+  .settings-item-badge{font-size:0.62rem;padding:2px 7px;border-radius:4px;font-weight:700;flex-shrink:0;}
+  .settings-item-badge.saving{background:#c084fc18;border:1px solid #c084fc44;color:var(--accent-purple);}
+  .settings-item-badge.apt{background:#38bdf818;border:1px solid #38bdf844;color:#38bdf8;}
+  .settings-item-badge.loan{background:#fb923c18;border:1px solid #fb923c44;color:var(--accent-orange);}
+  .settings-item-badge.repay{background:#00e87a18;border:1px solid #00e87a44;color:var(--accent-green);}
+  .settings-item-badge.system{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);}
+  .settings-item-actions{display:flex;gap:5px;flex-shrink:0;}
+  .settings-item-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.7rem;padding:4px 8px;border-radius:6px;cursor:pointer;transition:all 0.15s;}
+  .settings-item-btn:hover{background:var(--surface2);}
+  .settings-item-btn.edit:hover{border-color:var(--accent-blue);color:var(--accent-blue);}
+  .settings-item-btn.del:hover{border-color:var(--accent-red);color:var(--accent-red);}
+
+  /* 설정 인풋 그룹 */
+  .settings-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  .settings-row:last-child{margin-bottom:0;}
+  .settings-row label{font-size:0.72rem;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;text-transform:uppercase;width:80px;flex-shrink:0;}
+  .settings-row input,.settings-row select{flex:1;min-width:100px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.875rem;padding:8px 11px;outline:none;transition:border-color 0.15s;}
+  .settings-row input:focus,.settings-row select:focus{border-color:var(--accent-blue);}
+  .settings-save-btn{background:var(--accent-green);border:none;color:#0f0f10;font-family:inherit;font-size:0.82rem;font-weight:700;padding:9px 18px;border-radius:8px;cursor:pointer;transition:opacity 0.15s;flex-shrink:0;}
+  .settings-save-btn:hover{opacity:0.88;}
+
+  /* 색상 스와치 */
+  .color-swatch{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);cursor:pointer;flex-shrink:0;}
+
+  /* 설정 편집 모달 */
+  .settings-edit-modal .modal{max-width:360px;}
+
+  /* 방해금지 토글 설정 행 */
+  .settings-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+  .settings-toggle-row:last-child{border-bottom:none;}
+  .settings-toggle-label{font-size:0.875rem;font-weight:500;}
+  .settings-toggle-sub{font-size:0.72rem;color:var(--text-muted);margin-top:2px;}
   .ch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
   .ch-header h2{font-size:1rem;font-weight:700;}
 
@@ -380,6 +424,7 @@
     <button onclick="showPage('stats',this)">통계</button>
     <button onclick="showPage('loan',this)">💸 빌려준돈</button>
     <button onclick="showPage('challenge',this)">🎯 챌린지</button>
+    <button onclick="showPage('settings',this)">⚙️ 설정</button>
   </nav>
   <div class="header-right">
     <button class="pdf-btn" onclick="openPdfModal('living')">🖨 <span>생활비</span></button>
@@ -669,7 +714,121 @@
     </div>
   </div>
 
+  <!-- ══ SETTINGS ══ -->
+  <div id="page-settings" class="page">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h2 style="font-size:1rem;font-weight:700;">⚙️ 설정</h2>
+    </div>
+
+    <!-- 지출 카테고리 -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <h3>📤 지출 카테고리</h3>
+        <button class="settings-add-btn" onclick="openCatModal('expense',null)">+ 추가</button>
+      </div>
+      <div class="settings-section-body" id="settings-expense-cats"></div>
+    </div>
+
+    <!-- 수입 카테고리 -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <h3>📥 수입 카테고리</h3>
+        <button class="settings-add-btn" onclick="openCatModal('income',null)">+ 추가</button>
+      </div>
+      <div class="settings-section-body" id="settings-income-cats"></div>
+    </div>
+
+    <!-- 결제수단 -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <h3>💳 결제수단</h3>
+        <button class="settings-add-btn" onclick="openMethodModal(null)">+ 추가</button>
+      </div>
+      <div class="settings-section-body" id="settings-methods"></div>
+    </div>
+
+    <!-- 챌린지 설정 -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <h3>🎯 챌린지 설정</h3>
+      </div>
+      <div class="settings-section-body">
+        <div class="settings-row">
+          <label>주간 예산</label>
+          <input type="number" id="setting-budget" placeholder="100000" min="1000">
+          <span style="font-size:0.8rem;color:var(--text-muted);flex-shrink:0">원</span>
+        </div>
+        <div class="settings-row">
+          <label>시작일</label>
+          <input type="date" id="setting-ch-start">
+        </div>
+        <button class="settings-save-btn" onclick="saveChallengeSetting()" style="margin-top:8px;width:100%">저장</button>
+      </div>
+    </div>
+
+    <!-- 집계 설정 -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <h3>📊 별도 집계 카테고리</h3>
+      </div>
+      <div class="settings-section-body">
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">아래 카테고리는 일반 지출에서 제외되고 저축/청약처럼 따로 집계돼요. 카테고리 편집에서 유형을 변경하면 자동 반영돼요.</p>
+        <div id="settings-aggregate-list"></div>
+      </div>
+    </div>
+  </div>
+
 </main>
+
+<!-- 카테고리 편집 모달 -->
+<div class="modal-overlay" id="cat-modal" style="display:none" onclick="if(event.target===this)closeCatModal()">
+  <div class="modal">
+    <h3 id="cat-modal-title">카테고리 추가</h3>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>아이콘 (이모지 1개)</label>
+        <input type="text" id="cat-icon-input" placeholder="예) 🍕" style="font-size:1.4rem;text-align:center;">
+      </div>
+      <div class="form-group">
+        <label>이름</label>
+        <input type="text" id="cat-name-input" placeholder="예) 간식">
+      </div>
+      <div class="form-group" id="cat-type-group">
+        <label>특수 유형</label>
+        <select id="cat-type-select">
+          <option value="">일반 지출</option>
+          <option value="isSaving">저축 (별도 집계)</option>
+          <option value="isApt">청약 (별도 집계)</option>
+          <option value="isLoan">빌려줌 (대여 연동)</option>
+        </select>
+      </div>
+    </div>
+    <button class="modal-submit green" onclick="saveCat()">저장</button>
+    <button class="modal-close" onclick="closeCatModal()">취소</button>
+  </div>
+</div>
+
+<!-- 결제수단 편집 모달 -->
+<div class="modal-overlay" id="method-modal" style="display:none" onclick="if(event.target===this)closeMethodModal()">
+  <div class="modal">
+    <h3 id="method-modal-title">결제수단 추가</h3>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>이름</label>
+        <input type="text" id="method-name-input" placeholder="예) 카카오페이">
+      </div>
+      <div class="form-group">
+        <label>색상</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="color" id="method-color-picker" value="#4d9fff" style="width:44px;height:36px;padding:2px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;" oninput="document.getElementById('method-color-input').value=this.value">
+          <input type="text" id="method-color-input" placeholder="#4d9fff" style="flex:1;" oninput="if(this.value.match(/^#[0-9a-fA-F]{6}$/))document.getElementById('method-color-picker').value=this.value">
+        </div>
+      </div>
+    </div>
+    <button class="modal-submit green" onclick="saveMethod()">저장</button>
+    <button class="modal-close" onclick="closeMethodModal()">취소</button>
+  </div>
+</div>
 
 <!-- 백업 모달 -->
 <div class="modal-overlay" id="backup-modal" style="display:none" onclick="if(event.target===this)closeBackupModal()">
@@ -796,10 +955,10 @@ const app  = initializeApp(firebaseConfig);
 const db   = getFirestore(app);
 const COL  = collection(db, 'transactions');
 const LCOL = collection(db, 'loans');
+const SCOL = collection(db, 'settings'); // 설정 컬렉션
 
-// ══ Constants ══
-// 가나다순: 구독·기타·도서·럽딥·빌려줌·쇼핑·식비·外출·운동·저축·청약·취미·교통·할부·생활비·구독
-const CATS_EXPENSE = [
+// ══ 기본 상수 (설정 로드 전 초기값) ══
+const DEFAULT_CATS_EXPENSE = [
   {id:'subscribe', icon:'📱', name:'구독'},
   {id:'etc',       icon:'📦', name:'기타'},
   {id:'book',      icon:'📚', name:'도서'},
@@ -816,7 +975,7 @@ const CATS_EXPENSE = [
   {id:'install',   icon:'💳', name:'할부'},
   {id:'living',    icon:'🏠', name:'생활비'},
 ];
-const CATS_INCOME = [
+const DEFAULT_CATS_INCOME = [
   {id:'salary',   icon:'💼', name:'월급'},
   {id:'carryover',icon:'🔄', name:'이월금'},
   {id:'part',     icon:'🧑‍💻',name:'알바'},
@@ -825,10 +984,18 @@ const CATS_INCOME = [
   {id:'repay',    icon:'💚', name:'상환받음', isRepay:true},
   {id:'etc',      icon:'📦', name:'기타'},
 ];
-const METHODS = ['현금','통장','신한카드','현대카드','BC카드'];
-const METHOD_COLORS = {'현금':'#ffd166','통장':'#4d9fff','신한카드':'#7aabff','현대카드':'#cccccc','BC카드':'#ff7a9a'};
+const DEFAULT_METHODS = ['현금','통장','신한카드','현대카드','BC카드'];
+const DEFAULT_METHOD_COLORS = {'현금':'#ffd166','통장':'#4d9fff','신한카드':'#7aabff','현대카드':'#cccccc','BC카드':'#ff7a9a'};
+
+// ══ 동적 설정 변수 (Firebase에서 로드) ══
+let CATS_EXPENSE   = DEFAULT_CATS_EXPENSE.map(c=>({...c}));
+let CATS_INCOME    = DEFAULT_CATS_INCOME.map(c=>({...c}));
+let METHODS        = [...DEFAULT_METHODS];
+let METHOD_COLORS  = {...DEFAULT_METHOD_COLORS};
+let CH_BASE        = 100000;
+
 const CAT_COLORS = ['#00e87a','#4d9fff','#ffd166','#ff4d6d','#c084fc','#fb923c','#34d399','#a78bfa','#f472b6','#38bdf8'];
-const CHALLENGE_BUDGET = 100000;
+const CHALLENGE_BUDGET = 100000; // 하위 호환용, CH_BASE 사용
 
 // ══ State ══
 let transactions=[], loans=[];
@@ -846,6 +1013,32 @@ function setSyncBar(state,text){
 
 // ══ Listeners ══
 function startListeners(){
+  // 설정 리스너 (가장 먼저)
+  onSnapshot(collection(db,'settings'), snap=>{
+    snap.docs.forEach(d=>{
+      const data=d.data();
+      if(d.id==='categories'){
+        if(data.expense) CATS_EXPENSE=data.expense;
+        if(data.income)  CATS_INCOME =data.income;
+      }
+      if(d.id==='methods'){
+        if(data.list)   METHODS=data.list;
+        if(data.colors) METHOD_COLORS=data.colors;
+      }
+      if(d.id==='challenge'){
+        if(data.budget) CH_BASE=data.budget;
+        if(data.startDate){
+          CH_START=new Date(data.startDate);
+          CH_START.setHours(0,0,0,0);
+        }
+      }
+    });
+    // 설정 바뀌면 UI 갱신
+    if(document.getElementById('page-settings').classList.contains('active')) renderSettingsPage();
+    renderCatGrid();
+    updateAll();
+  }, err=>console.error('settings listener error',err));
+
   onSnapshot(query(COL,orderBy('date','desc')), snap=>{
     transactions=snap.docs.map(d=>({...d.data(),id:d.id}));
     setSyncBar('ok','실시간 동기화 중 ✓');
@@ -888,6 +1081,7 @@ window.showPage=(page,btn)=>{
   if(page==='stats')     renderStats();
   if(page==='loan')      renderLoanPage();
   if(page==='challenge') renderChallengePage();
+  if(page==='settings')  renderSettingsPage();
   if(page==='txall'){
     // 기본값: 이번 달
     const now=new Date();
@@ -1529,6 +1723,10 @@ function getMonthWeeks(year, month){
 }
 
 // 주차별 예산 계산 (이월 포함)
+// 챌린지 시작일 (이 날짜 이전 주는 이월 계산 안 함)
+let CH_START = new Date(2026, 4, 11); // 설정에서 변경 가능
+CH_START.setHours(0,0,0,0);
+
 function calcWeekBudgets(year, month){
   const weeks=getMonthWeeks(year,month);
   const results=[];
@@ -1539,18 +1737,19 @@ function calcWeekBudgets(year, month){
     const budget=CH_BASE+carry;
     const isFuture=today<w.mon;
     const isCurrentWeek=today>=w.mon&&today<=w.sun;
+    // 챌린지 시작 전 주는 지출 무시, 이월도 안 함
+    const beforeStart=w.sun<CH_START;
 
-    // 미래 주는 지출 0으로 처리 (이월만 표시)
-    const weekTxs=isFuture?[]:getChallengeExpense(transactions).filter(t=>{
+    const weekTxs=(isFuture||beforeStart)?[]:getChallengeExpense(transactions).filter(t=>{
       const d=new Date(t.date); return d>=w.mon&&d<=w.sun;
     });
     const used=weekTxs.reduce((s,t)=>s+t.amount,0);
     const diff=budget-used;
 
-    results.push({mon:w.mon,sun:w.sun,budget,used,diff,carry,isCurrentWeek,isFuture});
+    results.push({mon:w.mon,sun:w.sun,budget,used,diff,carry,isCurrentWeek,isFuture,beforeStart});
 
-    // 미래 주는 이월 계산 하지 않음 (현재 주까지만 누적)
-    if(!isFuture) carry=diff;
+    // 시작 전 주 + 미래 주는 이월 누적 안 함
+    if(!isFuture&&!beforeStart) carry=diff;
   });
   return results;
 }
@@ -1673,17 +1872,270 @@ function renderWeekHistory(weekBudgets){
       <div class="ch-week-dot ${dotClass}"></div>
       <div class="ch-week-info">
         <div class="ch-week-range">${i+1}주차 · ${fmtMD(w.mon)}(월) ~ ${fmtMD(w.sun)}(일)</div>
-        <div class="ch-week-detail">${isFuture?'아직 시작 안 됨':carryText} · 예산 ₩${w.budget.toLocaleString()}</div>
+        <div class="ch-week-detail">${w.beforeStart?'챌린지 시작 전':isFuture?'아직 시작 안 됨':carryText} · 예산 ₩${w.budget.toLocaleString()}</div>
       </div>
       <div class="ch-week-right">
-        ${isFuture
-          ?`<div class="ch-week-used ok">예정</div>`
+        ${(isFuture||w.beforeStart)
+          ?`<div class="ch-week-used ok">${w.beforeStart?'제외':'예정'}</div>`
           :`<div class="ch-week-used ${isOver?'over':'ok'}">₩${w.used.toLocaleString()}</div>
             <div class="ch-week-carry ${w.diff>=0?'plus':'minus'}">${w.diff>=0?'+':'-'}₩${Math.abs(w.diff).toLocaleString()} ${w.diff>=0?'절약':'초과'}</div>`
         }
-        <div class="ch-week-budget">${Math.round(pct)}% 사용</div>
+        <div class="ch-week-budget">${w.beforeStart?'':Math.round(pct)+'% 사용'}</div>
       </div>
     </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+//  설정 탭
+// ══════════════════════════════════════════
+
+// 설정 저장 헬퍼
+async function saveSetting(id, data){
+  try{
+    await updateDoc(doc(db,'settings',id), data);
+  }catch(e){
+    // 문서 없으면 새로 생성
+    try{ await addDoc(collection(db,'settings'), {...data, _id:id}); }catch(_){}
+    // upsert 방식으로
+    const {setDoc} = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    await setDoc(doc(db,'settings',id), data, {merge:true});
+  }
+}
+
+// settings 저장 (setDoc으로 upsert)
+let _setDoc=null;
+async function upsertSetting(id, data){
+  if(!_setDoc){
+    const m=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    _setDoc=m.setDoc;
+  }
+  await _setDoc(doc(db,'settings',id), data, {merge:true});
+}
+
+// ── 설정 페이지 렌더 ──
+function renderSettingsPage(){
+  renderSettingsCats('expense');
+  renderSettingsCats('income');
+  renderSettingsMethods();
+  renderSettingsChallenge();
+  renderSettingsAggregate();
+}
+
+function renderSettingsCats(type){
+  const cats = type==='expense' ? CATS_EXPENSE : CATS_INCOME;
+  const el   = document.getElementById(`settings-${type}-cats`);
+  const SYSTEM_IDS = type==='expense'
+    ? ['loan'] // 빌려줌은 시스템 기능 연동
+    : ['repay']; // 상환받음은 시스템 기능 연동
+
+  el.innerHTML = cats.map(c=>{
+    const isSystem=SYSTEM_IDS.includes(c.id);
+    let badgeHTML='';
+    if(c.isSaving) badgeHTML=`<span class="settings-item-badge saving">저축</span>`;
+    else if(c.isApt) badgeHTML=`<span class="settings-item-badge apt">청약</span>`;
+    else if(c.isLoan) badgeHTML=`<span class="settings-item-badge loan">대여연동</span>`;
+    else if(c.isRepay) badgeHTML=`<span class="settings-item-badge repay">상환연동</span>`;
+    return`<div class="settings-item">
+      <div class="settings-item-icon">${c.icon}</div>
+      <div class="settings-item-name">${c.name}</div>
+      ${badgeHTML}
+      ${isSystem?`<span class="settings-item-badge system">시스템</span>`:''}
+      <div class="settings-item-actions">
+        <button class="settings-item-btn edit" onclick="openCatModal('${type}','${c.id}')">수정</button>
+        ${isSystem?'':`<button class="settings-item-btn del" onclick="deleteCat('${type}','${c.id}')">삭제</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSettingsMethods(){
+  const el=document.getElementById('settings-methods');
+  el.innerHTML=METHODS.map(m=>{
+    const color=METHOD_COLORS[m]||'#888';
+    return`<div class="settings-item">
+      <div class="color-swatch" style="background:${color};border-color:${color}44"></div>
+      <div class="settings-item-name">${m}</div>
+      <div class="settings-item-actions">
+        <button class="settings-item-btn edit" onclick="openMethodModal('${m}')">수정</button>
+        <button class="settings-item-btn del" onclick="deleteMethod('${m}')">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderSettingsChallenge(){
+  document.getElementById('setting-budget').value=CH_BASE;
+  // CH_START → YYYY-MM-DD
+  const y=CH_START.getFullYear();
+  const m=String(CH_START.getMonth()+1).padStart(2,'0');
+  const d=String(CH_START.getDate()).padStart(2,'0');
+  document.getElementById('setting-ch-start').value=`${y}-${m}-${d}`;
+}
+
+function renderSettingsAggregate(){
+  const special=CATS_EXPENSE.filter(c=>c.isSaving||c.isApt);
+  const el=document.getElementById('settings-aggregate-list');
+  if(!special.length){
+    el.innerHTML='<div style="font-size:0.8rem;color:var(--text-muted)">별도 집계 카테고리가 없어요.</div>';
+    return;
+  }
+  el.innerHTML=special.map(c=>`
+    <div class="settings-toggle-row">
+      <div>
+        <div class="settings-toggle-label">${c.icon} ${c.name}</div>
+        <div class="settings-toggle-sub">${c.isSaving?'저축으로 집계':c.isApt?'청약으로 집계':''}</div>
+      </div>
+      <span style="font-size:0.72rem;color:var(--accent-purple);font-weight:600">별도집계 ON</span>
+    </div>`).join('');
+}
+
+// ── 카테고리 모달 ──
+let catModalType=null, catModalEditId=null;
+window.openCatModal=(type, editId)=>{
+  catModalType=type; catModalEditId=editId;
+  const cats=type==='expense'?CATS_EXPENSE:CATS_INCOME;
+  const existing=editId?cats.find(c=>c.id===editId):null;
+  document.getElementById('cat-modal-title').textContent=editId?'카테고리 수정':'카테고리 추가';
+  document.getElementById('cat-icon-input').value=existing?.icon||'';
+  document.getElementById('cat-name-input').value=existing?.name||'';
+  // 특수 유형
+  const typeGrp=document.getElementById('cat-type-group');
+  typeGrp.style.display=type==='expense'?'':'none';
+  const sel=document.getElementById('cat-type-select');
+  if(existing){
+    if(existing.isSaving) sel.value='isSaving';
+    else if(existing.isApt) sel.value='isApt';
+    else if(existing.isLoan) sel.value='isLoan';
+    else sel.value='';
+  } else sel.value='';
+  document.getElementById('cat-modal').style.display='flex';
+};
+window.closeCatModal=()=>document.getElementById('cat-modal').style.display='none';
+
+window.saveCat=async()=>{
+  const icon=document.getElementById('cat-icon-input').value.trim();
+  const name=document.getElementById('cat-name-input').value.trim();
+  if(!icon) return toast('아이콘을 입력해주세요');
+  if(!name) return toast('이름을 입력해주세요');
+
+  const cats=catModalType==='expense'?[...CATS_EXPENSE]:[...CATS_INCOME];
+  const specialType=document.getElementById('cat-type-select').value;
+  const catObj={icon,name};
+  if(specialType==='isSaving') catObj.isSaving=true;
+  if(specialType==='isApt')    catObj.isApt=true;
+  if(specialType==='isLoan')   catObj.isLoan=true;
+
+  if(catModalEditId){
+    // 수정
+    const idx=cats.findIndex(c=>c.id===catModalEditId);
+    if(idx>-1) cats[idx]={...cats[idx],...catObj};
+  } else {
+    // 추가 - id 생성
+    const newId='cat_'+Date.now();
+    cats.push({id:newId,...catObj});
+  }
+
+  try{
+    await upsertSetting('categories',{[catModalType]:cats});
+    closeCatModal();
+    showSuccessPopup('저장됐어요! ✅');
+  }catch(e){toast('❌ 저장 실패: '+e.message);}
+};
+
+window.deleteCat=async(type, id)=>{
+  const cats=type==='expense'?CATS_EXPENSE:CATS_INCOME;
+  const cat=cats.find(c=>c.id===id);
+  if(!cat) return;
+  if(!confirm(`"${cat.name}" 카테고리를 삭제할까요?\n이 카테고리로 기록된 거래는 "기타"로 변경돼요.`)) return;
+
+  // 기존 거래의 cat을 'etc'로 변경
+  const toUpdate=transactions.filter(t=>t.cat===id);
+  try{
+    for(const t of toUpdate){
+      await updateDoc(doc(db,'transactions',t.id),{cat:'etc'});
+    }
+    const newCats=cats.filter(c=>c.id!==id);
+    await upsertSetting('categories',{[type]:newCats});
+    toast(`삭제됐어요 (거래 ${toUpdate.length}건 → 기타로 변경)`);
+  }catch(e){toast('❌ 삭제 실패: '+e.message);}
+};
+
+// ── 결제수단 모달 ──
+let methodModalEdit=null;
+window.openMethodModal=editName=>{
+  methodModalEdit=editName;
+  document.getElementById('method-modal-title').textContent=editName?'결제수단 수정':'결제수단 추가';
+  document.getElementById('method-name-input').value=editName||'';
+  const color=editName?(METHOD_COLORS[editName]||'#4d9fff'):'#4d9fff';
+  document.getElementById('method-color-picker').value=color;
+  document.getElementById('method-color-input').value=color;
+  document.getElementById('method-modal').style.display='flex';
+};
+window.closeMethodModal=()=>document.getElementById('method-modal').style.display='none';
+
+window.saveMethod=async()=>{
+  const name=document.getElementById('method-name-input').value.trim();
+  const color=document.getElementById('method-color-input').value.trim()||document.getElementById('method-color-picker').value;
+  if(!name) return toast('이름을 입력해주세요');
+
+  const newMethods=[...METHODS];
+  const newColors={...METHOD_COLORS};
+
+  if(methodModalEdit){
+    // 수정
+    const idx=newMethods.indexOf(methodModalEdit);
+    if(idx>-1){
+      newMethods[idx]=name;
+      delete newColors[methodModalEdit];
+    }
+  } else {
+    if(newMethods.includes(name)) return toast('이미 있는 결제수단이에요');
+    newMethods.push(name);
+  }
+  newColors[name]=color;
+
+  try{
+    await upsertSetting('methods',{list:newMethods,colors:newColors});
+    closeMethodModal();
+    showSuccessPopup('저장됐어요! ✅');
+  }catch(e){toast('❌ 저장 실패: '+e.message);}
+};
+
+window.deleteMethod=async name=>{
+  if(!confirm(`"${name}" 결제수단을 삭제할까요?`)) return;
+  const newMethods=METHODS.filter(m=>m!==name);
+  const newColors={...METHOD_COLORS};
+  delete newColors[name];
+  try{
+    await upsertSetting('methods',{list:newMethods,colors:newColors});
+    toast('삭제됐어요');
+  }catch(e){toast('❌ 삭제 실패');}
+};
+
+// ── 챌린지 설정 저장 ──
+window.saveChallengeSetting=async()=>{
+  const budget=parseInt(document.getElementById('setting-budget').value);
+  const startDate=document.getElementById('setting-ch-start').value;
+  if(!budget||budget<1000) return toast('예산을 1,000원 이상 입력해주세요');
+  if(!startDate) return toast('시작일을 선택해주세요');
+  try{
+    await upsertSetting('challenge',{budget,startDate});
+    showSuccessPopup('챌린지 설정 저장됐어요! 🎯',`주간 예산 ₩${budget.toLocaleString()}`);
+  }catch(e){toast('❌ 저장 실패: '+e.message);}
+};
+
+// 결제수단 버튼 동적 렌더 (입력 탭)
+function renderMethodGrid(){
+  const grid=document.querySelector('.method-grid');
+  if(!grid) return;
+  grid.innerHTML=METHODS.map(m=>{
+    const color=METHOD_COLORS[m]||'#888';
+    const isCard=m.includes('카드');
+    const icon=m==='현금'?'💵':m==='통장'?'🏦':'💳';
+    return`<button class="method-btn" data-method="${m}" onclick="selectMethod('${m}',this)">
+      <span class="method-icon" style="color:${color}">${icon}</span>${m.replace('카드','').replace('통장','').replace('현금','')||m}
+    </button>`;
   }).join('');
 }
 
