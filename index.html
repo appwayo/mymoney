@@ -460,11 +460,22 @@
       </div>
       <div id="challenge-carry-badge" style="margin-top:8px;padding:6px 10px;border-radius:7px;font-size:0.72rem;font-weight:600;display:none"></div>
     </div>
+    <!-- 기본 요약 카드 -->
     <div class="summary-grid">
       <div class="card" style="grid-column:span 2;background:linear-gradient(135deg,#0d2418,#1a1a1e);border-color:#00e87a33">
-        <div class="card-label">💰 현재 잔고</div>
+        <div class="card-label">💰 실제 가용 자금</div>
         <div class="card-amount income" id="sum-balance" style="font-size:1.8rem">₩0</div>
-        <div class="card-sub" id="sum-balance-sub">수입 − 지출 − 저축</div>
+        <div class="card-sub" id="sum-balance-sub">수입 − 현금/통장 지출 − 저축</div>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,#1c1015,#1a1a1e);border-color:#ff4d6d33">
+        <div class="card-label">💳 이달 카드 지출</div>
+        <div class="card-amount expense" id="sum-card-expense">₩0</div>
+        <div class="card-sub">다음달 빠져나갈 금액</div>
+      </div>
+      <div class="card">
+        <div class="card-label">💵 이달 현금/통장 지출</div>
+        <div class="card-amount expense" id="sum-cash-expense">₩0</div>
+        <div class="card-sub">이미 통장에서 나간 금액</div>
       </div>
       <div class="card">
         <div class="card-label">이달 수입</div>
@@ -472,16 +483,14 @@
         <div class="card-sub" id="sum-income-count">0건</div>
       </div>
       <div class="card">
-        <div class="card-label">이달 지출</div>
-        <div class="card-amount expense" id="sum-expense">₩0</div>
-        <div class="card-sub">저축·대여 제외</div>
-      </div>
-      <div class="card">
-        <div class="card-label">이달 저축</div>
+        <div class="card-label">이달 저축·청약</div>
         <div class="card-amount saving" id="sum-saving">₩0</div>
         <div class="card-sub" id="sum-saving-count">0건</div>
       </div>
     </div>
+
+    <!-- 커스텀 카드 영역 (설정에서 추가한 카드들) -->
+    <div id="home-custom-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:18px"></div>
     <div class="two-col">
       <div class="chart-box">
         <h3>카테고리별 지출</h3>
@@ -766,6 +775,18 @@
       </div>
     </div>
 
+    <!-- 홈 카드 커스텀 -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <h3>🏠 홈 카드 커스텀</h3>
+        <button class="settings-add-btn" onclick="openHomeCardModal()">+ 추가</button>
+      </div>
+      <div class="settings-section-body">
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">카테고리별 또는 결제수단별 집계 카드를 홈에 추가할 수 있어요.</p>
+        <div id="settings-home-cards"></div>
+      </div>
+    </div>
+
     <!-- 집계 설정 -->
     <div class="settings-section">
       <div class="settings-section-header">
@@ -779,6 +800,44 @@
   </div>
 
 </main>
+
+<!-- 홈 카드 추가 모달 -->
+<div class="modal-overlay" id="homecard-modal" style="display:none" onclick="if(event.target===this)closeHomeCardModal()">
+  <div class="modal">
+    <h3>🏠 홈 카드 추가</h3>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:16px">카테고리나 결제수단별 이달 지출을 홈에 카드로 표시해요.</p>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>카드 유형</label>
+        <select id="homecard-type" onchange="updateHomeCardOptions()">
+          <option value="category">카테고리별</option>
+          <option value="method">결제수단별</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>항목 선택</label>
+        <select id="homecard-target"></select>
+      </div>
+      <div class="form-group">
+        <label>카드 라벨 (선택)</label>
+        <input type="text" id="homecard-label" placeholder="비워두면 항목명 사용">
+      </div>
+      <div class="form-group">
+        <label>색상 테마</label>
+        <select id="homecard-color">
+          <option value="green">초록 (수입계열)</option>
+          <option value="red">빨강 (지출계열)</option>
+          <option value="purple">보라 (저축계열)</option>
+          <option value="blue">파랑</option>
+          <option value="yellow">노랑</option>
+          <option value="orange">주황</option>
+        </select>
+      </div>
+    </div>
+    <button class="modal-submit green" onclick="saveHomeCard()">추가하기</button>
+    <button class="modal-close" onclick="closeHomeCardModal()">취소</button>
+  </div>
+</div>
 
 <!-- 카테고리 편집 모달 -->
 <div class="modal-overlay" id="cat-modal" style="display:none" onclick="if(event.target===this)closeCatModal()">
@@ -999,6 +1058,7 @@ const CHALLENGE_BUDGET = 100000; // 하위 호환용, CH_BASE 사용
 
 // ══ State ══
 let transactions=[], loans=[];
+let homeCards=[]; // 커스텀 홈 카드 [{type,target,label,color}]
 let currentType='expense', selectedCat=null, selectedMethod=null;
 let currentYear=new Date().getFullYear(), currentMonth=new Date().getMonth();
 let charts={}, currentLoanId=null;
@@ -1031,6 +1091,9 @@ function startListeners(){
           CH_START=new Date(data.startDate);
           CH_START.setHours(0,0,0,0);
         }
+      }
+      if(d.id==='homeCards'){
+        if(data.cards) homeCards=data.cards;
       }
     });
     // 설정 바뀌면 UI 갱신
@@ -1293,21 +1356,72 @@ function renderChallenge(){
 }
 
 // ══ Home ══
+// 카드 결제수단 목록
+const CARD_METHODS = ()=>METHODS.filter(m=>m.includes('카드'));
+const CASH_METHODS = ()=>METHODS.filter(m=>!m.includes('카드'));
+
 function renderHome(){
   const txs=getMonthTxs();
-  const income =txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const saving =txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).reduce((s,t)=>s+t.amount,0);
-  const loanOut=txs.filter(t=>t.type==='expense'&&t.cat==='loan').reduce((s,t)=>s+t.amount,0);
-  const expense=txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan').reduce((s,t)=>s+t.amount,0);
-  const balance=income-expense-saving;
-  document.getElementById('sum-income').textContent ='₩'+income.toLocaleString();
-  document.getElementById('sum-expense').textContent='₩'+expense.toLocaleString();
-  document.getElementById('sum-saving').textContent ='₩'+saving.toLocaleString();
-  document.getElementById('sum-balance').textContent=(balance<0?'-₩':'₩')+Math.abs(balance).toLocaleString();
-  document.getElementById('sum-balance-sub').textContent=`이달 수입 ${income>0?'₩'+income.toLocaleString():'없음'} 기준`;
+  const income  =txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const saving  =txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).reduce((s,t)=>s+t.amount,0);
+  const loanOut =txs.filter(t=>t.type==='expense'&&t.cat==='loan').reduce((s,t)=>s+t.amount,0);
+
+  // 카드 지출 vs 현금/통장 지출 분리
+  const expTxs  =txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan');
+  const cardExp =expTxs.filter(t=>t.method&&t.method.includes('카드')).reduce((s,t)=>s+t.amount,0);
+  const cashExp =expTxs.filter(t=>!t.method||!t.method.includes('카드')).reduce((s,t)=>s+t.amount,0);
+  const totalExp=cardExp+cashExp;
+
+  // 실제 가용 자금 = 수입 - 현금/통장지출 - 저축 (카드는 아직 안 나간 돈)
+  const realBalance=income-cashExp-saving;
+
+  document.getElementById('sum-income').textContent      ='₩'+income.toLocaleString();
+  document.getElementById('sum-saving').textContent      ='₩'+saving.toLocaleString();
+  document.getElementById('sum-card-expense').textContent='₩'+cardExp.toLocaleString();
+  document.getElementById('sum-cash-expense').textContent='₩'+cashExp.toLocaleString();
+  document.getElementById('sum-balance').textContent     =(realBalance<0?'-₩':'₩')+Math.abs(realBalance).toLocaleString();
+  document.getElementById('sum-balance-sub').textContent =`수입 − 현금/통장지출 − 저축`;
   document.getElementById('sum-income-count').textContent=txs.filter(t=>t.type==='income').length+'건';
   document.getElementById('sum-saving-count').textContent=txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).length+'건';
+
+  renderCustomHomeCards(txs);
   renderTxList(txs);renderDonut(txs);renderLine(txs);renderChallenge();
+}
+
+// ── 커스텀 홈 카드 렌더 ──
+const HOME_CARD_COLORS={
+  green:  {bg:'#0d2418',border:'#00e87a33',cls:'income'},
+  red:    {bg:'#1c1015',border:'#ff4d6d33',cls:'expense'},
+  purple: {bg:'#1e1428',border:'#c084fc33',cls:'saving'},
+  blue:   {bg:'#0d1a2a',border:'#4d9fff33',cls:''},
+  yellow: {bg:'#1a1800',border:'#ffd16633',cls:''},
+  orange: {bg:'#1a1000',border:'#fb923c33',cls:''},
+};
+const HOME_CARD_TEXT={green:'#00e87a',red:'#ff4d6d',purple:'#c084fc',blue:'#4d9fff',yellow:'#ffd166',orange:'#fb923c'};
+
+function renderCustomHomeCards(txs){
+  const el=document.getElementById('home-custom-cards');
+  if(!homeCards.length){el.style.display='none';return;}
+  el.style.display='grid';
+  el.innerHTML=homeCards.map((card,i)=>{
+    let amount=0, label=card.label;
+    if(card.type==='category'){
+      const cat=[...CATS_EXPENSE,...CATS_INCOME].find(c=>c.id===card.target);
+      if(!label) label=(cat?.icon||'')+(cat?.name||card.target);
+      const isIncome=CATS_INCOME.some(c=>c.id===card.target);
+      amount=txs.filter(t=>t.type===(isIncome?'income':'expense')&&t.cat===card.target).reduce((s,t)=>s+t.amount,0);
+    } else {
+      if(!label) label=card.target;
+      amount=txs.filter(t=>t.type==='expense'&&t.method===card.target).reduce((s,t)=>s+t.amount,0);
+    }
+    const theme=HOME_CARD_COLORS[card.color]||HOME_CARD_COLORS.blue;
+    const textColor=HOME_CARD_TEXT[card.color]||'#4d9fff';
+    return`<div class="card" style="background:linear-gradient(135deg,${theme.bg},#1a1a1e);border-color:${theme.border}">
+      <div class="card-label">${label}</div>
+      <div class="card-amount" style="color:${textColor};font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500">₩${amount.toLocaleString()}</div>
+      <div class="card-sub">${card.type==='category'?'카테고리':'결제수단'} · 이달</div>
+    </div>`;
+  }).join('');
 }
 
 // ══ TX List (홈 - 최대 12개) ══
@@ -1813,13 +1927,15 @@ function renderChallengeCalendar(year,month,weekBudgets){
   const today=new Date(); today.setHours(0,0,0,0);
   const firstDay=new Date(year,month,1);
   const lastDay=new Date(year,month+1,0);
-  // 캘린더 시작: 첫날의 요일(일=0)만큼 이전 달 채우기
-  const startDow=firstDay.getDay(); // 0=일
+
+  // 월요일 시작: 1일의 요일 기준으로 앞 빈칸 계산 (0=일→6, 1=월→0, ..., 6=토→5)
+  const firstDow=firstDay.getDay();
+  const blanksBefore = firstDow===0 ? 6 : firstDow-1; // 월요일 기준 앞 빈칸
   const cells=[];
 
   // 이전 달 빈 칸
-  for(let i=0;i<startDow;i++){
-    const d=new Date(year,month,-(startDow-i-1));
+  for(let i=blanksBefore;i>0;i--){
+    const d=new Date(year,month,1-i);
     cells.push({date:d,otherMonth:true});
   }
   // 이번 달
@@ -1836,17 +1952,28 @@ function renderChallengeCalendar(year,month,weekBudgets){
   const monSet=new Set(weekBudgets.map(w=>`${w.mon.getFullYear()}-${String(w.mon.getMonth()+1).padStart(2,'0')}-${String(w.mon.getDate()).padStart(2,'0')}`));
 
   const grid=document.getElementById('ch-cal-cells');
+  // 요일 헤더도 월요일 시작으로 교체
+  document.getElementById('ch-cal-dow').innerHTML=
+    ['월','화','수','목','금','토','일'].map((d,i)=>
+      `<div class="cal-dow"${i===5?` style="color:#7aabff"`:i===6?` style="color:#ff7a9a"`:''
+      }>${d}</div>`).join('');
+
   grid.innerHTML=cells.map(({date,otherMonth})=>{
     const key=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     const amt=dailyMap[key]||0;
-    const dow=date.getDay();
+    const dow=date.getDay(); // 0=일, 6=토
     const isToday=date.getTime()===today.getTime();
     const isWeekStart=!otherMonth&&monSet.has(key);
     let amtClass='ok';
     if(amt>30000) amtClass='warn';
     if(amt>50000) amtClass='over';
-    const amtStr=amt>0?(amt>=10000?`${Math.round(amt/1000)}k`:`₩${amt.toLocaleString()}`):'';
-    return`<div class="cal-cell${otherMonth?' other-month':''}${isToday?' today':''}${dow===0?' sunday':dow===6?' saturday':''}${isWeekStart?' week-start':''}">
+    // 원화로 표시 (만원 이상이면 N만원, 아니면 ₩N,NNN)
+    let amtStr='';
+    if(amt>0){
+      if(amt>=10000) amtStr=`${Math.floor(amt/10000)}만${amt%10000>0?Math.floor((amt%10000)/1000)+'천':''}`;
+      else amtStr=`₩${amt.toLocaleString()}`;
+    }
+    return`<div class="cal-cell${otherMonth?' other-month':''}${isToday?' today':''}${dow===6?' saturday':''}${dow===0?' sunday':''}${isWeekStart?' week-start':''}">
       <span class="cal-day">${date.getDate()}</span>
       ${amtStr?`<span class="cal-amount ${amtClass}">${amtStr}</span>`:''}
     </div>`;
@@ -1920,6 +2047,7 @@ function renderSettingsPage(){
   renderSettingsMethods();
   renderSettingsChallenge();
   renderSettingsAggregate();
+  renderSettingsHomeCards();
 }
 
 function renderSettingsCats(type){
@@ -2138,6 +2266,72 @@ function renderMethodGrid(){
     </button>`;
   }).join('');
 }
+
+function renderSettingsHomeCards(){
+  const el=document.getElementById('settings-home-cards');
+  if(!homeCards.length){
+    el.innerHTML='<div style="font-size:0.8rem;color:var(--text-muted)">추가된 카드가 없어요.</div>';
+    return;
+  }
+  const allCats=[...CATS_EXPENSE,...CATS_INCOME];
+  el.innerHTML=homeCards.map((card,i)=>{
+    const label=card.label||(card.type==='category'
+      ?(allCats.find(c=>c.id===card.target)?.name||card.target)
+      :card.target);
+    const colorDot=HOME_CARD_TEXT[card.color]||'#888';
+    return`<div class="settings-item">
+      <div class="color-swatch" style="background:${colorDot};border-color:${colorDot}44"></div>
+      <div class="settings-item-name">${label}</div>
+      <span class="settings-item-badge system">${card.type==='category'?'카테고리':'결제수단'}</span>
+      <div class="settings-item-actions">
+        <button class="settings-item-btn del" onclick="deleteHomeCard(${i})">삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── 홈 카드 모달 ──
+window.openHomeCardModal=()=>{
+  updateHomeCardOptions();
+  document.getElementById('homecard-label').value='';
+  document.getElementById('homecard-color').value='red';
+  document.getElementById('homecard-modal').style.display='flex';
+};
+window.closeHomeCardModal=()=>document.getElementById('homecard-modal').style.display='none';
+
+window.updateHomeCardOptions=()=>{
+  const type=document.getElementById('homecard-type').value;
+  const sel=document.getElementById('homecard-target');
+  if(type==='category'){
+    const all=[...CATS_EXPENSE,...CATS_INCOME];
+    sel.innerHTML=all.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  } else {
+    sel.innerHTML=METHODS.map(m=>`<option value="${m}">${m}</option>`).join('');
+  }
+};
+
+window.saveHomeCard=async()=>{
+  const type  =document.getElementById('homecard-type').value;
+  const target=document.getElementById('homecard-target').value;
+  const label =document.getElementById('homecard-label').value.trim();
+  const color =document.getElementById('homecard-color').value;
+  if(!target) return toast('항목을 선택해주세요');
+  const newCards=[...homeCards,{type,target,label,color}];
+  try{
+    await upsertSetting('homeCards',{cards:newCards});
+    closeHomeCardModal();
+    showSuccessPopup('홈 카드 추가됐어요! 🏠');
+  }catch(e){toast('❌ 저장 실패: '+e.message);}
+};
+
+window.deleteHomeCard=async i=>{
+  if(!confirm('이 홈 카드를 삭제할까요?')) return;
+  const newCards=homeCards.filter((_,idx)=>idx!==i);
+  try{
+    await upsertSetting('homeCards',{cards:newCards});
+    toast('삭제됐어요');
+  }catch(e){toast('❌ 삭제 실패');}
+};
 
 // ══ Toast ══
 window.toast=msg=>{
