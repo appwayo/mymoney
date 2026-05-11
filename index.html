@@ -678,15 +678,27 @@
       <h2 style="font-size:1rem;font-weight:700;flex:1">전체 거래내역</h2>
     </div>
     <!-- 기간 필터 -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
-      <span style="font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;flex-shrink:0">기간</span>
-      <input type="date" id="txall-from" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.83rem;padding:7px 10px;outline:none;flex:1;min-width:120px;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'">
-      <span style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0">~</span>
-      <input type="date" id="txall-to" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.83rem;padding:7px 10px;outline:none;flex:1;min-width:120px;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'">
-      <button onclick="renderTxAll()" style="background:var(--accent-blue);border:none;color:#fff;font-family:inherit;font-size:0.8rem;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;flex-shrink:0;transition:opacity 0.15s;" onmouseenter="this.style.opacity=0.85" onmouseleave="this.style.opacity=1">조회</button>
-      <button onclick="setTxAllRange('month')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">이번달</button>
-      <button onclick="setTxAllRange('3month')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">최근3달</button>
-      <button onclick="setTxAllRange('all')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">전체</button>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <span style="font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;flex-shrink:0">기간</span>
+        <input type="date" id="txall-from" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.83rem;padding:7px 10px;outline:none;flex:1;min-width:120px;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'">
+        <span style="color:var(--text-muted);font-size:0.8rem;flex-shrink:0">~</span>
+        <input type="date" id="txall-to" style="background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.83rem;padding:7px 10px;outline:none;flex:1;min-width:120px;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'">
+        <button onclick="renderTxAll()" style="background:var(--accent-blue);border:none;color:#fff;font-family:inherit;font-size:0.8rem;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;flex-shrink:0;">조회</button>
+        <button onclick="setTxAllRange('month')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">이번달</button>
+        <button onclick="setTxAllRange('3month')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">최근3달</button>
+        <button onclick="setTxAllRange('all')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.75rem;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0;">전체</button>
+      </div>
+      <!-- 카테고리 필터 -->
+      <div>
+        <div style="font-size:0.68rem;font-weight:700;color:var(--text-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:7px">카테고리 필터</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <button onclick="setTxAllCat(null,this)" class="txall-cat-btn active" style="background:var(--accent-blue);border:1px solid var(--accent-blue);color:#fff;font-family:inherit;font-size:0.7rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">전체</button>
+          <button onclick="setTxAllType('income',this)" class="txall-cat-btn" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.7rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">📥 수입만</button>
+          <button onclick="setTxAllType('expense',this)" class="txall-cat-btn" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.7rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">📤 지출만</button>
+          <div id="txall-cat-btns" style="display:contents"></div>
+        </div>
+      </div>
     </div>
     <!-- 요약 -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
@@ -1193,8 +1205,6 @@ const DEFAULT_CATS_EXPENSE = [
   {id:'food',      icon:'🍽', name:'식비'},
   {id:'outside',   icon:'🌇', name:'외출'},
   {id:'exercise',  icon:'🏋️', name:'운동'},
-  {id:'saving',    icon:'🏦', name:'저축',  isSaving:true},
-  {id:'apt',       icon:'🏢', name:'청약',  isApt:true},
   {id:'hobby',     icon:'🎮', name:'취미'},
   {id:'transport', icon:'🚌', name:'교통'},
   {id:'install',   icon:'💳', name:'할부'},
@@ -1319,12 +1329,13 @@ window.showPage=(page,btn)=>{
   if(page==='challenge') renderChallengePage();
   if(page==='settings')  renderSettingsPage();
   if(page==='txall'){
-    // 기본값: 이번 달
+    txAllCatFilter=null;
     const now=new Date();
     const from=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
     const to=now.toISOString().split('T')[0];
     document.getElementById('txall-from').value=from;
     document.getElementById('txall-to').value=to;
+    renderTxAllCatBtns();
     renderTxAll();
   }
 };
@@ -1532,7 +1543,7 @@ function renderChallenge(){
 function renderHome(){
   const txs=getMonthTxs();
   const income  =txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-  const saving  =txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).reduce((s,t)=>s+t.amount,0);
+  const saving  =txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'||t.cat==='saving_linked')).reduce((s,t)=>s+t.amount,0);
   const expTxs  =txs.filter(t=>t.type==='expense'&&t.cat!=='saving'&&t.cat!=='apt'&&t.cat!=='loan');
   const cardExp =expTxs.filter(t=>t.method&&t.method.includes('카드')).reduce((s,t)=>s+t.amount,0);
   const cashExp =expTxs.filter(t=>!t.method||!t.method.includes('카드')).reduce((s,t)=>s+t.amount,0);
@@ -1545,7 +1556,7 @@ function renderHome(){
   document.getElementById('sum-balance').textContent     =(realBalance<0?'-₩':'₩')+Math.abs(realBalance).toLocaleString();
   document.getElementById('sum-balance-sub').textContent ='수입 − 현금/통장지출 − 저축';
   document.getElementById('sum-income-count').textContent=txs.filter(t=>t.type==='income').length+'건';
-  document.getElementById('sum-saving-count').textContent=txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt')).length+'건';
+  document.getElementById('sum-saving-count').textContent=txs.filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'||t.cat==='saving_linked')).length+'건';
 
   // 카드별 상세 breakdown
   const breakdown=document.getElementById('sum-card-breakdown');
@@ -1645,6 +1656,8 @@ function renderTxList(txs){
 }
 
 // ══ TX 전체보기 ══
+let txAllCatFilter=null; // null=전체, 'income'/'expense'=타입, 카테고리id=특정카테고리
+
 window.setTxAllRange=range=>{
   const today=new Date();
   const to=today.toISOString().split('T')[0];
@@ -1655,7 +1668,6 @@ window.setTxAllRange=range=>{
     const d=new Date(today); d.setMonth(d.getMonth()-2); d.setDate(1);
     from=d.toISOString().split('T')[0];
   } else {
-    // 전체: 가장 오래된 거래 날짜
     const dates=transactions.map(t=>t.date).sort();
     from=dates[0]||to;
   }
@@ -1664,14 +1676,46 @@ window.setTxAllRange=range=>{
   renderTxAll();
 };
 
+window.setTxAllCat=(cat,btn)=>{
+  txAllCatFilter=cat;
+  document.querySelectorAll('.txall-cat-btn').forEach(b=>{
+    b.style.background='none'; b.style.borderColor='var(--border)'; b.style.color='var(--text-muted)';
+  });
+  btn.style.background='var(--accent-blue)'; btn.style.borderColor='var(--accent-blue)'; btn.style.color='#fff';
+  renderTxAll();
+};
+
+window.setTxAllType=(type,btn)=>{
+  txAllCatFilter=type;
+  document.querySelectorAll('.txall-cat-btn').forEach(b=>{
+    b.style.background='none'; b.style.borderColor='var(--border)'; b.style.color='var(--text-muted)';
+  });
+  btn.style.background='var(--accent-blue)'; btn.style.borderColor='var(--accent-blue)'; btn.style.color='#fff';
+  renderTxAll();
+};
+
+function renderTxAllCatBtns(){
+  const allCats=[...CATS_EXPENSE,...CATS_INCOME];
+  document.getElementById('txall-cat-btns').innerHTML=allCats.map(c=>
+    `<button onclick="setTxAllCat('${c.id}',this)" class="txall-cat-btn" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.7rem;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">${c.icon} ${c.name}</button>`
+  ).join('');
+}
+
 window.renderTxAll=()=>{
   const from=document.getElementById('txall-from').value;
   const to  =document.getElementById('txall-to').value;
   if(!from||!to) return toast('기간을 선택해주세요');
   const fromD=new Date(from), toD=new Date(to); toD.setHours(23,59,59,999);
-  const filtered=transactions.filter(t=>{
+
+  let filtered=transactions.filter(t=>{
     const d=new Date(t.date); return d>=fromD&&d<=toD;
-  }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  });
+  // 카테고리/타입 필터
+  if(txAllCatFilter==='income') filtered=filtered.filter(t=>t.type==='income');
+  else if(txAllCatFilter==='expense') filtered=filtered.filter(t=>t.type==='expense');
+  else if(txAllCatFilter) filtered=filtered.filter(t=>t.cat===txAllCatFilter);
+
+  filtered=filtered.sort((a,b)=>new Date(b.date)-new Date(a.date));
 
   const income =filtered.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const expense=filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
@@ -2026,15 +2070,14 @@ CH_START.setHours(0,0,0,0);
 function calcWeekBudgets(year, month){
   const weeks=getMonthWeeks(year,month);
   const results=[];
-  let carry=0;
   const today=new Date(); today.setHours(0,0,0,0);
 
   weeks.forEach(w=>{
-    const budget=CH_BASE+carry;
+    const budget=CH_BASE; // 이월 없이 항상 고정
     const isFuture=today<w.mon;
     const isCurrentWeek=today>=w.mon&&today<=w.sun;
-    // 챌린지 시작 전 주는 지출 무시, 이월도 안 함
     const beforeStart=w.sun<CH_START;
+    const isPast=!isFuture&&!isCurrentWeek&&!beforeStart;
 
     const weekTxs=(isFuture||beforeStart)?[]:getChallengeExpense(transactions).filter(t=>{
       const d=new Date(t.date); return d>=w.mon&&d<=w.sun;
@@ -2042,10 +2085,13 @@ function calcWeekBudgets(year, month){
     const used=weekTxs.reduce((s,t)=>s+t.amount,0);
     const diff=budget-used;
 
-    results.push({mon:w.mon,sun:w.sun,budget,used,diff,carry,isCurrentWeek,isFuture,beforeStart});
+    // 상태: 'before'|'future'|'current'|'success'|'fail'
+    let status='future';
+    if(beforeStart) status='before';
+    else if(isCurrentWeek) status='current';
+    else if(isPast) status=diff>=0?'success':'fail';
 
-    // 시작 전 주 + 미래 주는 이월 누적 안 함
-    if(!isFuture&&!beforeStart) carry=diff;
+    results.push({mon:w.mon,sun:w.sun,budget,used,diff,isCurrentWeek,isFuture,beforeStart,status});
   });
   return results;
 }
@@ -2086,15 +2132,11 @@ function renderChallengePage(){
     const bar=document.getElementById('ch-bar');
     bar.style.width=pct+'%';
     bar.style.background=pct<60?'var(--accent-green)':pct<90?'var(--accent-yellow)':'var(--accent-red)';
-    // 이월 뱃지
+    // 배지 - 이월 없이 단순
     const cb=document.getElementById('ch-carry-badge');
-    if(curWeek.carry===0){
-      cb.className='ch-carry zero'; cb.textContent='이번 달 기준 · 기본 ₩100,000';
-    } else if(curWeek.carry>0){
-      cb.className='ch-carry plus'; cb.textContent=`지난 주 절약 +₩${curWeek.carry.toLocaleString()} 이월 → 이번 주 예산 ₩${curWeek.budget.toLocaleString()}`;
-    } else {
-      cb.className='ch-carry minus'; cb.textContent=`지난 주 초과 -₩${Math.abs(curWeek.carry).toLocaleString()} 차감 → 이번 주 예산 ₩${curWeek.budget.toLocaleString()}`;
-    }
+    cb.className='ch-carry zero';
+    cb.textContent=`매주 ₩${curWeek.budget.toLocaleString()} 고정 · 남은 금액 ${fmtShort(curWeek.diff)}`;
+    cb.style.display='';
   }
 
   // ── 캘린더 ──
@@ -2133,8 +2175,16 @@ function renderChallengeCalendar(year,month,weekBudgets){
   // 주 시작일(월요일) 세트
   const monSet=new Set(weekBudgets.map(w=>`${w.mon.getFullYear()}-${String(w.mon.getMonth()+1).padStart(2,'0')}-${String(w.mon.getDate()).padStart(2,'0')}`));
 
+  // 주차별 상태 맵 {날짜key: status}
+  const weekStatusMap={};
+  weekBudgets.forEach(w=>{
+    for(let d=new Date(w.mon);d<=w.sun;d.setDate(d.getDate()+1)){
+      const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      weekStatusMap[k]=w.status;
+    }
+  });
+
   const grid=document.getElementById('ch-cal-cells');
-  // 요일 헤더도 월요일 시작으로 교체
   document.getElementById('ch-cal-dow').innerHTML=
     ['월','화','수','목','금','토','일'].map((d,i)=>
       `<div class="cal-dow"${i===5?` style="color:#7aabff"`:i===6?` style="color:#ff7a9a"`:''
@@ -2143,22 +2193,29 @@ function renderChallengeCalendar(year,month,weekBudgets){
   grid.innerHTML=cells.map(({date,otherMonth})=>{
     const key=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     const amt=dailyMap[key]||0;
-    const dow=date.getDay(); // 0=일, 6=토
+    const dow=date.getDay();
     const isToday=date.getTime()===today.getTime();
     const isWeekStart=!otherMonth&&monSet.has(key);
+    const status=!otherMonth?weekStatusMap[key]:'';
+
+    // 배경색 (지난 주만)
+    let bgStyle='';
+    if(status==='success') bgStyle='background:rgba(77,159,255,0.12);';
+    else if(status==='fail') bgStyle='background:rgba(255,77,109,0.12);';
+
     let amtClass='ok';
     if(amt>30000) amtClass='warn';
     if(amt>50000) amtClass='over';
-    // 원화로 표시 (만원 이상이면 N만원, 아니면 ₩N,NNN)
     let amtStr='';
     if(amt>0){
       if(amt>=10000) amtStr=`${Math.floor(amt/10000)}만${amt%10000>0?Math.floor((amt%10000)/1000)+'천':''}`;
       else amtStr=`₩${amt.toLocaleString()}`;
     }
-    return`<div class="cal-cell${otherMonth?' other-month':''}${isToday?' today':''}${dow===6?' saturday':''}${dow===0?' sunday':''}${isWeekStart?' week-start':''}" ${!otherMonth&&amt>0?`onclick="openDayPopup('${key}')" style="cursor:pointer"`:''}>
+    return`<div class="cal-cell${otherMonth?' other-month':''}${isToday?' today':''}${dow===6?' saturday':''}${dow===0?' sunday':''}${isWeekStart?' week-start':''}" style="${bgStyle}" ${!otherMonth&&amt>0?`onclick="openDayPopup('${key}')"`:''}>
       <span class="cal-day">${date.getDate()}</span>
       ${amtStr?`<span class="cal-amount ${amtClass}">${amtStr}</span>`:''}
     </div>`;
+  }).join('');
   }).join('');
 }
 
@@ -2168,28 +2225,31 @@ function renderWeekHistory(weekBudgets){
     el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.83rem">이번 달 주차 데이터가 없어요</div>';
     return;
   }
+
+  const STATUS_CONFIG={
+    before: {label:'제외',   color:'var(--text-muted)',  bg:'var(--surface2)',     dot:'#555'},
+    future: {label:'예정',   color:'var(--text-muted)',  bg:'var(--surface2)',     dot:'#7a7a8c'},
+    current:{label:'진행중', color:'var(--accent-blue)', bg:'#4d9fff18',           dot:'var(--accent-blue)'},
+    success:{label:'성공 ✓', color:'var(--accent-blue)', bg:'rgba(77,159,255,0.1)',dot:'var(--accent-blue)'},
+    fail:   {label:'실패 ✗', color:'var(--accent-red)',  bg:'rgba(255,77,109,0.1)',dot:'var(--accent-red)'},
+  };
+
   el.innerHTML=weekBudgets.map((w,i)=>{
+    const cfg=STATUS_CONFIG[w.status]||STATUS_CONFIG.future;
     const pct=Math.min(100,Math.round(w.used/w.budget*100));
-    const isOver=w.diff<0;
-    const isFuture=w.isFuture;
-    const dotCls=isFuture?'':'(w.used===0?\'ok\':pct<90?\'ok\':pct<100?\'warn\':\'over\')';
-    const dotClass=isFuture?'ok':(pct<90?'ok':pct<100?'warn':'over');
-    const carryText=w.carry!==0
-      ?(w.carry>0?`지난 주 +₩${w.carry.toLocaleString()} 이월`:`지난 주 -₩${Math.abs(w.carry).toLocaleString()} 차감`)
-      :'기본 ₩100,000';
-    return`<div class="ch-week-item">
-      <div class="ch-week-dot ${dotClass}"></div>
+    const showAmount=w.status==='current'||w.status==='success'||w.status==='fail';
+    return`<div class="ch-week-item" style="background:${w.status==='success'||w.status==='fail'?cfg.bg:''}">
+      <div class="ch-week-dot" style="background:${cfg.dot}"></div>
       <div class="ch-week-info">
         <div class="ch-week-range">${i+1}주차 · ${fmtMD(w.mon)}(월) ~ ${fmtMD(w.sun)}(일)</div>
-        <div class="ch-week-detail">${w.beforeStart?'챌린지 시작 전':isFuture?'아직 시작 안 됨':carryText} · 예산 ₩${w.budget.toLocaleString()}</div>
+        <div class="ch-week-detail">예산 ₩${w.budget.toLocaleString()}</div>
       </div>
       <div class="ch-week-right">
-        ${(isFuture||w.beforeStart)
-          ?`<div class="ch-week-used ok">${w.beforeStart?'제외':'예정'}</div>`
-          :`<div class="ch-week-used ${isOver?'over':'ok'}">₩${w.used.toLocaleString()}</div>
-            <div class="ch-week-carry ${w.diff>=0?'plus':'minus'}">${w.diff>=0?'+':'-'}₩${Math.abs(w.diff).toLocaleString()} ${w.diff>=0?'절약':'초과'}</div>`
-        }
-        <div class="ch-week-budget">${w.beforeStart?'':Math.round(pct)+'% 사용'}</div>
+        <span style="font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:5px;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.color}44">${cfg.label}</span>
+        ${showAmount?`<div class="ch-week-used ${w.diff<0?'over':'ok'}" style="margin-top:4px">₩${w.used.toLocaleString()}</div>
+          <div style="font-size:0.68rem;color:${w.diff>=0?'var(--accent-blue)':'var(--accent-red)'};font-weight:600">${w.diff>=0?'남은 ':'초과 '}₩${Math.abs(w.diff).toLocaleString()}</div>`
+        :''}
+        ${showAmount?`<div class="ch-week-budget">${pct}% 사용</div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -2700,10 +2760,23 @@ window.saveSavingTx=async()=>{
   a.txs=[...(a.txs||[]),{type:savingTxType,amount,date,memo}];
   newAccounts[savingTxIdx]=a;
   try{
+    // 저축 항목 업데이트
     await upsertSetting('savingAccounts',{accounts:newAccounts});
+    // 거래내역에도 자동 기록 (입금만 - 저축 카테고리로)
+    if(savingTxType==='deposit'){
+      await addDoc(COL,{
+        type:'expense', amount, date,
+        desc: memo||(a.name+' 저축'),
+        cat:'saving_linked', // 저축 연동 전용 카테고리
+        savingAccountName: a.name,
+        method: null,
+        excludeChallenge: true, // 챌린지에서 자동 제외
+        createdAt: new Date().toISOString()
+      });
+    }
     closeSavingTxModal();
     showSuccessPopup(savingTxType==='deposit'?'입금됐어요! 💚':'출금됐어요! 💛',`₩${amount.toLocaleString()}`);
-  }catch(e){toast('❌ 저장 실패');}
+  }catch(e){toast('❌ 저장 실패: '+e.message);}
 };
 
 // 설정 탭에서도 저축 항목 수정 가능하도록 renderSettingsPage 연동
