@@ -1278,10 +1278,9 @@ function startListeners(){
         if(data.accounts) savingAccounts=data.accounts;
       }
     });
-    // 설정 바뀌면 UI 갱신
-    if(document.getElementById('page-settings').classList.contains('active')) renderSettingsPage();
     renderCatGrid();
     updateAll();
+    refreshActivePage();
   }, err=>console.error('settings listener error',err));
 
   onSnapshot(query(COL,orderBy('date','desc')), snap=>{
@@ -1289,14 +1288,27 @@ function startListeners(){
     setSyncBar('ok','실시간 동기화 중 ✓');
     document.getElementById('loading-overlay').style.display='none';
     updateAll();
-    if(document.getElementById('page-stats').classList.contains('active')) renderStats();
+    refreshActivePage();
   }, err=>{setSyncBar('error','연결 오류');console.error(err);});
 
   onSnapshot(query(LCOL,orderBy('date','desc')), snap=>{
     loans=snap.docs.map(d=>({...d.data(),id:d.id}));
-    if(document.getElementById('page-loan').classList.contains('active')) renderLoanPage();
-    updateRepayDropdown(); // 상환 드롭다운 항상 최신 유지
+    updateRepayDropdown();
+    refreshActivePage();
   }, err=>console.error(err));
+}
+
+// 현재 활성 탭을 자동 갱신
+function refreshActivePage(){
+  const active=document.querySelector('.page.active');
+  if(!active) return;
+  const id=active.id;
+  if(id==='page-stats')     renderStats();
+  if(id==='page-loan')      renderLoanPage();
+  if(id==='page-saving')    renderSavingTab();
+  if(id==='page-challenge') renderChallengePage();
+  if(id==='page-settings')  renderSettingsPage();
+  if(id==='page-txall')     renderTxAll();
 }
 
 // ══ Month ══
@@ -1500,21 +1512,20 @@ function getWeekRange(date){
   return{mon,sun};
 }
 function renderChallenge(){
-  // 챌린지 탭과 동일한 이월 계산 사용
   const today=new Date();
   const year=today.getFullYear(), month=today.getMonth();
   const weekBudgets=calcWeekBudgets(year,month);
   const curWeek=weekBudgets.find(w=>w.isCurrentWeek);
   if(!curWeek) return;
 
-  const{mon,sun,used,budget,diff,carry}=curWeek;
+  const{mon,sun,used,budget,diff}=curWeek;
   const pct=Math.min(100,Math.round(used/budget*100));
   const fmt=n=>(n<0?'-₩':'₩')+Math.abs(n).toLocaleString();
 
   document.getElementById('challenge-remain').textContent=fmt(diff);
   document.getElementById('challenge-used').textContent='₩'+used.toLocaleString();
   document.getElementById('challenge-week-label').textContent=
-    `${mon.getMonth()+1}/${mon.getDate()}(월) ~ ${sun.getMonth()+1}/${sun.getDate()}(일) · 예산 ₩${budget.toLocaleString()}`;
+    `${mon.getMonth()+1}/${mon.getDate()}(월) ~ ${sun.getMonth()+1}/${sun.getDate()}(일)`;
 
   const bar=document.getElementById('challenge-bar');
   const rem=document.getElementById('challenge-remain');
@@ -1524,19 +1535,13 @@ function renderChallenge(){
   else if(pct<100){bar.style.background='var(--accent-red)';rem.className='challenge-remain danger';document.getElementById('challenge-status').textContent='위험해요 😬';}
   else{bar.style.background='var(--accent-red)';rem.className='challenge-remain danger';document.getElementById('challenge-status').textContent='초과했어요 😱';}
 
-  // 이월 뱃지
+  // 고정 배지 (이월 없음)
   const badge=document.getElementById('challenge-carry-badge');
-  if(carry===0){
-    badge.style.display='none';
-  } else if(carry>0){
-    badge.style.display='';
-    badge.style.background='#00e87a18'; badge.style.color='var(--accent-green)'; badge.style.border='1px solid #00e87a44';
-    badge.textContent=`지난 주 절약 +₩${carry.toLocaleString()} 이월 → 이번 주 예산 ₩${budget.toLocaleString()}`;
-  } else {
-    badge.style.display='';
-    badge.style.background='#ff4d6d18'; badge.style.color='var(--accent-red)'; badge.style.border='1px solid #ff4d6d44';
-    badge.textContent=`지난 주 초과 -₩${Math.abs(carry).toLocaleString()} 차감 → 이번 주 예산 ₩${budget.toLocaleString()}`;
-  }
+  badge.style.display='';
+  badge.style.background='var(--surface2)';
+  badge.style.color='var(--text-muted)';
+  badge.style.border='1px solid var(--border)';
+  badge.textContent=`매주 ₩${budget.toLocaleString()} 고정 · 남은 금액 ${fmt(diff)}`;
 }
 
 // ══ Home ══
