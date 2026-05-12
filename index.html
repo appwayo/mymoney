@@ -425,12 +425,12 @@
   .emoji-picker-wrap{position:relative;}
   .emoji-input-btn{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:1.4rem;padding:10px;outline:none;cursor:pointer;text-align:center;transition:border-color 0.15s;}
   .emoji-input-btn:focus,.emoji-input-btn:hover{border-color:var(--accent-blue);}
-  .emoji-picker-popup{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;z-index:900;box-shadow:0 8px 32px #00000088;max-height:260px;overflow-x:hidden;overflow-y:auto;width:min(280px,calc(100vw - 32px));}
+  .emoji-picker-popup{position:fixed;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;z-index:900;box-shadow:0 8px 32px #00000088;max-height:260px;overflow-x:hidden;overflow-y:auto;width:min(252px,calc(100vw - 24px));}
   .emoji-picker-popup::-webkit-scrollbar{width:4px;}
   .emoji-picker-popup::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
   .emoji-picker-section{margin-bottom:10px;}
   .emoji-picker-label{font-size:0.62rem;font-weight:700;color:var(--text-muted);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;}
-  .emoji-picker-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .emoji-picker-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;}
   .emoji-option{font-size:1.25rem;padding:5px;border-radius:7px;cursor:pointer;text-align:center;transition:background 0.1s;border:none;background:none;}
   .emoji-option:hover{background:var(--surface2);}
 
@@ -568,8 +568,8 @@
   .ch-calendar h3{font-size:0.76rem;font-weight:600;color:var(--text-muted);margin-bottom:14px;letter-spacing:0.05em;}
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
   .cal-dow{text-align:center;font-size:0.65rem;font-weight:700;color:var(--text-muted);padding:4px 0;letter-spacing:0.05em;}
-  .cal-dow:first-child{color:#ff7a9a;}
-  .cal-dow:last-child{color:#7aabff;}
+  .cal-dow:nth-child(6){color:#7aabff;}
+  .cal-dow:nth-child(7){color:#ff7a9a;}
   .cal-cell{aspect-ratio:unset;min-height:58px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 2px;cursor:default;transition:background 0.1s;}
   .cal-cell:hover{background:var(--surface2);}
   .cal-cell.today{border:1.5px solid var(--accent-blue);}
@@ -1036,9 +1036,10 @@
     <div class="ch-calendar">
       <h3 id="ch-cal-title">캘린더</h3>
       <div class="cal-grid" id="ch-cal-dow">
-        <div class="cal-dow">일</div><div class="cal-dow">월</div><div class="cal-dow">화</div>
-        <div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div>
-        <div class="cal-dow">토</div>
+        <div class="cal-dow">월</div><div class="cal-dow">화</div><div class="cal-dow">수</div>
+        <div class="cal-dow">목</div><div class="cal-dow">금</div>
+        <div class="cal-dow" style="color:#7aabff">토</div>
+        <div class="cal-dow" style="color:#ff7a9a">일</div>
       </div>
       <div class="cal-grid" id="ch-cal-cells" style="margin-top:4px"></div>
     </div>
@@ -1449,12 +1450,19 @@
 <div class="modal-overlay" id="loan-add-modal" style="display:none" onclick="if(event.target===this)closeLoanAddModal()">
   <div class="modal">
     <h3>💸 대여 직접 등록</h3>
-    <p>입력 탭에서 "빌려줌" 카테고리를 써도 자동 등록돼요.<br>여기서는 별도로 추가할 때 사용하세요.</p>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px">입력 탭에서 "빌려줌" 카테고리를 써도 자동 등록돼요.</p>
     <div class="modal-form">
       <div class="form-group"><label>상대방 이름</label><input type="text" id="loan-person" placeholder="예) 홍길동"></div>
       <div class="form-group"><label>명목 / 사유</label><input type="text" id="loan-purpose" placeholder="예) 밥값, 교통비"></div>
       <div class="form-group"><label>빌려준 금액</label><input type="number" id="loan-amount" placeholder="0" min="0"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="loan-date"></div>
+      <div class="form-group">
+        <label>결제 수단</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+          <button id="loan-method-cash" onclick="selectLoanMethod('현금',this)" style="padding:9px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s;">💵 현금</button>
+          <button id="loan-method-bank" onclick="selectLoanMethod('통장',this)" style="padding:9px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s;">🏦 통장</button>
+        </div>
+      </div>
       <div class="form-group"><label>메모 (선택)</label><input type="text" id="loan-memo" placeholder="추가 메모"></div>
     </div>
     <button class="modal-submit" onclick="addLoanDirect()">등록하기</button>
@@ -2244,8 +2252,8 @@ function renderLine(txs){
 // ══ Stats ══
 function renderStats(){renderBudgetProgress();renderSavingSummary();renderMonthly();renderIncomeCat();renderCatDetail();renderMethodChart();}
 function renderSavingSummary(){
-  const txs=getMonthTxs().filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'));
-  const savingAmt=getMonthTxs().filter(t=>t.type==='expense'&&t.cat==='saving').reduce((s,t)=>s+t.amount,0);
+  const txs=getMonthTxs().filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'||t.cat==='saving_linked'));
+  const savingAmt=getMonthTxs().filter(t=>t.type==='expense'&&(t.cat==='saving'||t.cat==='saving_linked')).reduce((s,t)=>s+t.amount,0);
   const aptAmt   =getMonthTxs().filter(t=>t.type==='expense'&&t.cat==='apt').reduce((s,t)=>s+t.amount,0);
   const total=savingAmt+aptAmt;
   document.getElementById('stats-saving-amount').textContent='₩'+total.toLocaleString();
@@ -2396,7 +2404,21 @@ function renderLoanPage(){
 window.toggleLoanCard=id=>{document.getElementById('lb-'+id).classList.toggle('open');};
 
 // 직접 등록
+let selectedLoanMethod=null;
+window.selectLoanMethod=(method,btn)=>{
+  selectedLoanMethod=method;
+  ['loan-method-cash','loan-method-bank'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){b.style.borderColor='var(--border)';b.style.background='none';b.style.color='var(--text-muted)';}
+  });
+  btn.style.borderColor='var(--accent-orange)';btn.style.background='#fb923c15';btn.style.color='var(--accent-orange)';
+};
 window.openLoanAddModal=()=>{
+  selectedLoanMethod=null;
+  ['loan-method-cash','loan-method-bank'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){b.style.borderColor='var(--border)';b.style.background='none';b.style.color='var(--text-muted)';}
+  });
   document.getElementById('loan-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('loan-add-modal').style.display='flex';
 };
@@ -2412,9 +2434,18 @@ window.addLoanDirect=async()=>{
   if(!amount||amount<=0)return toast('금액을 입력해주세요');
   if(!date)             return toast('날짜를 선택해주세요');
   try{
-    await addDoc(LCOL,{person,purpose,amount,date,memo,repayments:[],createdAt:new Date().toISOString()});
+    const loanRef=await addDoc(LCOL,{person,purpose,amount,date,memo,repayments:[],createdAt:new Date().toISOString()});
+    // 거래내역 자동 기록
+    await addDoc(COL,{
+      type:'expense', amount, date,
+      desc:`${person} (${purpose})`,
+      cat:'loan', method:selectedLoanMethod||null,
+      loanId:loanRef.id, excludeChallenge:true,
+      createdAt:new Date().toISOString()
+    });
     ['loan-person','loan-purpose','loan-amount','loan-memo'].forEach(id=>document.getElementById(id).value='');
-    closeLoanAddModal(); toast('✅ 등록됐어요!');
+    closeLoanAddModal();
+    showSuccessPopup('대여 등록됐어요! 💸',`₩${amount.toLocaleString()}`);
   }catch(e){toast('❌ 저장 실패: '+e.message);}
 };
 
@@ -3230,9 +3261,13 @@ function renderSavingTab(){
       </div>
       ${sortBtns}
       <div class="saving-account-body" id="sab-${i}">
-        ${a.goal>0?`<div class="saving-progress-wrap"><div class="saving-progress-bar" style="width:${pct}%;background:${color}"></div></div>
+        ${a.goal>0?`<div class="saving-progress-wrap" 
+          title="달성 ${pct}% · 남은 금액 ₩${(a.goal-a.balance).toLocaleString()}"
+          style="cursor:help">
+          <div class="saving-progress-bar" style="width:${pct}%;background:${color}"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin-bottom:12px">
-          <span>₩${a.balance.toLocaleString()}</span><span>목표 ₩${a.goal.toLocaleString()}</span>
+          <span>₩${a.balance.toLocaleString()}</span>
+          <span style="color:${pct>=100?'var(--accent-green)':'var(--text-muted)'}">목표 ₩${a.goal.toLocaleString()} · 남은 ₩${Math.max(0,a.goal-a.balance).toLocaleString()}</span>
         </div>`:''}
         ${txHTML||'<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">거래 내역이 없어요</div>'}
         <div class="saving-actions">
@@ -3333,6 +3368,16 @@ window.deleteSavingTx=async(idx,ri)=>{
   newAccounts[idx]=a;
   try{
     await upsertSetting('savingAccounts',{accounts:newAccounts});
+    // 연동된 거래내역(saving_linked)도 삭제
+    if(t.type==='deposit'){
+      const linked=transactions.find(tx=>
+        tx.cat==='saving_linked'&&
+        tx.date===t.date&&
+        tx.amount===t.amount&&
+        tx.savingAccountName===a.name
+      );
+      if(linked) await deleteDoc(doc(db,'transactions',linked.id));
+    }
     toast('삭제됐어요');
   }catch(e){toast('❌ 삭제 실패');}
 };
@@ -3729,20 +3774,29 @@ function renderSettingsFixed(){
 
 // 월초 고정지출 자동 등록
 async function autoApplyFixedExpenses(){
-  const today = new Date();
-  if(today.getDate() > 3) return; // 1~3일만 실행
-  const key = `fixed_applied_${today.getFullYear()}_${today.getMonth()}`;
+  if(!fixedExpenses.length) return;
+  const today=new Date();
+  if(today.getDate()>3) return;
+  const key=`fixed_applied_${today.getFullYear()}_${today.getMonth()}`;
   if(localStorage.getItem(key)) return;
   localStorage.setItem(key,'1');
-  const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const dateStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-01`;
+  // 이미 이번달에 등록됐는지 확인
+  const alreadyApplied=transactions.some(t=>
+    t.desc&&t.desc.endsWith('(고정)')&&
+    t.date.startsWith(`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`)
+  );
+  if(alreadyApplied) return;
   for(const f of fixedExpenses){
     await addDoc(COL,{
-      type:'expense', amount:f.amount, desc:f.desc+'(고정)', date:dateStr,
-      cat:f.cat, method:f.method||null, excludeChallenge:false,
+      type:'expense', amount:f.amount,
+      desc:f.desc+' (고정)', date:dateStr,
+      cat:f.cat, method:f.method||null,
+      excludeChallenge:false,
       createdAt:new Date().toISOString()
     });
   }
-  if(fixedExpenses.length) toast(`🔁 고정지출 ${fixedExpenses.length}건 자동 등록됐어요`);
+  toast(`🔁 고정지출 ${fixedExpenses.length}건 자동 등록됐어요`);
 }
 
 // ── 카테고리 예산 ──
@@ -4050,17 +4104,14 @@ window.openEditModal=id=>{
     </button>`;
   }).join('');
 
-  // 결제수단 버튼
+  // 결제수단 버튼 (수입/지출 모두 표시)
   const methodGroup=document.getElementById('edit-method-group');
-  const isExpense=t.type==='expense';
-  methodGroup.style.display=isExpense?'':'none';
-  if(isExpense){
-    const methodGrid=document.getElementById('edit-method-grid');
-    methodGrid.innerHTML=`<button class="method-btn${!t.method?' active':''}" data-method="" onclick="selectEditMethod('',this)"><span class="method-icon">🚫</span>없음</button>`+
-      METHODS.map(m=>`<button class="method-btn${t.method===m?' active':''}" data-method="${m}" onclick="selectEditMethod('${m}',this)">
-        <span class="method-icon">${m==='현금'?'💵':m==='통장'?'🏦':'💳'}</span>${m.replace('카드','').replace('통장','').replace('현금','')||m}
-      </button>`).join('');
-  }
+  methodGroup.style.display='';
+  const methodGrid=document.getElementById('edit-method-grid');
+  methodGrid.innerHTML=`<button class="method-btn${!t.method?' active':''}" data-method="" onclick="selectEditMethod('',this)"><span class="method-icon">🚫</span>없음</button>`+
+    METHODS.map(m=>`<button class="method-btn${t.method===m?' active':''}" data-method="${m}" onclick="selectEditMethod('${m}',this)">
+      <span class="method-icon">${m==='현금'?'💵':m==='통장'?'🏦':'💳'}</span>${m.replace('카드','').replace('통장','').replace('현금','')||m}
+    </button>`).join('');
 
   // 챌린지 제외 토글
   const cg=document.getElementById('edit-challenge-group');
