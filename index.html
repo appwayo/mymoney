@@ -969,10 +969,9 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
       <!-- 총자산 -->
       <div class="card" style="background:linear-gradient(135deg,#1e1428,#1a1a1e);border-color:#c084fc33">
-        <div class="card-label" style="color:var(--accent-purple)">💰 현재 총 자산</div>
+        <div class="card-label" style="color:var(--accent-purple)">💰 총 저축 자산</div>
         <div style="font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:500;color:var(--accent-purple);margin:6px 0" id="stab-total-asset">₩0</div>
         <div style="font-size:0.68rem;color:var(--text-muted)" id="stab-asset-breakdown"></div>
-        <div style="font-size:0.7rem;margin-top:6px" id="stab-asset-vs-prev"></div>
       </div>
       <!-- 연간 목표 -->
       <div class="card" style="background:linear-gradient(135deg,#0d2418,#1a1a1e);border-color:#00e87a33">
@@ -1059,6 +1058,17 @@
       </div>
       <div class="settings-section-body" id="stab-short-goals">
         <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:16px">단기 목표를 추가해봐요 (여행, 구매 등)</div>
+      </div>
+    </div>
+
+    <!-- ⑦ 연도별 자산 기록 -->
+    <div class="settings-section" style="margin-top:12px">
+      <div class="settings-section-header">
+        <h3>📖 연도별 자산 기록</h3>
+        <button onclick="openYearRecordModal(null)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.72rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;">+ 추가</button>
+      </div>
+      <div class="settings-section-body" id="stab-year-records">
+        <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:12px">연도별 자산 기록을 추가해봐요 (예: 2024년 말 ₩2,000만)</div>
       </div>
     </div>
 
@@ -1303,6 +1313,21 @@
     </div>
     <button class="modal-submit green" onclick="saveMonthlySaving()">저장</button>
     <button class="modal-close" onclick="closeMonthlySavingModal()">취소</button>
+  </div>
+</div>
+
+<!-- 연도별 자산 기록 모달 -->
+<div class="modal-overlay" id="year-record-modal" style="display:none" onclick="if(event.target===this)closeYearRecordModal()">
+  <div class="modal">
+    <h3 id="yr-modal-title">📖 연도별 자산 기록 추가</h3>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">연말 기준 총 자산을 기록해요. (예: 2024년 말 ₩2,000만)</p>
+    <div class="modal-form">
+      <div class="form-group"><label>연도</label><input type="number" id="yr-year" placeholder="예) 2024" min="2000" max="2099"></div>
+      <div class="form-group"><label>총 자산</label><input type="number" id="yr-amount" placeholder="20000000" min="0"></div>
+      <div class="form-group"><label>메모 (선택)</label><input type="text" id="yr-memo" placeholder="예) 청약 330만 포함"></div>
+    </div>
+    <button class="modal-submit green" onclick="saveYearRecord()">저장</button>
+    <button class="modal-close" onclick="closeYearRecordModal()">취소</button>
   </div>
 </div>
 
@@ -1794,6 +1819,9 @@ function startListeners(){
       if(d.id==='savingGoal'){
         savingGoalSettings={...savingGoalSettings,...data};
       }
+      if(d.id==='yearRecords'){
+        if(data.records) yearRecords=data.records;
+      }
       if(d.id==='fixedExpenses'){
         if(data.list) fixedExpenses=data.list;
       }
@@ -2103,7 +2131,34 @@ window.deleteTransaction=async id=>{
   } else {
     if(!confirm('이 거래내역을 삭제할까요?')) return;
   }
-  try{await deleteDoc(doc(db,'transactions',id));toast('삭제됐어요');}
+  try{
+    await deleteDoc(doc(db,'transactions',id));
+    // saving_linked 거래 삭제 시 저축탭 잔액도 복구
+    if(t.cat==='saving_linked'){
+      const aName=t.savingAccountName;
+      if(aName){
+        const acctIdx=savingAccounts.findIndex(a=>a.name===aName);
+        if(acctIdx>=0){
+          const acct=savingAccounts[acctIdx];
+          // 해당 txs에서 _linkedTxId 또는 date+amount 매칭으로 제거
+          const riIdx=acct.txs.findIndex(tx=>
+            tx._linkedTxId===id ||
+            (tx.type==='deposit'&&tx.date===t.date&&tx.amount===t.amount)
+          );
+          if(riIdx>=0){
+            const linkedTx=acct.txs[riIdx];
+            const newBalance=acct.balance-linkedTx.amount;
+            const newTxs=acct.txs.filter((_,i)=>i!==riIdx);
+            const newAccounts=savingAccounts.map((a,ai)=>
+              ai===acctIdx?{...a,balance:Math.max(0,newBalance),txs:newTxs}:a
+            );
+            await upsertSetting('savingAccounts',{accounts:newAccounts});
+          }
+        }
+      }
+    }
+    toast('삭제됐어요');
+  }
   catch(e){toast('❌ 삭제 실패');}
 };
 
@@ -2229,27 +2284,32 @@ function renderCustomHomeCards(txs){
 // ══ TX List (홈 - 최대 12개) ══
 function makeTxHTML(t){
   const allCats=[...CATS_EXPENSE,...CATS_INCOME];
-  const cat=allCats.find(c=>c.id===t.cat)||{icon:'📦',name:'기타'};
   const isSaving=t.cat==='saving', isApt=t.cat==='apt', isLoan=t.cat==='loan', isRepay=t.cat==='repay';
+  const isSavingLinked=t.cat==='saving_linked';
+  // saving_linked는 저축처럼 표시
+  const cat=isSavingLinked
+    ?{icon:'🏦',name:'저축'}
+    :(allCats.find(c=>c.id===t.cat)||{icon:'📦',name:'기타'});
   let amtCls=t.type==='income'?'income':'expense';
-  if(isSaving||isApt) amtCls='saving';
+  if(isSaving||isApt||isSavingLinked) amtCls='saving';
   if(isLoan)  amtCls='loan';
   if(isRepay) amtCls='income';
   let bg=t.type==='income'?'#00e87a18':'#ff4d6d18';
-  if(isSaving) bg='#c084fc18';
+  if(isSaving||isSavingLinked) bg='#c084fc18';
   if(isApt)    bg='#38bdf818';
   if(isLoan)   bg='#fb923c18';
   const prefix=t.type==='income'?'+':'-';
   const methodBadge=t.method?`<span class="tx-method-badge ${t.method}">${t.method}</span>`:'';
   const loanBadge  =isLoan ?`<span class="tx-loan-badge">💸 대여</span>`:'';
   const repayBadge =isRepay?`<span class="tx-repay-badge">💚 상환</span>`:'';
+  const savingLinkedBadge=isSavingLinked?`<span style="background:#c084fc18;border:1px solid #c084fc44;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#c084fc">🏦 ${t.savingAccountName||'저축'}</span>`:'';
   const exclBadge  =t.excludeChallenge?`<span style="background:#ff4d6d18;border:1px solid #ff4d6d44;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#ff8fa3">챌린지제외</span>`:'';
   const installBadge=t.installment?`<span style="background:#fb923c18;border:1px solid #fb923c44;border-radius:4px;padding:1px 5px;font-size:0.6rem;font-weight:700;color:#fb923c">${t.installment.current}/${t.installment.months}할</span>`:'';
   return`<div class="tx-item">
     <div class="tx-icon" style="background:${bg}">${cat.icon}</div>
     <div class="tx-info">
       <div class="tx-name">${t.desc}</div>
-      <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}${exclBadge}${installBadge}</div>
+      <div class="tx-meta">${t.date} · ${cat.name} ${methodBadge}${loanBadge}${repayBadge}${savingLinkedBadge}${exclBadge}${installBadge}</div>
     </div>
     <div class="tx-amount ${amtCls}">${prefix}₩${t.amount.toLocaleString()}</div>
     <button style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.8rem;padding:3px 5px;border-radius:5px;flex-shrink:0;opacity:0.6;transition:opacity 0.15s;" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0.6" onclick="openEditModal('${t.id}')">✏️</button>
@@ -3296,9 +3356,8 @@ function renderSavingTab(){
   const thisMonthKey=`${thisYear}-${String(thisMonth+1).padStart(2,'0')}`;
   const gs=savingGoalSettings;
 
-  // ── 총 자산 계산 ──
+  // ── 총 자산 계산 (저축항목 잔액 합계만) ──
   const assetTotal=savingAccounts.reduce((s,a)=>s+a.balance,0);
-  const baseAsset=gs.baseAsset||20000000;
 
   // ── 연간 저축 계산 (monthlyChecks 기준) ──
   let yearSaved=0;
@@ -3313,15 +3372,9 @@ function renderSavingTab(){
   const monthSaved=thisMonthRecs.reduce((s,r)=>s+r.amount,0);
 
   // ── 총자산 카드 ──
-  document.getElementById('stab-total-asset').textContent='₩'+(assetTotal+baseAsset).toLocaleString();
-  document.getElementById('stab-asset-breakdown').textContent=
-    `기준자산 ₩${(baseAsset/10000).toFixed(0)}만 + 저축항목 ₩${(assetTotal/10000).toFixed(0)}만`;
-
-  // 전년도 말 자산 대비
-  const assetGrowth=assetTotal+baseAsset-baseAsset;
-  const assetVsPrev=document.getElementById('stab-asset-vs-prev');
-  assetVsPrev.textContent=`전년도 대비 +₩${(assetGrowth/10000).toFixed(0)}만 성장`;
-  assetVsPrev.style.color='var(--accent-green)';
+  document.getElementById('stab-total-asset').textContent='₩'+assetTotal.toLocaleString();
+  const acctNames=savingAccounts.map(a=>`${a.icon||'🏦'}${a.name} ₩${(a.balance/10000).toFixed(0)}만`).join(' · ');
+  document.getElementById('stab-asset-breakdown').textContent=acctNames||'항목을 추가해봐요';
 
   // ── 연간 목표 카드 ──
   const yearGoal=gs.yearGoal||12000000;
@@ -3388,6 +3441,9 @@ function renderSavingTab(){
 
   // ── 단기 목표 ──
   renderShortGoals();
+
+  // ── 연도별 기록 ──
+  renderYearRecords();
 }
 
 function renderMonthlyCheckList(key, recs, monthGoal){
@@ -3748,27 +3804,94 @@ window.openSavingTxEditModal=(idx,ri)=>{
 // 저축 TX 삭제
 window.deleteSavingTx=async(idx,ri)=>{
   if(!confirm('이 내역을 삭제할까요?')) return;
-  const newAccounts=[...savingAccounts];
-  const a={...newAccounts[idx]};
-  const t=a.txs[ri];
-  // 잔액 복구
-  a.balance=t.type==='deposit'?a.balance-t.amount:a.balance+t.amount;
-  a.txs=a.txs.filter((_,i)=>i!==ri);
-  newAccounts[idx]=a;
+  const t=savingAccounts[idx].txs[ri];
+  const aName=savingAccounts[idx].name;
+  const newAccounts=savingAccounts.map((a,ai)=>{
+    if(ai!==idx) return a;
+    const newBalance=t.type==='deposit'?a.balance-t.amount:a.balance+t.amount;
+    return{...a, balance:newBalance, txs:a.txs.filter((_,i)=>i!==ri)};
+  });
   try{
     await upsertSetting('savingAccounts',{accounts:newAccounts});
-    // 연동된 거래내역(saving_linked)도 삭제
+    // saving_linked 거래내역 삭제 (입금인 경우)
     if(t.type==='deposit'){
-      const linked=transactions.find(tx=>
-        tx.cat==='saving_linked'&&
-        tx.date===t.date&&
-        tx.amount===t.amount&&
-        tx.savingAccountName===a.name
-      );
-      if(linked) await deleteDoc(doc(db,'transactions',linked.id));
+      // 우선 _linkedTxId로 정확히 삭제
+      if(t._linkedTxId){
+        try{ await deleteDoc(doc(db,'transactions',t._linkedTxId)); }catch(_){}
+      } else {
+        // 폴백: date+amount+accountName으로 매칭
+        const linked=transactions.filter(tx=>
+          tx.cat==='saving_linked'&&
+          tx.date===t.date&&
+          tx.amount===t.amount&&
+          (tx.savingAccountName===aName||tx.desc===t.memo||(tx.desc&&tx.desc.includes(aName)))
+        );
+        for(const tx of linked){
+          await deleteDoc(doc(db,'transactions',tx.id));
+        }
+      }
     }
     toast('삭제됐어요');
-  }catch(e){toast('❌ 삭제 실패');}
+  }catch(e){toast('❌ 삭제 실패: '+e.message);}
+};
+
+// ── 연도별 자산 기록 ──
+let yearRecords=[]; // [{year,amount,memo}]
+let yrEditIdx=null;
+
+function renderYearRecords(){
+  const el=document.getElementById('stab-year-records');
+  if(!el) return;
+  if(!yearRecords.length){
+    el.innerHTML='<div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:12px">연도별 자산 기록을 추가해봐요</div>';
+    return;
+  }
+  const sorted=[...yearRecords].sort((a,b)=>b.year-a.year);
+  el.innerHTML=sorted.map((r,i)=>{
+    const origIdx=yearRecords.findIndex(x=>x.year===r.year&&x.amount===r.amount);
+    return`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:1rem">📅</div>
+      <div style="flex:1">
+        <div style="font-size:0.88rem;font-weight:600">${r.year}년 말</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px">${r.memo||''}</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.95rem;font-weight:600;color:var(--accent-purple)">₩${r.amount.toLocaleString()}</div>
+      <button onclick="openYearRecordModal(${origIdx})" style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.8rem;padding:2px 5px">✏️</button>
+      <button onclick="deleteYearRecord(${origIdx})" style="background:none;border:none;color:var(--accent-red);cursor:pointer;font-size:0.8rem;padding:2px 5px">✕</button>
+    </div>`;
+  }).join('');
+}
+
+window.openYearRecordModal=idx=>{
+  yrEditIdx=idx;
+  const r=idx!==null?yearRecords[idx]:null;
+  document.getElementById('yr-modal-title').textContent=idx!==null?'📖 연도별 기록 수정':'📖 연도별 자산 기록 추가';
+  document.getElementById('yr-year').value=r?.year||new Date().getFullYear()-1;
+  document.getElementById('yr-amount').value=r?.amount||'';
+  document.getElementById('yr-memo').value=r?.memo||'';
+  document.getElementById('year-record-modal').style.display='flex';
+};
+window.closeYearRecordModal=()=>document.getElementById('year-record-modal').style.display='none';
+window.saveYearRecord=async()=>{
+  const year=parseInt(document.getElementById('yr-year').value);
+  const amount=parseInt(document.getElementById('yr-amount').value);
+  const memo=document.getElementById('yr-memo').value.trim();
+  if(!year) return toast('연도를 입력해주세요');
+  if(!amount||amount<=0) return toast('금액을 입력해주세요');
+  const newRecords=[...yearRecords];
+  if(yrEditIdx!==null) newRecords[yrEditIdx]={year,amount,memo};
+  else newRecords.push({year,amount,memo});
+  try{
+    await upsertSetting('yearRecords',{records:newRecords});
+    closeYearRecordModal();
+    showSuccessPopup('저장됐어요! 📖');
+  }catch(e){toast('❌ 저장 실패');}
+};
+window.deleteYearRecord=async i=>{
+  if(!confirm('삭제할까요?')) return;
+  const newRecords=yearRecords.filter((_,idx)=>idx!==i);
+  try{ await upsertSetting('yearRecords',{records:newRecords}); toast('삭제됐어요'); }
+  catch(e){toast('❌ 삭제 실패');}
 };
 
 // 저축 항목 모달
@@ -3849,10 +3972,48 @@ window.saveSavingTx=async()=>{
     const newBalance=savingTxType==='deposit'?restoredBalance+amount:restoredBalance-amount;
     if(newBalance<0) return toast('잔액보다 많이 출금할 수 없어요');
     a.balance=newBalance;
-    a.txs=a.txs.map((t,i)=>i===savingTxEditRi?{type:savingTxType,amount,date,memo}:t);
+    // 기존 txId 보존
+    const oldTxId=a.txs[savingTxEditRi]._linkedTxId||null;
+    const newTxEntry={type:savingTxType,amount,date,memo};
+    a.txs=a.txs.map((t,i)=>i===savingTxEditRi?newTxEntry:t);
     newAccounts[savingTxIdx]=a;
     try{
       await upsertSetting('savingAccounts',{accounts:newAccounts});
+      // 연결된 거래내역 업데이트
+      if(old.type==='deposit'&&oldTxId){
+        // 기존 linked 거래 수정
+        try{
+          await updateDoc(doc(db,'transactions',oldTxId),{
+            amount, date,
+            desc: memo||(a.name+' 저축'),
+          });
+        }catch(_){
+          // 없으면 새로 생성
+          await addDoc(COL,{
+            type:'expense',amount,date,
+            desc:memo||(a.name+' 저축'),
+            cat:'saving_linked',
+            savingAccountName:a.name,
+            method:null,
+            excludeChallenge:true,
+            createdAt:new Date().toISOString()
+          });
+        }
+      } else if(old.type!=='deposit'&&savingTxType==='deposit'){
+        // 출금→입금으로 타입 변경 시 새 linked 거래 생성
+        await addDoc(COL,{
+          type:'expense',amount,date,
+          desc:memo||(a.name+' 저축'),
+          cat:'saving_linked',
+          savingAccountName:a.name,
+          method:null,
+          excludeChallenge:true,
+          createdAt:new Date().toISOString()
+        });
+      } else if(old.type==='deposit'&&savingTxType!=='deposit'&&oldTxId){
+        // 입금→출금으로 타입 변경 시 linked 거래 삭제
+        try{ await deleteDoc(doc(db,'transactions',oldTxId)); }catch(_){}
+      }
       closeSavingTxModal();
       showSuccessPopup('수정됐어요! ✏️',`₩${amount.toLocaleString()}`);
     }catch(e){toast('❌ 저장 실패: '+e.message);}
@@ -3863,12 +4024,13 @@ window.saveSavingTx=async()=>{
   const newBalance=savingTxType==='deposit'?a.balance+amount:a.balance-amount;
   if(newBalance<0) return toast('잔액보다 많이 출금할 수 없어요');
   a.balance=newBalance;
-  a.txs=[...(a.txs||[]),{type:savingTxType,amount,date,memo}];
+  const newTxObj={type:savingTxType,amount,date,memo};
+  a.txs=[...(a.txs||[]),newTxObj];
   newAccounts[savingTxIdx]=a;
   try{
     await upsertSetting('savingAccounts',{accounts:newAccounts});
     if(savingTxType==='deposit'){
-      await addDoc(COL,{
+      const linkedRef=await addDoc(COL,{
         type:'expense', amount, date,
         desc: memo||(a.name+' 저축'),
         cat:'saving_linked',
@@ -3877,6 +4039,14 @@ window.saveSavingTx=async()=>{
         excludeChallenge: true,
         createdAt: new Date().toISOString()
       });
+      // txs의 마지막 항목에 _linkedTxId 저장
+      const updatedAccounts=newAccounts.map((acc,ai)=>{
+        if(ai!==savingTxIdx) return acc;
+        const updTxs=[...acc.txs];
+        updTxs[updTxs.length-1]={...updTxs[updTxs.length-1],_linkedTxId:linkedRef.id};
+        return{...acc,txs:updTxs};
+      });
+      await upsertSetting('savingAccounts',{accounts:updatedAccounts});
     }
     closeSavingTxModal();
     showSuccessPopup(savingTxType==='deposit'?'입금됐어요! 💚':'출금됐어요! 💛',`₩${amount.toLocaleString()}`);
@@ -4548,6 +4718,7 @@ window.saveEdit=async()=>{
   if(!desc)              return toast('내용을 입력해주세요');
   if(!date)              return toast('날짜를 선택해주세요');
   if(!editSelectedCat)   return toast('카테고리를 선택해주세요');
+  const oldTx=transactions.find(tx=>tx.id===editingId);
   try{
     await updateDoc(doc(db,'transactions',editingId),{
       amount, desc, date,
@@ -4555,6 +4726,32 @@ window.saveEdit=async()=>{
       method: editSelectedMethod||null,
       excludeChallenge: editExcludeChallenge
     });
+    // saving_linked 거래 수정 시 저축탭 잔액 동기화
+    if(oldTx&&oldTx.cat==='saving_linked'){
+      const aName=oldTx.savingAccountName;
+      if(aName){
+        const acctIdx=savingAccounts.findIndex(a=>a.name===aName);
+        if(acctIdx>=0){
+          const acct=savingAccounts[acctIdx];
+          const riIdx=acct.txs.findIndex(tx=>
+            tx._linkedTxId===editingId ||
+            (tx.type==='deposit'&&tx.date===oldTx.date&&tx.amount===oldTx.amount)
+          );
+          if(riIdx>=0){
+            const oldSavTx=acct.txs[riIdx];
+            const diff=amount-oldSavTx.amount;
+            const newBalance=acct.balance+diff;
+            const newTxs=acct.txs.map((tx,i)=>
+              i===riIdx?{...tx,amount,date,memo:desc}:tx
+            );
+            const newAccounts=savingAccounts.map((a,ai)=>
+              ai===acctIdx?{...a,balance:Math.max(0,newBalance),txs:newTxs}:a
+            );
+            await upsertSetting('savingAccounts',{accounts:newAccounts});
+          }
+        }
+      }
+    }
     closeEditModal();
     showSuccessPopup('수정됐어요! ✏️',`₩${amount.toLocaleString()}`);
     if(document.getElementById('day-popup').classList.contains('show')) openDayPopup(date);
@@ -4708,6 +4905,44 @@ document.getElementById('input-date').value=new Date().toISOString().split('T')[
 renderCatGrid();
 updateMonthLabel();
 startListeners();
+
+// ── 풀-투-리프레시 (아이폰 스와이프 새로고침) ──
+(()=>{
+  let startY=0, pulling=false;
+  const indicator=document.createElement('div');
+  indicator.style.cssText='position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent-green);transform:scaleX(0);transform-origin:left;transition:transform 0.2s;z-index:9999;opacity:0;';
+  document.body.appendChild(indicator);
+
+  document.addEventListener('touchstart',e=>{
+    if(window.scrollY===0) startY=e.touches[0].clientY;
+    else startY=0;
+  },{passive:true});
+
+  document.addEventListener('touchmove',e=>{
+    if(!startY) return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy>0&&dy<120){
+      pulling=true;
+      const pct=Math.min(1,dy/80);
+      indicator.style.opacity='1';
+      indicator.style.transform=`scaleX(${pct})`;
+    }
+  },{passive:true});
+
+  document.addEventListener('touchend',e=>{
+    if(!pulling) return;
+    const dy=e.changedTouches[0].clientY-startY;
+    if(dy>80){
+      indicator.style.transform='scaleX(1)';
+      indicator.style.background='var(--accent-green)';
+      setTimeout(()=>location.reload(),300);
+    } else {
+      indicator.style.opacity='0';
+      indicator.style.transform='scaleX(0)';
+    }
+    pulling=false; startY=0;
+  },{passive:true});
+})();
 // 월초 자동 기능 (리스너 로드 후 약간 딜레이)
 setTimeout(()=>{
   checkMonthlyReview();
