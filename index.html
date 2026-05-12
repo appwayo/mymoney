@@ -436,7 +436,67 @@
   .saving-tab-header h2{font-size:1rem;font-weight:700;}
   .saving-sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
   .saving-account-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start;}
-  @media(max-width:720px){.saving-account-list{grid-template-columns:1fr;}}
+  @media(max-width:720px){.saving-account-list{grid-template-columns:1fr 1fr;}}
+
+  /* ══ 모바일 전용 (아이폰12프로 기준) ══ */
+  @media(max-width:430px){
+    header{padding:10px 12px;gap:6px;}
+    .logo{font-size:0.9rem;}
+    .backup-btn span,.pdf-btn span{display:none;}
+    .backup-btn,.pdf-btn{padding:5px 7px;font-size:0.65rem;}
+    #month-nav button{width:22px;height:22px;font-size:0.9rem;}
+    #month-label{font-size:0.72rem;min-width:64px;}
+    /* 탭 1줄 유지 - 스크롤 */
+    nav{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap;gap:2px;width:100%;}
+    nav::-webkit-scrollbar{display:none;}
+    nav button{padding:6px 8px;font-size:0.68rem;white-space:nowrap;flex-shrink:0;}
+    main{padding:10px 12px;}
+    /* 카드 */
+    .card{padding:11px 13px;}
+    .card-label{font-size:0.6rem;}
+    .card-amount{font-size:1rem !important;}
+    /* 홈 그리드 전부 1열 */
+    #page-home>div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}
+    #page-home>div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr 1fr !important;}
+    #page-home>div[style*="repeat(2"]{grid-template-columns:1fr !important;}
+    .two-col{grid-template-columns:1fr !important;}
+    /* 챌린지 */
+    .challenge-banner{padding:13px 14px;}
+    .challenge-remain{font-size:1.5rem !important;}
+    .ch-budget-num{font-size:1.6rem !important;}
+    /* 요약 그리드 */
+    .summary-grid{grid-template-columns:1fr 1fr !important;}
+    .saving-sum-grid{grid-template-columns:1fr 1fr !important;}
+    .loan-summary-grid{grid-template-columns:1fr !important;}
+    .stats-grid{grid-template-columns:1fr !important;}
+    .cat-breakdown{grid-column:1 !important;}
+    /* 입력 */
+    .add-form{padding:14px 12px;}
+    .category-grid{grid-template-columns:repeat(4,1fr) !important;}
+    .method-grid{grid-template-columns:repeat(5,1fr) !important;}
+    /* 설정 */
+    .settings-inner-nav{gap:3px;padding:5px;}
+    .settings-inner-btn{padding:5px 9px;font-size:0.68rem;}
+    /* 저축 */
+    .saving-account-list{grid-template-columns:1fr !important;}
+    /* 모달 */
+    .modal{padding:16px 14px;}
+    /* 거래내역 */
+    .tx-item{padding:8px 11px;gap:7px;}
+    .tx-icon{width:28px;height:28px;font-size:0.8rem;}
+    .tx-name{font-size:0.76rem;}
+    .tx-meta{font-size:0.6rem;}
+    .tx-amount{font-size:0.76rem;}
+    /* 캘린더 */
+    .cal-cell{min-height:42px !important;}
+    .cal-day{font-size:0.66rem !important;}
+    .cal-amount{font-size:0.58rem !important;}
+    /* 헤더 우측 */
+    .header-right{gap:5px;}
+    /* 대여 */
+    .loan-card-header{padding:11px 13px;}
+    .loan-avatar{width:30px;height:30px;}
+  }
   .saving-account-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
   .saving-account-card.goal-reached{border-color:#00e87a44;}
   .saving-account-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;}
@@ -589,7 +649,7 @@
         <span>이번 주 지출 <strong id="challenge-used" style="font-family:'DM Mono',monospace">₩0</strong></span>
         <span id="challenge-status">여유있어요 😊</span>
       </div>
-      <div id="challenge-carry-badge" style="margin-top:8px;padding:6px 10px;border-radius:7px;font-size:0.72rem;font-weight:600;display:none"></div>
+      <div id="challenge-carry-badge" style="display:none"></div>
     </div>
 
     <!-- ① 핵심 - 잔고 + 순자산 -->
@@ -929,7 +989,7 @@
         <span>지출 <strong id="ch-used-num" style="font-family:'DM Mono',monospace">₩0</strong></span>
         <span>예산 <strong id="ch-budget-num" style="font-family:'DM Mono',monospace">₩100,000</strong></span>
       </div>
-      <div class="ch-carry zero" id="ch-carry-badge">이번 달 첫 주 · 기본 ₩100,000</div>
+      <div class="ch-carry zero" id="ch-carry-badge" style="display:none"></div>
     </div>
 
     <!-- 캘린더 -->
@@ -1358,24 +1418,29 @@
 
 <!-- 거래 수정 모달 -->
 <div class="modal-overlay" id="edit-modal" style="display:none" onclick="if(event.target===this)closeEditModal()">
-  <div class="modal">
+  <div class="modal" style="max-width:520px">
     <h3>✏️ 거래 수정</h3>
-    <p>내용을 수정하고 저장하세요.</p>
+    <div id="edit-install-notice"></div>
     <div class="modal-form">
       <div class="form-group"><label>금액</label><input type="number" id="edit-amount" min="0"></div>
       <div class="form-group"><label>내용</label><input type="text" id="edit-desc"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="edit-date"></div>
       <div class="form-group">
         <label>카테고리</label>
-        <select id="edit-cat"></select>
+        <div class="category-grid" id="edit-cat-grid" style="margin-top:4px"></div>
       </div>
       <div class="form-group" id="edit-method-group">
         <label>결제수단</label>
-        <select id="edit-method">
-          <option value="">없음</option>
-          <option>현금</option><option>통장</option>
-          <option>신한카드</option><option>현대카드</option><option>BC카드</option>
-        </select>
+        <div class="method-grid" id="edit-method-grid" style="margin-top:4px"></div>
+      </div>
+      <div class="form-group" id="edit-challenge-group">
+        <div class="toggle-wrap" id="edit-challenge-toggle" onclick="toggleEditChallenge()">
+          <span style="font-size:1rem">🎯</span>
+          <span style="flex:1">
+            <span style="font-size:0.83rem;font-weight:600;color:var(--text)">주간 챌린지에서 제외</span>
+          </span>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </div>
       </div>
     </div>
     <button class="modal-submit green" onclick="saveEdit()">저장하기</button>
@@ -1854,13 +1919,9 @@ function renderChallenge(){
   else if(pct<100){bar.style.background='var(--accent-red)';rem.className='challenge-remain danger';document.getElementById('challenge-status').textContent='위험해요 😬';}
   else{bar.style.background='var(--accent-red)';rem.className='challenge-remain danger';document.getElementById('challenge-status').textContent='초과했어요 😱';}
 
-  // 고정 배지 (이월 없음)
+  // 배지 숨김
   const badge=document.getElementById('challenge-carry-badge');
-  badge.style.display='';
-  badge.style.background='var(--surface2)';
-  badge.style.color='var(--text-muted)';
-  badge.style.border='1px solid var(--border)';
-  badge.textContent=`매주 ₩${budget.toLocaleString()} 고정 · 남은 금액 ${fmt(diff)}`;
+  if(badge) badge.style.display='none';
 }
 
 // ══ Home ══
@@ -2481,8 +2542,7 @@ function renderChallengePage(){
     bar.style.background=pct<60?'var(--accent-green)':pct<90?'var(--accent-yellow)':'var(--accent-red)';
     // 배지 - 이월 없이 단순
     const cb=document.getElementById('ch-carry-badge');
-    cb.className='ch-carry zero';
-    cb.textContent=`매주 ₩${curWeek.budget.toLocaleString()} 고정 · 남은 금액 ${fmtShort(curWeek.diff)}`;
+    if(cb) cb.style.display='none';
     cb.style.display='';
   }
 
@@ -3007,11 +3067,13 @@ function renderSavingTab(){
     const pct=a.goal>0?Math.min(100,Math.round(a.balance/a.goal*100)):null;
     const isReached=pct!==null&&pct>=100;
     const txsSorted=(a.txs||[]).slice().sort((x,y)=>new Date(y.date)-new Date(x.date));
-    const txHTML=txsSorted.slice(0,10).map(t=>`
+    const txHTML=txsSorted.slice(0,10).map((t,ri)=>`
       <div class="saving-tx-item">
         <span class="saving-tx-date">${t.date}</span>
         <span class="saving-tx-desc">${t.memo||''}</span>
         <span class="saving-tx-amt ${t.type==='deposit'?'plus':'minus'}">${t.type==='deposit'?'+':'-'}₩${t.amount.toLocaleString()}</span>
+        <button onclick="openSavingTxEditModal(${i},${ri})" style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.75rem;padding:2px 4px;border-radius:4px;flex-shrink:0;margin-left:4px">✏️</button>
+        <button onclick="deleteSavingTx(${i},${ri})" style="background:none;border:none;color:var(--accent-red);cursor:pointer;font-size:0.75rem;padding:2px 4px;border-radius:4px;flex-shrink:0">✕</button>
       </div>`).join('');
     return`<div class="saving-account-card${isReached?' goal-reached':''}">
       <div class="saving-account-header" onclick="toggleSavingCard(${i})">
@@ -3045,6 +3107,39 @@ function renderSavingTab(){
 }
 
 window.toggleSavingCard=i=>document.getElementById('sab-'+i)?.classList.toggle('open');
+
+// 저축 TX 수정
+let savingTxEditIdx=null, savingTxEditRi=null;
+window.openSavingTxEditModal=(idx,ri)=>{
+  savingTxIdx=idx; savingTxEditRi=ri;
+  const a=savingAccounts[idx];
+  const t=a.txs[ri];
+  savingTxType=t.type;
+  document.getElementById('saving-tx-modal-title').textContent=t.type==='deposit'?'💚 입금 수정':'💛 출금 수정';
+  document.getElementById('saving-tx-modal-desc').textContent=`${a.icon} ${a.name} · 수정 중`;
+  document.getElementById('saving-tx-amount').value=t.amount;
+  document.getElementById('saving-tx-date').value=t.date;
+  document.getElementById('saving-tx-memo').value=t.memo||'';
+  document.getElementById('saving-tx-modal').style.display='flex';
+  // saveSavingTx가 수정 모드인지 확인용
+  window._savingTxEditMode=true;
+};
+
+// 저축 TX 삭제
+window.deleteSavingTx=async(idx,ri)=>{
+  if(!confirm('이 내역을 삭제할까요?')) return;
+  const newAccounts=[...savingAccounts];
+  const a={...newAccounts[idx]};
+  const t=a.txs[ri];
+  // 잔액 복구
+  a.balance=t.type==='deposit'?a.balance-t.amount:a.balance+t.amount;
+  a.txs=a.txs.filter((_,i)=>i!==ri);
+  newAccounts[idx]=a;
+  try{
+    await upsertSetting('savingAccounts',{accounts:newAccounts});
+    toast('삭제됐어요');
+  }catch(e){toast('❌ 삭제 실패');}
+};
 
 // 저축 항목 모달
 let saEditIdx=null;
@@ -3102,7 +3197,10 @@ window.openSavingTxModal=(idx,type)=>{
   document.getElementById('saving-tx-memo').value='';
   document.getElementById('saving-tx-modal').style.display='flex';
 };
-window.closeSavingTxModal=()=>document.getElementById('saving-tx-modal').style.display='none';
+window.closeSavingTxModal=()=>{
+  document.getElementById('saving-tx-modal').style.display='none';
+  window._savingTxEditMode=false; savingTxEditRi=null;
+};
 window.saveSavingTx=async()=>{
   const amount=parseInt(document.getElementById('saving-tx-amount').value);
   const date=document.getElementById('saving-tx-date').value;
@@ -3111,23 +3209,40 @@ window.saveSavingTx=async()=>{
   if(!date) return toast('날짜를 선택해주세요');
   const newAccounts=[...savingAccounts];
   const a={...newAccounts[savingTxIdx]};
+
+  if(window._savingTxEditMode && savingTxEditRi!==null){
+    // 수정 모드: 기존 TX 잔액 복구 후 새 값 적용
+    const old=a.txs[savingTxEditRi];
+    const restoredBalance=old.type==='deposit'?a.balance-old.amount:a.balance+old.amount;
+    const newBalance=savingTxType==='deposit'?restoredBalance+amount:restoredBalance-amount;
+    if(newBalance<0) return toast('잔액보다 많이 출금할 수 없어요');
+    a.balance=newBalance;
+    a.txs=a.txs.map((t,i)=>i===savingTxEditRi?{type:savingTxType,amount,date,memo}:t);
+    newAccounts[savingTxIdx]=a;
+    try{
+      await upsertSetting('savingAccounts',{accounts:newAccounts});
+      closeSavingTxModal();
+      showSuccessPopup('수정됐어요! ✏️',`₩${amount.toLocaleString()}`);
+    }catch(e){toast('❌ 저장 실패: '+e.message);}
+    return;
+  }
+
+  // 신규 등록
   const newBalance=savingTxType==='deposit'?a.balance+amount:a.balance-amount;
   if(newBalance<0) return toast('잔액보다 많이 출금할 수 없어요');
   a.balance=newBalance;
   a.txs=[...(a.txs||[]),{type:savingTxType,amount,date,memo}];
   newAccounts[savingTxIdx]=a;
   try{
-    // 저축 항목 업데이트
     await upsertSetting('savingAccounts',{accounts:newAccounts});
-    // 거래내역에도 자동 기록 (입금만 - 저축 카테고리로)
     if(savingTxType==='deposit'){
       await addDoc(COL,{
         type:'expense', amount, date,
         desc: memo||(a.name+' 저축'),
-        cat:'saving_linked', // 저축 연동 전용 카테고리
+        cat:'saving_linked',
         savingAccountName: a.name,
         method: null,
-        excludeChallenge: true, // 챌린지에서 자동 제외
+        excludeChallenge: true,
         createdAt: new Date().toISOString()
       });
     }
@@ -3645,54 +3760,105 @@ function showSuccessPopup(msg, sub=''){
 
 // ══ 거래 수정 ══
 let editingId = null;
-window.openEditModal = id => {
-  const t = transactions.find(tx=>tx.id===id);
+let editingId=null;
+let editSelectedCat=null;
+let editSelectedMethod=null;
+let editExcludeChallenge=false;
+
+window.openEditModal=id=>{
+  const t=transactions.find(tx=>tx.id===id);
   if(!t) return;
-  editingId = id;
-  document.getElementById('edit-amount').value = t.amount;
-  document.getElementById('edit-desc').value   = t.desc;
-  document.getElementById('edit-date').value   = t.date;
-  const cats = t.type==='expense' ? CATS_EXPENSE : CATS_INCOME;
-  const sel  = document.getElementById('edit-cat');
-  sel.innerHTML = cats.map(c=>`<option value="${c.id}"${c.id===t.cat?' selected':''}>${c.icon} ${c.name}</option>`).join('');
-  const mg = document.getElementById('edit-method-group');
-  mg.style.display = t.type==='expense' ? '' : 'none';
-  document.getElementById('edit-method').value = t.method||'';
-  // 할부 정보 표시
-  let installInfo=document.getElementById('edit-install-info');
-  if(!installInfo){
-    installInfo=document.createElement('div');
-    installInfo.id='edit-install-info';
-    installInfo.style.cssText='font-size:0.75rem;color:var(--accent-orange);background:#fb923c12;border:1px solid #fb923c33;border-radius:8px;padding:8px 12px;margin-bottom:12px;';
-    document.querySelector('#edit-modal .modal-form').prepend(installInfo);
+  editingId=id;
+  editSelectedCat=t.cat;
+  editSelectedMethod=t.method||null;
+  editExcludeChallenge=t.excludeChallenge||false;
+
+  document.getElementById('edit-amount').value=t.amount;
+  document.getElementById('edit-desc').value=t.desc;
+  document.getElementById('edit-date').value=t.date;
+
+  // 카테고리 버튼 그리드
+  const cats=t.type==='expense'?CATS_EXPENSE:CATS_INCOME;
+  const catGrid=document.getElementById('edit-cat-grid');
+  catGrid.innerHTML=cats.map(c=>{
+    let extra='';
+    if(c.isLoan) extra=' loan-cat';
+    if(c.isSaving) extra=' saving-cat';
+    if(c.isRepay) extra=' repay-cat';
+    if(c.isApt) extra=' apt-cat';
+    return`<button class="cat-btn${extra}${c.id===t.cat?' active':''}" onclick="selectEditCat('${c.id}',this)">
+      <span class="cat-icon">${c.icon}</span>${c.name}
+    </button>`;
+  }).join('');
+
+  // 결제수단 버튼
+  const methodGroup=document.getElementById('edit-method-group');
+  const isExpense=t.type==='expense';
+  methodGroup.style.display=isExpense?'':'none';
+  if(isExpense){
+    const methodGrid=document.getElementById('edit-method-grid');
+    methodGrid.innerHTML=`<button class="method-btn${!t.method?' active':''}" data-method="" onclick="selectEditMethod('',this)"><span class="method-icon">🚫</span>없음</button>`+
+      METHODS.map(m=>`<button class="method-btn${t.method===m?' active':''}" data-method="${m}" onclick="selectEditMethod('${m}',this)">
+        <span class="method-icon">${m==='현금'?'💵':m==='통장'?'🏦':'💳'}</span>${m.replace('카드','').replace('통장','').replace('현금','')||m}
+      </button>`).join('');
   }
+
+  // 챌린지 제외 토글
+  const cg=document.getElementById('edit-challenge-group');
+  cg.style.display=isExpense?'':'none';
+  const toggle=document.getElementById('edit-challenge-toggle');
+  toggle.classList.toggle('on',editExcludeChallenge);
+
+  // 할부 안내
+  const notice=document.getElementById('edit-install-notice');
   if(t.installment){
-    installInfo.style.display='';
-    installInfo.textContent=`📅 할부 ${t.installment.current}/${t.installment.months}회차 · 이 건만 수정됩니다`;
+    notice.innerHTML=`<div style="font-size:0.75rem;color:var(--accent-orange);background:#fb923c12;border:1px solid #fb923c33;border-radius:8px;padding:8px 12px;margin-bottom:12px;">📅 할부 ${t.installment.current}/${t.installment.months}회차 · 이 건만 수정됩니다</div>`;
   } else {
-    installInfo.style.display='none';
+    notice.innerHTML='';
   }
+
   document.getElementById('edit-modal').style.display='flex';
 };
-window.closeEditModal = () => { document.getElementById('edit-modal').style.display='none'; editingId=null; };
-window.saveEdit = async () => {
+
+window.selectEditCat=(id,btn)=>{
+  editSelectedCat=id;
+  document.querySelectorAll('#edit-cat-grid .cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+};
+window.selectEditMethod=(m,btn)=>{
+  editSelectedMethod=m||null;
+  document.querySelectorAll('#edit-method-grid .method-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+};
+window.toggleEditChallenge=()=>{
+  editExcludeChallenge=!editExcludeChallenge;
+  document.getElementById('edit-challenge-toggle').classList.toggle('on',editExcludeChallenge);
+};
+
+window.closeEditModal=()=>{
+  document.getElementById('edit-modal').style.display='none';
+  editingId=null; editSelectedCat=null; editSelectedMethod=null; editExcludeChallenge=false;
+};
+
+window.saveEdit=async()=>{
   if(!editingId) return;
-  const amount = parseInt(document.getElementById('edit-amount').value);
-  const desc   = document.getElementById('edit-desc').value.trim();
-  const date   = document.getElementById('edit-date').value;
-  const cat    = document.getElementById('edit-cat').value;
-  const method = document.getElementById('edit-method').value || null;
+  const amount=parseInt(document.getElementById('edit-amount').value);
+  const desc  =document.getElementById('edit-desc').value.trim();
+  const date  =document.getElementById('edit-date').value;
   if(!amount||amount<=0) return toast('금액을 입력해주세요');
   if(!desc)              return toast('내용을 입력해주세요');
   if(!date)              return toast('날짜를 선택해주세요');
+  if(!editSelectedCat)   return toast('카테고리를 선택해주세요');
   try{
-    await updateDoc(doc(db,'transactions',editingId),{amount,desc,date,cat,method});
+    await updateDoc(doc(db,'transactions',editingId),{
+      amount, desc, date,
+      cat: editSelectedCat,
+      method: editSelectedMethod||null,
+      excludeChallenge: editExcludeChallenge
+    });
     closeEditModal();
-    showSuccessPopup('수정됐어요! ✏️', `₩${amount.toLocaleString()}`);
-    // day-popup이 열려있으면 해당 날짜 새로고침
-    if(document.getElementById('day-popup').classList.contains('show')){
-      openDayPopup(date);
-    }
+    showSuccessPopup('수정됐어요! ✏️',`₩${amount.toLocaleString()}`);
+    if(document.getElementById('day-popup').classList.contains('show')) openDayPopup(date);
   }catch(e){toast('❌ 수정 실패: '+e.message);}
 };
 
