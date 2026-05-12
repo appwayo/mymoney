@@ -954,46 +954,83 @@
 
   <!-- ══ SAVING TAB ══ -->
   <div id="page-saving" class="page">
+
+    <!-- 상단 헤더 -->
     <div class="saving-tab-header">
       <h2>🏦 저축 현황</h2>
       <div style="display:flex;gap:7px">
         <button id="saving-sort-btn" onclick="toggleSavingSort()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all 0.15s;">↕ 순서</button>
+        <button onclick="openSavingSettingsModal()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;">⚙️ 설정</button>
         <button class="loan-add-btn" onclick="openSavingAccountModal(null)" style="background:var(--accent-purple)">+ 항목 추가</button>
       </div>
     </div>
 
-    <!-- ① 상단 요약 4카드 -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px" id="saving-summary-grid">
-      <div class="card">
-        <div class="card-label">💰 총 저축액</div>
-        <div class="card-amount saving" id="stab-total">₩0</div>
-        <div class="card-sub" id="stab-count">0개 항목</div>
+    <!-- ① 총자산 + 연간 목표 대형 카드 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <!-- 총자산 -->
+      <div class="card" style="background:linear-gradient(135deg,#1e1428,#1a1a1e);border-color:#c084fc33">
+        <div class="card-label" style="color:var(--accent-purple)">💰 현재 총 자산</div>
+        <div style="font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:500;color:var(--accent-purple);margin:6px 0" id="stab-total-asset">₩0</div>
+        <div style="font-size:0.68rem;color:var(--text-muted)" id="stab-asset-breakdown"></div>
+        <div style="font-size:0.7rem;margin-top:6px" id="stab-asset-vs-prev"></div>
       </div>
-      <div class="card">
-        <div class="card-label">📅 올해 저축</div>
-        <div class="card-amount saving" id="stab-year">₩0</div>
-        <div class="card-sub" id="stab-year-sub">입금 기준</div>
-      </div>
-      <div class="card">
-        <div class="card-label">🗓 이달 저축</div>
-        <div class="card-amount saving" id="stab-month">₩0</div>
-        <div class="card-sub">이번 달 적립액</div>
-      </div>
-      <div class="card">
-        <div class="card-label">🎯 목표 달성률</div>
-        <div class="card-amount" style="color:var(--accent-blue)" id="stab-rate">—</div>
-        <div class="card-sub">목표 설정된 항목</div>
+      <!-- 연간 목표 -->
+      <div class="card" style="background:linear-gradient(135deg,#0d2418,#1a1a1e);border-color:#00e87a33">
+        <div class="card-label" style="color:var(--accent-green)">🎯 <span id="stab-year-label">2025</span>년 저축 목표</div>
+        <div style="font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:500;color:var(--accent-green);margin:6px 0" id="stab-year-saved">₩0</div>
+        <div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;margin:6px 0">
+          <div id="stab-year-bar" style="height:100%;border-radius:4px;background:var(--accent-green);transition:width 0.5s;width:0%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted)">
+          <span id="stab-year-pct">0%</span>
+          <span id="stab-year-goal-text">목표 ₩1,200만</span>
+        </div>
+        <div style="font-size:0.7rem;margin-top:6px" id="stab-year-gap"></div>
       </div>
     </div>
 
-    <!-- ② 연간 월별 체크 -->
+    <!-- ② 이달 요약 4카드 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px" id="saving-summary-grid">
+      <div class="card">
+        <div class="card-label">이달 저축</div>
+        <div class="card-amount saving" id="stab-month">₩0</div>
+        <div class="card-sub" id="stab-month-goal-text">목표 ₩100만</div>
+      </div>
+      <div class="card">
+        <div class="card-label">연간 페이스</div>
+        <div class="card-amount" style="color:var(--accent-blue)" id="stab-pace">—</div>
+        <div class="card-sub">연말 예상</div>
+      </div>
+      <div class="card">
+        <div class="card-label">부족/초과</div>
+        <div class="card-amount" id="stab-gap">₩0</div>
+        <div class="card-sub">목표 대비</div>
+      </div>
+      <div class="card">
+        <div class="card-label">저축 스트릭</div>
+        <div class="card-amount" style="color:var(--accent-orange)" id="stab-streak">0개월</div>
+        <div class="card-sub">연속 달성</div>
+      </div>
+    </div>
+
+    <!-- ③ 이달 저축 체크 -->
+    <div class="settings-section" style="margin-bottom:18px">
+      <div class="settings-section-header">
+        <h3>📅 이달 저축 체크 <span id="stab-check-month" style="font-size:0.72rem;color:var(--text-muted);font-weight:400"></span></h3>
+        <button onclick="openMonthlyCheckModal()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.72rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;">+ 기록</button>
+      </div>
+      <div class="settings-section-body" id="stab-check-list">
+        <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:16px">이달 저축 기록이 없어요</div>
+      </div>
+    </div>
+
+    <!-- ④ 연간 월별 현황 -->
     <div class="settings-section" style="margin-bottom:18px">
       <div class="settings-section-header" style="cursor:pointer" onclick="toggleYearlyCheck()">
-        <h3>📊 <span id="stab-year-title">2025년</span> 월별 저축 현황</h3>
+        <h3>📊 <span id="stab-year-title">2025</span>년 월별 현황</h3>
         <span id="stab-yearly-toggle-icon" style="color:var(--text-muted);font-size:0.8rem">▼</span>
       </div>
       <div id="stab-yearly-body" class="settings-section-body" style="padding:14px 16px">
-        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:14px">매달 저축 여부와 금액을 기록해요. 항목 잔액과는 별도로 관리돼요.</p>
         <div id="stab-monthly-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
           <span style="font-size:0.78rem;color:var(--text-muted)">올해 기록 합계</span>
@@ -1002,10 +1039,29 @@
       </div>
     </div>
 
-    <!-- ③ 항목별 카드 -->
-    <div class="saving-account-list" id="saving-account-list">
-      <div class="saving-empty">저축 항목이 없어요<br>+ 항목 추가 버튼을 눌러 시작해봐요 🏦</div>
+    <!-- ⑤ 자산 항목 -->
+    <div class="settings-section" style="margin-bottom:18px">
+      <div class="settings-section-header">
+        <h3>💼 자산 항목</h3>
+      </div>
+      <div class="settings-section-body" style="padding:12px 16px">
+        <div class="saving-account-list" id="saving-account-list" style="margin:0">
+          <div class="saving-empty">저축 항목이 없어요</div>
+        </div>
+      </div>
     </div>
+
+    <!-- ⑥ 단기 목표 -->
+    <div class="settings-section">
+      <div class="settings-section-header">
+        <h3>🎪 단기 목표</h3>
+        <button onclick="openShortGoalModal(null)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.72rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;">+ 추가</button>
+      </div>
+      <div class="settings-section-body" id="stab-short-goals">
+        <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:16px">단기 목표를 추가해봐요 (여행, 구매 등)</div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ══ CHALLENGE TAB ══ -->
@@ -1244,6 +1300,78 @@
         <label>메모 (선택)</label>
         <input type="text" id="monthly-saving-memo" placeholder="예) 월급날 정기 저축">
       </div>
+    </div>
+    <button class="modal-submit green" onclick="saveMonthlySaving()">저장</button>
+    <button class="modal-close" onclick="closeMonthlySavingModal()">취소</button>
+  </div>
+</div>
+
+<!-- 저축 설정 모달 -->
+<div class="modal-overlay" id="saving-settings-modal" style="display:none" onclick="if(event.target===this)closeSavingSettingsModal()">
+  <div class="modal">
+    <h3>⚙️ 저축 목표 설정</h3>
+    <div class="modal-form">
+      <div class="form-group"><label>2024년 말 자산 (시작 기준점)</label><input type="number" id="ss-base-asset" placeholder="20000000" min="0"></div>
+      <div class="form-group"><label>연간 저축 목표</label><input type="number" id="ss-year-goal" placeholder="12000000" min="0"></div>
+      <div class="form-group"><label>이달 저축 목표</label><input type="number" id="ss-month-goal" placeholder="1000000" min="0"></div>
+    </div>
+    <button class="modal-submit green" onclick="saveSavingSettings()">저장</button>
+    <button class="modal-close" onclick="closeSavingSettingsModal()">취소</button>
+  </div>
+</div>
+
+<!-- 이달 저축 체크 모달 -->
+<div class="modal-overlay" id="monthly-check-modal" style="display:none" onclick="if(event.target===this)closeMonthlyCheckModal()">
+  <div class="modal">
+    <h3>📅 이달 저축 기록</h3>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>종류</label>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:4px" id="mc-type-btns">
+          <button class="mc-type-btn" onclick="selectMcType('청약',this)" style="padding:8px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">🏢 청약</button>
+          <button class="mc-type-btn" onclick="selectMcType('정기저축',this)" style="padding:8px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">🏦 정기</button>
+          <button class="mc-type-btn" onclick="selectMcType('추가저축',this)" style="padding:8px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">➕ 추가</button>
+        </div>
+      </div>
+      <div class="form-group"><label>금액</label><input type="number" id="mc-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>날짜</label><input type="date" id="mc-date"></div>
+      <div class="form-group"><label>메모 (선택)</label><input type="text" id="mc-memo" placeholder="예) 월급날 이체"></div>
+    </div>
+    <button class="modal-submit green" onclick="saveMonthlyCheck()">저장</button>
+    <button class="modal-close" onclick="closeMonthlyCheckModal()">취소</button>
+  </div>
+</div>
+
+<!-- 단기 목표 모달 -->
+<div class="modal-overlay" id="short-goal-modal" style="display:none" onclick="if(event.target===this)closeShortGoalModal()">
+  <div class="modal">
+    <h3 id="sg-modal-title">🎪 단기 목표</h3>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>아이콘</label>
+        <div class="emoji-picker-wrap">
+          <button class="emoji-input-btn" id="sg-icon-btn" onclick="toggleEmojiPicker('sg',event)" type="button">🎯</button>
+          <input type="hidden" id="sg-icon" value="🎯">
+        </div>
+        <div class="emoji-picker-popup" id="emoji-picker-sg" style="display:none"></div>
+      </div>
+      <div class="form-group"><label>목표 이름</label><input type="text" id="sg-name" placeholder="예) 유럽여행, 노트북"></div>
+      <div class="form-group"><label>목표 금액</label><input type="number" id="sg-target" placeholder="0" min="0"></div>
+      <div class="form-group"><label>현재 모은 금액</label><input type="number" id="sg-current" placeholder="0" min="0"></div>
+      <div class="form-group"><label>목표 달성일 (선택)</label><input type="date" id="sg-deadline"></div>
+    </div>
+    <button class="modal-submit green" onclick="saveShortGoal()">저장</button>
+    <button class="modal-close" onclick="closeShortGoalModal()">취소</button>
+  </div>
+</div>
+
+<!-- 월별 저축 연간 기록 모달 -->
+<div class="modal-overlay" id="monthly-saving-modal" style="display:none" onclick="if(event.target===this)closeMonthlySavingModal()">
+  <div class="modal">
+    <h3 id="monthly-saving-title">월 저축 기록</h3>
+    <div class="modal-form">
+      <div class="form-group"><label>저축 금액</label><input type="number" id="monthly-saving-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>메모 (선택)</label><input type="text" id="monthly-saving-memo"></div>
     </div>
     <button class="modal-submit green" onclick="saveMonthlySaving()">저장</button>
     <button class="modal-close" onclick="closeMonthlySavingModal()">취소</button>
@@ -1656,6 +1784,15 @@ function startListeners(){
       }
       if(d.id==='yearlyChecks'){
         if(data.checks) yearlyChecks=data.checks;
+      }
+      if(d.id==='monthlyChecks'){
+        if(data.data) monthlyChecks=data.data;
+      }
+      if(d.id==='shortGoals'){
+        if(data.goals) shortGoals=data.goals;
+      }
+      if(d.id==='savingGoal'){
+        savingGoalSettings={...savingGoalSettings,...data};
       }
       if(d.id==='fixedExpenses'){
         if(data.list) fixedExpenses=data.list;
@@ -3144,11 +3281,428 @@ window.closeDayPopup=()=>document.getElementById('day-popup').classList.remove('
 
 // ══ 저축 탭 ══
 const SA_COLORS={purple:'#c084fc',green:'#00e87a',blue:'#4d9fff',yellow:'#ffd166',orange:'#fb923c',red:'#ff4d6d'};
-let yearlyChecks={}; // {YYYY-MM: {checked:bool, amount:number, memo:string}}
+
+// 상태
+let yearlyChecks  = {}; // {YYYY-MM: {checked,amount,memo}} 연간 기록 (구형 호환)
+let monthlyChecks = {}; // {YYYY-MM: [{type,amount,date,memo,id}]} 이달 체크 기록
+let shortGoals    = []; // [{icon,name,target,current,deadline}]
+let savingGoalSettings = {baseAsset:20000000, yearGoal:12000000, monthGoal:1000000};
 let yearlyCheckOpen=true;
 
-// settings 리스너에서 yearlyChecks 로드 필요 (startListeners에 추가)
-// d.id==='yearlyChecks' → yearlyChecks=data.checks
+function renderSavingTab(){
+  const now=new Date();
+  const thisYear=now.getFullYear();
+  const thisMonth=now.getMonth();
+  const thisMonthKey=`${thisYear}-${String(thisMonth+1).padStart(2,'0')}`;
+  const gs=savingGoalSettings;
+
+  // ── 총 자산 계산 ──
+  const assetTotal=savingAccounts.reduce((s,a)=>s+a.balance,0);
+  const baseAsset=gs.baseAsset||20000000;
+
+  // ── 연간 저축 계산 (monthlyChecks 기준) ──
+  let yearSaved=0;
+  for(let m=0;m<12;m++){
+    const k=`${thisYear}-${String(m+1).padStart(2,'0')}`;
+    const recs=monthlyChecks[k]||[];
+    yearSaved+=recs.reduce((s,r)=>s+r.amount,0);
+  }
+
+  // ── 이달 저축 ──
+  const thisMonthRecs=monthlyChecks[thisMonthKey]||[];
+  const monthSaved=thisMonthRecs.reduce((s,r)=>s+r.amount,0);
+
+  // ── 총자산 카드 ──
+  document.getElementById('stab-total-asset').textContent='₩'+(assetTotal+baseAsset).toLocaleString();
+  document.getElementById('stab-asset-breakdown').textContent=
+    `기준자산 ₩${(baseAsset/10000).toFixed(0)}만 + 저축항목 ₩${(assetTotal/10000).toFixed(0)}만`;
+
+  // 전년도 말 자산 대비
+  const assetGrowth=assetTotal+baseAsset-baseAsset;
+  const assetVsPrev=document.getElementById('stab-asset-vs-prev');
+  assetVsPrev.textContent=`전년도 대비 +₩${(assetGrowth/10000).toFixed(0)}만 성장`;
+  assetVsPrev.style.color='var(--accent-green)';
+
+  // ── 연간 목표 카드 ──
+  const yearGoal=gs.yearGoal||12000000;
+  const yearPct=Math.min(100,Math.round(yearSaved/yearGoal*100));
+  document.getElementById('stab-year-label').textContent=thisYear;
+  document.getElementById('stab-year-saved').textContent='₩'+(yearSaved/10000).toFixed(0)+'만';
+  document.getElementById('stab-year-bar').style.width=yearPct+'%';
+  document.getElementById('stab-year-pct').textContent=yearPct+'%';
+  document.getElementById('stab-year-goal-text').textContent=`목표 ₩${(yearGoal/10000).toFixed(0)}만`;
+  const yearGap=yearGoal-yearSaved;
+  const gapEl=document.getElementById('stab-year-gap');
+  if(yearGap>0){
+    gapEl.textContent=`₩${(yearGap/10000).toFixed(0)}만 부족`;
+    gapEl.style.color='var(--accent-red)';
+  } else {
+    gapEl.textContent=`₩${(Math.abs(yearGap)/10000).toFixed(0)}만 초과 달성!`;
+    gapEl.style.color='var(--accent-green)';
+  }
+
+  // ── 이달 요약 카드 ──
+  const monthGoal=gs.monthGoal||1000000;
+  const monthPct=Math.round(monthSaved/monthGoal*100);
+  document.getElementById('stab-month').textContent='₩'+(monthSaved/10000).toFixed(0)+'만';
+  document.getElementById('stab-month-goal-text').textContent=
+    `목표 ₩${(monthGoal/10000).toFixed(0)}만 (${monthPct}%)`;
+  document.getElementById('stab-month').style.color=
+    monthSaved>=monthGoal?'var(--accent-green)':'var(--accent-purple)';
+
+  // 연말 페이스 예측
+  const monthsPassed=thisMonth+(now.getDate()/new Date(thisYear,thisMonth+1,0).getDate());
+  const pace=monthsPassed>0?Math.round(yearSaved/monthsPassed*12):0;
+  document.getElementById('stab-pace').textContent='₩'+(pace/10000).toFixed(0)+'만';
+  document.getElementById('stab-pace').style.color=
+    pace>=yearGoal?'var(--accent-green)':'var(--accent-yellow)';
+
+  // 목표 대비 격차
+  const expectedNow=Math.round(yearGoal/12*(thisMonth+now.getDate()/30));
+  const gap=yearSaved-expectedNow;
+  const gapCardEl=document.getElementById('stab-gap');
+  gapCardEl.textContent=(gap>=0?'+':'')+'₩'+(gap/10000).toFixed(0)+'만';
+  gapCardEl.style.color=gap>=0?'var(--accent-green)':'var(--accent-red)';
+
+  // 스트릭: 연속 달성 개월
+  let streak=0;
+  for(let m=thisMonth;m>=0;m--){
+    const k=`${thisYear}-${String(m+1).padStart(2,'0')}`;
+    const recs=monthlyChecks[k]||[];
+    const saved=recs.reduce((s,r)=>s+r.amount,0);
+    if(saved>=monthGoal) streak++;
+    else break;
+  }
+  document.getElementById('stab-streak').textContent=streak+'개월';
+
+  // ── 이달 체크 목록 ──
+  document.getElementById('stab-check-month').textContent=`${thisYear}.${String(thisMonth+1).padStart(2,'0')}`;
+  renderMonthlyCheckList(thisMonthKey, thisMonthRecs, monthGoal);
+
+  // ── 연간 월별 현황 ──
+  document.getElementById('stab-year-title').textContent=thisYear;
+  renderYearlyGrid(thisYear, thisMonth, yearGoal);
+
+  // ── 자산 항목 ──
+  renderSavingAccountCards();
+
+  // ── 단기 목표 ──
+  renderShortGoals();
+}
+
+function renderMonthlyCheckList(key, recs, monthGoal){
+  const el=document.getElementById('stab-check-list');
+  const total=recs.reduce((s,r)=>s+r.amount,0);
+  const typeColors={청약:'#38bdf8',정기저축:'#c084fc',추가저축:'#00e87a'};
+  const typeIcons={청약:'🏢',정기저축:'🏦',추가저축:'➕'};
+
+  if(!recs.length){
+    el.innerHTML=`<div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:16px">이달 저축 기록이 없어요<br><span style="font-size:0.72rem">오른쪽 + 기록 버튼을 눌러 추가하세요</span></div>`;
+    return;
+  }
+
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:8px">
+      <span style="font-size:0.78rem;font-weight:700">이달 합계</span>
+      <span style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:600;color:${total>=monthGoal?'var(--accent-green)':'var(--accent-purple)'}">₩${total.toLocaleString()} <span style="font-size:0.68rem;color:var(--text-muted)">/ ₩${monthGoal.toLocaleString()}</span></span>
+    </div>`+
+    recs.map((r,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:1rem">${typeIcons[r.type]||'💰'}</span>
+        <div style="flex:1">
+          <div style="font-size:0.83rem;font-weight:600;color:${typeColors[r.type]||'var(--text)'}">${r.type}</div>
+          <div style="font-size:0.68rem;color:var(--text-muted)">${r.date}${r.memo?' · '+r.memo:''}</div>
+        </div>
+        <span style="font-family:'DM Mono',monospace;font-size:0.88rem;font-weight:500">₩${r.amount.toLocaleString()}</span>
+        <button onclick="editMonthlyCheck('${key}',${i})" style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.78rem;padding:2px 5px">✏️</button>
+        <button onclick="deleteMonthlyCheck('${key}',${i})" style="background:none;border:none;color:var(--accent-red);cursor:pointer;font-size:0.78rem;padding:2px 5px">✕</button>
+      </div>`).join('');
+}
+
+function renderYearlyGrid(year, thisMonth, yearGoal){
+  const monthGoal=savingGoalSettings.monthGoal||1000000;
+  const grid=document.getElementById('stab-monthly-grid');
+  let yearlyTotal=0;
+  const names=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  grid.innerHTML=names.map((mn,mi)=>{
+    const k=`${year}-${String(mi+1).padStart(2,'0')}`;
+    const recs=monthlyChecks[k]||[];
+    const amt=recs.reduce((s,r)=>s+r.amount,0);
+    if(amt) yearlyTotal+=amt;
+    const isPast=mi<thisMonth;
+    const isCurrent=mi===thisMonth;
+    const isFuture=mi>thisMonth;
+    const isOk=amt>=monthGoal;
+    const border=isOk?'var(--accent-green)':(isPast&&!amt?'var(--accent-red)':isCurrent?'var(--accent-blue)':'var(--border)');
+    const icon=isOk?'✅':(isPast&&!amt?'❌':isCurrent?'🔄':'—');
+    return`<div style="background:var(--surface2);border:1.5px solid ${border};border-radius:10px;padding:9px 10px;cursor:pointer;transition:all 0.15s;" onclick="openMonthlySavingModal('${k}','${mn}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:0.76rem;font-weight:700;color:${isCurrent?'var(--accent-blue)':'var(--text)'}">${mn}</span>
+        <span style="font-size:0.85rem">${icon}</span>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:${isOk?'var(--accent-green)':amt?'var(--accent-yellow)':'var(--text-muted)'}">
+        ${amt?'₩'+(amt/10000).toFixed(1)+'만':isFuture?'—':'미기록'}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('stab-yearly-total').textContent='₩'+yearlyTotal.toLocaleString();
+}
+
+function renderSavingAccountCards(){
+  const el=document.getElementById('saving-account-list');
+  if(!savingAccounts.length){
+    el.innerHTML='<div class="saving-empty" style="padding:20px">저축 항목이 없어요<br>+ 항목 추가로 추가해봐요</div>';
+    return;
+  }
+  el.innerHTML=savingAccounts.map((a,i)=>{
+    const color=SA_COLORS[a.color]||SA_COLORS.purple;
+    const pct=a.goal>0?Math.min(100,Math.round(a.balance/a.goal*100)):null;
+    const isReached=pct!==null&&pct>=100;
+    const txsSorted=(a.txs||[]).slice().sort((x,y)=>new Date(y.date)-new Date(x.date));
+    const txHTML=txsSorted.slice(0,5).map((t,ri)=>`
+      <div class="saving-tx-item">
+        <span class="saving-tx-date">${t.date}</span>
+        <span class="saving-tx-desc">${t.memo||''}</span>
+        <span class="saving-tx-amt ${t.type==='deposit'?'plus':'minus'}">${t.type==='deposit'?'+':'-'}₩${t.amount.toLocaleString()}</span>
+        <button onclick="openSavingTxEditModal(${i},${ri})" style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.75rem;padding:2px 4px;flex-shrink:0">✏️</button>
+        <button onclick="deleteSavingTx(${i},${ri})" style="background:none;border:none;color:var(--accent-red);cursor:pointer;font-size:0.75rem;padding:2px 4px;flex-shrink:0">✕</button>
+      </div>`).join('');
+    const sortBtns=savingSortMode?`
+      <div style="display:flex;gap:6px;padding:8px 14px;border-top:1px solid var(--border);background:var(--surface2)">
+        <button onclick="moveSavingAccount(${i},-1)" ${i===0?'disabled':''} style="flex:1;padding:6px;border-radius:7px;border:1.5px solid var(--border);background:none;color:${i===0?'var(--border)':'var(--text-muted)'};font-family:inherit;font-size:0.82rem;cursor:${i===0?'default':'pointer'}">↑ 위로</button>
+        <button onclick="moveSavingAccount(${i},1)" ${i===savingAccounts.length-1?'disabled':''} style="flex:1;padding:6px;border-radius:7px;border:1.5px solid var(--border);background:none;color:${i===savingAccounts.length-1?'var(--border)':'var(--text-muted)'};font-family:inherit;font-size:0.82rem;cursor:${i===savingAccounts.length-1?'default':'pointer'}">↓ 아래로</button>
+      </div>`:'';
+    return`<div class="saving-account-card${isReached?' goal-reached':''}">
+      <div class="saving-account-header" onclick="${savingSortMode?'':'toggleSavingCard('+i+')'}">
+        <div class="saving-account-left">
+          <div class="saving-account-icon" style="background:${color}22;border:1.5px solid ${color}44">${a.icon||'🏦'}</div>
+          <div>
+            <div class="saving-account-name">${a.name}${isReached?' <span style="font-size:0.62rem;color:var(--accent-green);background:#00e87a18;padding:2px 6px;border-radius:4px">목표달성🎉</span>':''}</div>
+            <div class="saving-account-type">${a.type||''}</div>
+          </div>
+        </div>
+        <div class="saving-account-right">
+          <div class="saving-account-balance" style="color:${color}">₩${a.balance.toLocaleString()}</div>
+          <div class="saving-account-goal">${a.goal>0?`목표 ₩${a.goal.toLocaleString()} (${pct}%)`:'목표 없음'}</div>
+        </div>
+      </div>
+      ${sortBtns}
+      <div class="saving-account-body" id="sab-${i}">
+        ${a.goal>0?`<div class="saving-progress-wrap" title="달성 ${pct}% · 남은 ₩${Math.max(0,a.goal-a.balance).toLocaleString()}" style="cursor:help">
+          <div class="saving-progress-bar" style="width:${pct}%;background:${color}"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin-bottom:12px">
+            <span>₩${a.balance.toLocaleString()}</span>
+            <span>목표 ₩${a.goal.toLocaleString()} · 남은 ₩${Math.max(0,a.goal-a.balance).toLocaleString()}</span>
+          </div>`:''}
+        ${txHTML||'<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:12px">거래 내역이 없어요</div>'}
+        <div class="saving-actions">
+          <button class="saving-action-btn deposit" onclick="openSavingTxModal(${i},'deposit')">+ 입금</button>
+          <button class="saving-action-btn withdraw" onclick="openSavingTxModal(${i},'withdraw')">- 출금</button>
+          <button class="saving-action-btn" onclick="openSavingAccountModal(${i})" style="border-color:var(--accent-blue);color:var(--accent-blue)">✏️ 수정</button>
+          <button class="saving-action-btn del" onclick="deleteSavingAccount(${i})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderShortGoals(){
+  const el=document.getElementById('stab-short-goals');
+  if(!shortGoals.length){
+    el.innerHTML='<div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:16px">단기 목표를 추가해봐요 (여행, 구매 등)</div>';
+    return;
+  }
+  el.innerHTML=shortGoals.map((g,i)=>{
+    const pct=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;
+    const remain=Math.max(0,g.target-g.current);
+    const isReached=g.current>=g.target;
+    let deadlineStr='';
+    if(g.deadline){
+      const d=new Date(g.deadline);
+      const today=new Date();
+      const days=Math.ceil((d-today)/(1000*60*60*24));
+      deadlineStr=days>0?` · D-${days}`:days===0?' · 오늘!':' · 기한 지남';
+    }
+    return`<div style="padding:14px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:1.2rem">${g.icon||'🎯'}</span>
+        <div style="flex:1">
+          <div style="font-size:0.88rem;font-weight:600">${g.name}${isReached?' 🎉':''}</div>
+          <div style="font-size:0.68rem;color:var(--text-muted)">₩${g.current.toLocaleString()} / ₩${g.target.toLocaleString()}${deadlineStr}</div>
+        </div>
+        <span style="font-family:'DM Mono',monospace;font-size:0.82rem;font-weight:600;color:${isReached?'var(--accent-green)':'var(--accent-blue)'}">${pct}%</span>
+        <button onclick="openShortGoalModal(${i})" style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.8rem;padding:2px 5px">✏️</button>
+        <button onclick="deleteShortGoal(${i})" style="background:none;border:none;color:var(--accent-red);cursor:pointer;font-size:0.8rem;padding:2px 5px">✕</button>
+      </div>
+      <div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden">
+        <div style="height:100%;border-radius:4px;background:${isReached?'var(--accent-green)':'var(--accent-blue)'};width:${pct}%;transition:width 0.4s"></div>
+      </div>
+      ${remain>0?`<div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px">₩${remain.toLocaleString()} 더 필요해요</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+window.toggleYearlyCheck=()=>{
+  yearlyCheckOpen=!yearlyCheckOpen;
+  document.getElementById('stab-yearly-body').style.display=yearlyCheckOpen?'':'none';
+  document.getElementById('stab-yearly-toggle-icon').textContent=yearlyCheckOpen?'▲':'▼';
+};
+window.toggleSavingCard=i=>{
+  if(savingSortMode) return;
+  document.getElementById('sab-'+i)?.classList.toggle('open');
+};
+
+// ── 저축 설정 ──
+window.openSavingSettingsModal=()=>{
+  document.getElementById('ss-base-asset').value=savingGoalSettings.baseAsset||20000000;
+  document.getElementById('ss-year-goal').value=savingGoalSettings.yearGoal||12000000;
+  document.getElementById('ss-month-goal').value=savingGoalSettings.monthGoal||1000000;
+  document.getElementById('saving-settings-modal').style.display='flex';
+};
+window.closeSavingSettingsModal=()=>document.getElementById('saving-settings-modal').style.display='none';
+window.saveSavingSettings=async()=>{
+  const s={
+    baseAsset:parseInt(document.getElementById('ss-base-asset').value)||20000000,
+    yearGoal:parseInt(document.getElementById('ss-year-goal').value)||12000000,
+    monthGoal:parseInt(document.getElementById('ss-month-goal').value)||1000000,
+  };
+  try{
+    await upsertSetting('savingGoal',s);
+    closeSavingSettingsModal();
+    showSuccessPopup('저장됐어요! ⚙️');
+  }catch(e){toast('❌ 저장 실패');}
+};
+
+// ── 이달 체크 ──
+let mcType=null, mcEditKey=null, mcEditIdx=null;
+window.selectMcType=(type,btn)=>{
+  mcType=type;
+  document.querySelectorAll('.mc-type-btn').forEach(b=>{
+    b.style.borderColor='var(--border)';b.style.background='none';b.style.color='var(--text-muted)';
+  });
+  btn.style.borderColor='var(--accent-purple)';btn.style.background='#c084fc15';btn.style.color='var(--accent-purple)';
+};
+window.openMonthlyCheckModal=()=>{
+  mcType=null; mcEditKey=null; mcEditIdx=null;
+  document.querySelectorAll('.mc-type-btn').forEach(b=>{
+    b.style.borderColor='var(--border)';b.style.background='none';b.style.color='var(--text-muted)';
+  });
+  document.getElementById('mc-amount').value='';
+  document.getElementById('mc-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('mc-memo').value='';
+  document.getElementById('monthly-check-modal').style.display='flex';
+};
+window.closeMonthlyCheckModal=()=>document.getElementById('monthly-check-modal').style.display='none';
+window.saveMonthlyCheck=async()=>{
+  const amount=parseInt(document.getElementById('mc-amount').value);
+  const date=document.getElementById('mc-date').value;
+  const memo=document.getElementById('mc-memo').value.trim();
+  if(!mcType) return toast('종류를 선택해주세요');
+  if(!amount||amount<=0) return toast('금액을 입력해주세요');
+  if(!date) return toast('날짜를 선택해주세요');
+  const d=new Date(date);
+  const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  const newChecks={...monthlyChecks};
+  if(!newChecks[key]) newChecks[key]=[];
+  const rec={type:mcType,amount,date,memo,id:Date.now()};
+  if(mcEditIdx!==null) newChecks[key][mcEditIdx]=rec;
+  else newChecks[key]=[...newChecks[key],rec];
+  try{
+    await upsertSetting('monthlyChecks',{data:newChecks});
+    closeMonthlyCheckModal();
+    showSuccessPopup('저장됐어요! ✅',`${mcType} ₩${amount.toLocaleString()}`);
+  }catch(e){toast('❌ 저장 실패');}
+};
+window.editMonthlyCheck=(key,idx)=>{
+  const r=(monthlyChecks[key]||[])[idx];
+  if(!r) return;
+  mcEditKey=key; mcEditIdx=idx;
+  mcType=r.type;
+  document.querySelectorAll('.mc-type-btn').forEach(b=>{
+    b.style.borderColor='var(--border)';b.style.background='none';b.style.color='var(--text-muted)';
+    if(b.textContent.includes(r.type==='청약'?'청약':r.type==='정기저축'?'정기':'추가')){
+      b.style.borderColor='var(--accent-purple)';b.style.background='#c084fc15';b.style.color='var(--accent-purple)';
+    }
+  });
+  document.getElementById('mc-amount').value=r.amount;
+  document.getElementById('mc-date').value=r.date;
+  document.getElementById('mc-memo').value=r.memo||'';
+  document.getElementById('monthly-check-modal').style.display='flex';
+};
+window.deleteMonthlyCheck=async(key,idx)=>{
+  if(!confirm('삭제할까요?')) return;
+  const newChecks={...monthlyChecks};
+  newChecks[key]=(newChecks[key]||[]).filter((_,i)=>i!==idx);
+  try{ await upsertSetting('monthlyChecks',{data:newChecks}); toast('삭제됐어요'); }
+  catch(e){toast('❌ 삭제 실패');}
+};
+
+// ── 연간 기록 (구형 호환) ──
+let monthlySavingKey=null;
+window.openMonthlySavingModal=(key,label)=>{
+  monthlySavingKey=key;
+  document.getElementById('monthly-saving-title').textContent=`${label} 저축 기록`;
+  const rec=yearlyChecks[key]||{checked:false,amount:0,memo:''};
+  document.getElementById('monthly-saving-amount').value=rec.amount||'';
+  document.getElementById('monthly-saving-memo').value=rec.memo||'';
+  document.getElementById('monthly-saving-modal').style.display='flex';
+};
+window.closeMonthlySavingModal=()=>document.getElementById('monthly-saving-modal').style.display='none';
+window.saveMonthlySaving=async()=>{
+  const amount=parseInt(document.getElementById('monthly-saving-amount').value)||0;
+  const memo=document.getElementById('monthly-saving-memo').value.trim();
+  const newChecks={...yearlyChecks};
+  newChecks[monthlySavingKey]={checked:amount>0,amount,memo};
+  try{
+    await upsertSetting('yearlyChecks',{checks:newChecks});
+    closeMonthlySavingModal();
+    showSuccessPopup('저장됐어요! ✅');
+  }catch(e){toast('❌ 저장 실패');}
+};
+
+// ── 단기 목표 ──
+let sgEditIdx=null;
+window.openShortGoalModal=idx=>{
+  sgEditIdx=idx;
+  const g=idx!==null?shortGoals[idx]:null;
+  document.getElementById('sg-modal-title').textContent=idx!==null?'🎪 단기 목표 수정':'🎪 단기 목표 추가';
+  document.getElementById('sg-icon').value=g?.icon||'🎯';
+  document.getElementById('sg-icon-btn').textContent=g?.icon||'🎯';
+  document.getElementById('sg-name').value=g?.name||'';
+  document.getElementById('sg-target').value=g?.target||'';
+  document.getElementById('sg-current').value=g?.current||'';
+  document.getElementById('sg-deadline').value=g?.deadline||'';
+  document.getElementById('short-goal-modal').style.display='flex';
+};
+window.closeShortGoalModal=()=>document.getElementById('short-goal-modal').style.display='none';
+window.saveShortGoal=async()=>{
+  const name=document.getElementById('sg-name').value.trim();
+  const target=parseInt(document.getElementById('sg-target').value)||0;
+  if(!name) return toast('목표 이름을 입력해주세요');
+  if(!target) return toast('목표 금액을 입력해주세요');
+  const g={
+    icon:document.getElementById('sg-icon').value||'🎯',
+    name, target,
+    current:parseInt(document.getElementById('sg-current').value)||0,
+    deadline:document.getElementById('sg-deadline').value||''
+  };
+  const newGoals=[...shortGoals];
+  if(sgEditIdx!==null) newGoals[sgEditIdx]=g;
+  else newGoals.push(g);
+  try{
+    await upsertSetting('shortGoals',{goals:newGoals});
+    closeShortGoalModal();
+    showSuccessPopup('저장됐어요! 🎯');
+  }catch(e){toast('❌ 저장 실패');}
+};
+window.deleteShortGoal=async i=>{
+  if(!confirm('삭제할까요?')) return;
+  const newGoals=shortGoals.filter((_,idx)=>idx!==i);
+  try{ await upsertSetting('shortGoals',{goals:newGoals}); toast('삭제됐어요'); }
+  catch(e){toast('❌ 삭제 실패');}
+};
+
+// 순서 변경 모드
 
 function renderSavingTab(){
   const now=new Date();
