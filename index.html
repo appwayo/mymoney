@@ -491,7 +491,9 @@
     .stats-grid{grid-template-columns:1fr !important;}
     .cat-breakdown{grid-column:1 !important;}
     /* 저축 탭 상단 카드 그리드 */
-    #stab-summary-cards{grid-template-columns:1fr 1fr !important;}
+    #stab-summary-cards{grid-template-columns:1fr 1fr !important;min-width:0;}
+    #stab-summary-cards .card{min-width:0;overflow:hidden;}
+    #stab-total-asset{font-size:1.2rem !important;}
     /* 저축 자산 항목 */
     .saving-account-list{grid-template-columns:1fr !important;}
     /* 입력 */
@@ -502,13 +504,15 @@
     .settings-inner-nav{gap:3px;padding:5px;}
     .settings-inner-btn{padding:5px 9px;font-size:0.68rem;}
     /* 모달 */
-    .modal{padding:16px 14px;}
+    .modal{padding:16px 14px;max-height:88vh;overflow-y:auto;}
     /* 거래내역 */
     .tx-item{padding:8px 11px;gap:7px;}
     .tx-icon{width:28px;height:28px;font-size:0.8rem;}
     .tx-name{font-size:0.76rem;}
     .tx-meta{font-size:0.6rem;}
     .tx-amount{font-size:0.76rem;}
+    /* 전체보기 날짜 헤더 */
+    #txall-list>div>div:first-child{padding:5px 10px !important;font-size:0.68rem !important;}
     /* 캘린더 */
     .cal-cell{min-height:42px !important;}
     .cal-day{font-size:0.66rem !important;}
@@ -520,8 +524,6 @@
     .loan-avatar{width:30px;height:30px;}
     /* 대여 요약 그리드 */
     .loan-summary-grid{grid-template-columns:1fr 1fr !important;}
-    /* 통계 탭 저축요약 */
-    .saving-summary{flex-direction:column;gap:8px;}
     /* 전체보기 필터 */
     #txall-cat-btns,#txall-method-btns{flex-wrap:wrap !important;}
     /* 저축 액션 버튼 */
@@ -529,6 +531,10 @@
     .saving-action-btn{font-size:0.68rem;padding:6px 4px;}
     /* 주차이력 */
     .ch-week-item{flex-wrap:wrap;gap:6px;}
+    /* 순자산 서브 */
+    #networth-breakdown-sub{font-size:0.6rem !important;}
+    /* 고정지출 카드 */
+    #hcard-fixed .card-amount{font-size:0.95rem !important;}
   }
   .saving-account-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
   .saving-account-card.goal-reached{border-color:#00e87a44;}
@@ -723,7 +729,10 @@ function setMoneyInput(id,val){
       <div class="card" id="home-networth">
         <div class="card-label">📈 순자산</div>
         <div class="card-amount saving" id="networth-amount" style="font-size:1.6rem">₩0</div>
-        <div class="card-sub" id="networth-breakdown-sub"></div>
+        <div style="display:flex;flex-direction:column;gap:3px;margin-top:6px">
+          <div class="card-sub" id="networth-breakdown-sub"></div>
+          <div id="networth-loan-sub" style="font-size:0.68rem;color:var(--accent-orange);display:none">💸 미수금 포함</div>
+        </div>
         <div id="networth-change" style="font-size:0.72rem;font-weight:600;margin-top:4px"></div>
       </div>
     </div>
@@ -1572,6 +1581,10 @@ function setMoneyInput(id,val){
     <div class="modal-btns">
       <button class="modal-btn primary" onclick="exportJSON()"><span>⬇️</span><div><div>JSON으로 내보내기</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7;margin-top:2px">모든 거래·대여 내역 저장</div></div></button>
       <button class="modal-btn" onclick="triggerImport()"><span>⬆️</span><div><div>JSON에서 가져오기</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7;margin-top:2px">백업 파일로 복구 (병합)</div></div></button>
+      <div style="background:var(--surface2);border-radius:10px;padding:12px 14px;margin-top:4px">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:6px">📱 다른 기기에서 쓰려면</div>
+        <div style="font-size:0.7rem;color:var(--text-muted);line-height:1.7">1. 이 기기에서 <b>JSON 내보내기</b><br>2. 다른 기기에서 같은 파일 열기<br>3. <b>JSON 가져오기</b>로 복원<br><span style="opacity:0.6">※ 데이터는 각 기기 브라우저에 저장됩니다</span></div>
+      </div>
       <button class="modal-btn danger" onclick="confirmClearAll()"><span>🗑</span><div><div>전체 데이터 삭제</div><div style="font-size:0.7rem;font-weight:400;opacity:0.7;margin-top:2px">되돌릴 수 없어요</div></div></button>
     </div>
     <button class="modal-close" onclick="closeBackupModal()">닫기</button>
@@ -2638,6 +2651,12 @@ window.addLoanDirect=async()=>{
   if(!purpose)           return toast('명목을 입력해주세요');
   if(!amount||amount<=0) return toast('금액을 입력해주세요');
   if(!date)              return toast('날짜를 선택해주세요');
+  // 현재 보고 있는 달과 다른 달 날짜면 경고
+  const loanD=new Date(date);
+  if(loanD.getFullYear()!==currentYear||loanD.getMonth()!==currentMonth){
+    const ym=`${loanD.getFullYear()}.${String(loanD.getMonth()+1).padStart(2,'0')}`;
+    if(!confirm(`입력한 날짜(${ym})는 현재 보고 있는 달과 달라요.\n해당 달의 거래내역에만 표시돼요.\n계속할까요?`)) return;
+  }
   try{
     const loanRef=await addDoc(LCOL,{person,purpose,amount,date,memo,repayments:[],createdAt:new Date().toISOString()});
     // 메인탭 거래내역 자동 기록 (통장 고정, 가용자금 차감)
@@ -4156,10 +4175,18 @@ function renderNetworth(){
   }
   // 서브텍스트
   const sub=document.getElementById('networth-breakdown-sub');
+  const loanSub=document.getElementById('networth-loan-sub');
   if(sub){
-    let parts=[`가용 ₩${availableCash.toLocaleString()}`,`저축 ₩${savingTotal.toLocaleString()}`];
-    if(loanReceivable>0) parts.push(`미수금 ₩${loanReceivable.toLocaleString()}`);
+    const parts=[`가용 ₩${availableCash.toLocaleString()}`,`저축 ₩${savingTotal.toLocaleString()}`];
     sub.textContent=parts.join(' + ');
+  }
+  if(loanSub){
+    if(loanReceivable>0){
+      loanSub.textContent=`💸 미수금 ₩${loanReceivable.toLocaleString()} 포함`;
+      loanSub.style.display='';
+    } else {
+      loanSub.style.display='none';
+    }
   }
 
   // 이달 순자산 기록
