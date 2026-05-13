@@ -449,8 +449,10 @@
   .saving-tab-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
   .saving-tab-header h2{font-size:1rem;font-weight:700;}
   .saving-sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
-  .saving-account-list{display:flex;flex-direction:column;gap:12px;}
-  /* saving-account-list: single column layout */
+  .saving-account-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start;}
+  @media(max-width:900px){.saving-account-list{grid-template-columns:1fr 1fr;}}
+  @media(max-width:560px){.saving-account-list{grid-template-columns:1fr;}}
+  /* saving-account-list responsive handled above */
 
   /* ══ 모바일 전용 (아이폰12프로 기준) ══ */
   @media(max-width:430px){
@@ -753,7 +755,7 @@
       </div>
       <div class="form-group">
         <label>금액</label>
-        <input type="number" id="input-amount" placeholder="0" min="0">
+        <input type="text" inputmode="numeric" id="input-amount" oninput="fmtComma(this);if(selectedInstallMonths>1)selectInstallMonths(selectedInstallMonths,document.querySelector('.install-month-btn[style*=orange]')||{style:{}})" placeholder="0">
       </div>
       <div class="form-group">
         <label>내용</label>
@@ -964,13 +966,13 @@
       </div>
     </div>
 
-    <!-- ① 상단 4카드 -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px">
+    <!-- ① 상단 3카드 -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
 
       <!-- 총 저축 자산 -->
       <div class="card" style="background:linear-gradient(135deg,#1e1428,#1a1a1e);border-color:#c084fc33">
         <div class="card-label" style="color:var(--accent-purple)">💰 총 저축 자산</div>
-        <div style="font-family:'DM Mono',monospace;font-size:1.45rem;font-weight:500;color:var(--accent-purple);margin-top:6px" id="stab-total-asset">₩0</div>
+        <div style="font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:500;color:var(--accent-purple);margin-top:6px" id="stab-total-asset">₩0</div>
       </div>
 
       <!-- 연간 목표 -->
@@ -979,7 +981,7 @@
           <span>🎯 <span id="stab-year-label">2026</span>년 저축목표</span>
           <span style="font-size:0.6rem;opacity:0.6">✏️</span>
         </div>
-        <div style="font-family:'DM Mono',monospace;font-size:1.45rem;font-weight:500;color:var(--accent-green);margin:4px 0" id="stab-year-saved">₩0</div>
+        <div style="font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:500;color:var(--accent-green);margin:4px 0" id="stab-year-saved">₩0</div>
         <div style="background:var(--surface2);border-radius:4px;height:5px;overflow:hidden;margin:4px 0">
           <div id="stab-year-bar" style="height:100%;border-radius:4px;background:var(--accent-green);transition:width 0.5s;width:0%"></div>
         </div>
@@ -995,15 +997,8 @@
           <span>이달 저축</span>
           <span style="font-size:0.6rem;opacity:0.6">✏️</span>
         </div>
-        <div class="card-amount saving" id="stab-month" style="margin-top:6px">₩0</div>
+        <div class="card-amount saving" id="stab-month" style="margin-top:6px;font-size:1.6rem">₩0</div>
         <div class="card-sub" id="stab-month-goal-text">목표 ₩100만</div>
-      </div>
-
-      <!-- 부족/초과 -->
-      <div class="card">
-        <div class="card-label">부족/초과</div>
-        <div class="card-amount" id="stab-gap" style="margin-top:6px">₩0</div>
-        <div class="card-sub">연간 목표 대비</div>
       </div>
 
     </div>
@@ -1012,7 +1007,7 @@
     <div id="goal-edit-panel" style="display:none;background:var(--surface);border:1px solid var(--accent-green);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px">
       <div style="font-size:0.78rem;font-weight:700;margin-bottom:12px" id="goal-edit-title">목표 수정</div>
       <div style="display:flex;align-items:center;gap:10px">
-        <input type="number" id="goal-edit-input" placeholder="금액 입력" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:inherit;font-size:0.9rem;padding:9px 12px;outline:none;">
+        <input type="text" inputmode="numeric" id="goal-edit-input" oninput="fmtComma(this)" placeholder="금액 입력" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:inherit;font-size:0.9rem;padding:9px 12px;outline:none;">
         <button onclick="saveGoalEdit()" style="background:var(--accent-green);border:none;color:#0f0f10;font-family:inherit;font-size:0.85rem;font-weight:700;padding:9px 18px;border-radius:9px;cursor:pointer;">저장</button>
         <button onclick="closeGoalEdit()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.85rem;padding:9px 14px;border-radius:9px;cursor:pointer;">취소</button>
       </div>
@@ -1229,7 +1224,7 @@
         <div class="settings-section-body">
           <div class="settings-row">
             <label>주간 예산</label>
-            <input type="number" id="setting-budget" placeholder="100000" min="1000">
+            <input type="text" inputmode="numeric" id="setting-budget" oninput="fmtComma(this)" placeholder="100,000">
             <span style="font-size:0.8rem;color:var(--text-muted);flex-shrink:0">원</span>
           </div>
           <div class="settings-row">
@@ -1262,7 +1257,7 @@
     <div class="modal-form">
       <div class="form-group">
         <label>저축 금액</label>
-        <input type="number" id="monthly-saving-amount" placeholder="0" min="0">
+        <input type="text" inputmode="numeric" id="monthly-saving-amount" oninput="fmtComma(this)" placeholder="0" min="0">
       </div>
       <div class="form-group">
         <label>메모 (선택)</label>
@@ -1281,7 +1276,7 @@
     <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px">연말 기준 총 자산을 기록해요. (예: 2024년 말 ₩2,000만)</p>
     <div class="modal-form">
       <div class="form-group"><label>연도</label><input type="number" id="yr-year" placeholder="예) 2024" min="2000" max="2099"></div>
-      <div class="form-group"><label>총 자산</label><input type="number" id="yr-amount" placeholder="20000000" min="0"></div>
+      <div class="form-group"><label>총 자산</label><input type="text" inputmode="numeric" id="yr-amount" oninput="fmtComma(this)" placeholder="20000000" min="0"></div>
       <div class="form-group"><label>메모 (선택)</label><input type="text" id="yr-memo" placeholder="예) 청약 330만 포함"></div>
     </div>
     <button class="modal-submit green" onclick="saveYearRecord()">저장</button>
@@ -1294,9 +1289,9 @@
   <div class="modal">
     <h3>⚙️ 저축 목표 설정</h3>
     <div class="modal-form">
-      <div class="form-group"><label>2024년 말 자산 (시작 기준점)</label><input type="number" id="ss-base-asset" placeholder="20000000" min="0"></div>
-      <div class="form-group"><label>연간 저축 목표</label><input type="number" id="ss-year-goal" placeholder="12000000" min="0"></div>
-      <div class="form-group"><label>이달 저축 목표</label><input type="number" id="ss-month-goal" placeholder="1000000" min="0"></div>
+      <div class="form-group"><label>2024년 말 자산 (시작 기준점)</label><input type="text" inputmode="numeric" id="ss-base-asset" oninput="fmtComma(this)" placeholder="20000000" min="0"></div>
+      <div class="form-group"><label>연간 저축 목표</label><input type="text" inputmode="numeric" id="ss-year-goal" oninput="fmtComma(this)" placeholder="12000000" min="0"></div>
+      <div class="form-group"><label>이달 저축 목표</label><input type="text" inputmode="numeric" id="ss-month-goal" oninput="fmtComma(this)" placeholder="1000000" min="0"></div>
     </div>
     <button class="modal-submit green" onclick="saveSavingSettings()">저장</button>
     <button class="modal-close" onclick="closeSavingSettingsModal()">취소</button>
@@ -1316,7 +1311,7 @@
           <button class="mc-type-btn" onclick="selectMcType('추가저축',this)" style="padding:8px;border-radius:9px;border:1.5px solid var(--border);background:none;color:var(--text-muted);font-family:inherit;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.15s;">➕ 추가</button>
         </div>
       </div>
-      <div class="form-group"><label>금액</label><input type="number" id="mc-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>금액</label><input type="text" inputmode="numeric" id="mc-amount" oninput="fmtComma(this)" placeholder="0" min="0"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="mc-date"></div>
       <div class="form-group"><label>메모 (선택)</label><input type="text" id="mc-memo" placeholder="예) 월급날 이체"></div>
     </div>
@@ -1339,8 +1334,8 @@
         <div class="emoji-picker-popup" id="emoji-picker-sg" style="display:none"></div>
       </div>
       <div class="form-group"><label>목표 이름</label><input type="text" id="sg-name" placeholder="예) 유럽여행, 노트북"></div>
-      <div class="form-group"><label>목표 금액</label><input type="number" id="sg-target" placeholder="0" min="0"></div>
-      <div class="form-group"><label>현재 모은 금액</label><input type="number" id="sg-current" placeholder="0" min="0"></div>
+      <div class="form-group"><label>목표 금액</label><input type="text" inputmode="numeric" id="sg-target" oninput="fmtComma(this)" placeholder="0" min="0"></div>
+      <div class="form-group"><label>현재 모은 금액</label><input type="text" inputmode="numeric" id="sg-current" oninput="fmtComma(this)" placeholder="0" min="0"></div>
       <div class="form-group"><label>목표 달성일 (선택)</label><input type="date" id="sg-deadline"></div>
     </div>
     <button class="modal-submit green" onclick="saveShortGoal()">저장</button>
@@ -1353,7 +1348,7 @@
   <div class="modal">
     <h3 id="monthly-saving-title">월 저축 기록</h3>
     <div class="modal-form">
-      <div class="form-group"><label>저축 금액</label><input type="number" id="monthly-saving-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>저축 금액</label><input type="text" inputmode="numeric" id="monthly-saving-amount" oninput="fmtComma(this)" placeholder="0" min="0"></div>
       <div class="form-group"><label>메모 (선택)</label><input type="text" id="monthly-saving-memo"></div>
     </div>
     <button class="modal-submit green" onclick="saveMonthlySaving()">저장</button>
@@ -1376,8 +1371,8 @@
       </div>
       <div class="form-group"><label>항목 이름</label><input type="text" id="sa-name" placeholder="예) 주택청약, 비상금"></div>
       <div class="form-group"><label>카테고리/유형</label><input type="text" id="sa-type" placeholder="예) 청약, 비상금, 투자"></div>
-      <div class="form-group"><label>목표 금액 (선택)</label><input type="number" id="sa-goal" placeholder="목표 없으면 비워두세요" min="0"></div>
-      <div class="form-group"><label>현재 잔액</label><input type="number" id="sa-balance" placeholder="0" min="0"></div>
+      <div class="form-group"><label>목표 금액 (선택)</label><input type="text" inputmode="numeric" id="sa-goal" oninput="fmtComma(this)" placeholder="목표 없으면 비워두세요" min="0"></div>
+      <div class="form-group"><label>현재 잔액</label><input type="text" inputmode="numeric" id="sa-balance" oninput="fmtComma(this)" placeholder="0" min="0"></div>
       <div class="form-group"><label>색상 테마</label>
         <select id="sa-color">
           <option value="purple">보라</option><option value="green">초록</option>
@@ -1397,7 +1392,7 @@
     <h3 id="saving-tx-modal-title">저축 입금</h3>
     <p id="saving-tx-modal-desc" style="font-size:0.78rem;color:var(--text-muted);margin-bottom:16px"></p>
     <div class="modal-form">
-      <div class="form-group"><label>금액</label><input type="number" id="saving-tx-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>금액</label><input type="text" inputmode="numeric" id="saving-tx-amount" oninput="fmtComma(this)" placeholder="0" min="0"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="saving-tx-date"></div>
       <div class="form-group"><label>메모 (선택)</label><input type="text" id="saving-tx-memo" placeholder="예) 월급날 적립"></div>
     </div>
@@ -1428,7 +1423,7 @@
     <h3 id="fixed-modal-title">🔁 고정 지출 추가</h3>
     <div class="modal-form">
       <div class="form-group"><label>내용</label><input type="text" id="fixed-desc" placeholder="예) 넷플릭스, 보험료"></div>
-      <div class="form-group"><label>금액</label><input type="number" id="fixed-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>금액</label><input type="text" inputmode="numeric" id="fixed-amount" oninput="fmtComma(this)" placeholder="0" min="0"></div>
       <div class="form-group"><label>카테고리</label><select id="fixed-cat"></select></div>
       <div class="form-group"><label>결제수단</label><select id="fixed-method"><option value="">없음</option></select></div>
       <div class="form-group"><label>매월 몇 일</label><input type="number" id="fixed-day" placeholder="1~31" min="1" max="31"></div>
@@ -1444,7 +1439,7 @@
     <h3>🎯 카테고리 예산 설정</h3>
     <div class="modal-form">
       <div class="form-group"><label>카테고리</label><select id="budget-cat"></select></div>
-      <div class="form-group"><label>월 예산</label><input type="number" id="budget-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>월 예산</label><input type="text" inputmode="numeric" id="budget-amount" oninput="fmtComma(this)" placeholder="0" min="0"></div>
     </div>
     <button class="modal-submit green" onclick="saveBudget()">저장</button>
     <button class="modal-close" onclick="closeBudgetModal()">취소</button>
@@ -1565,7 +1560,7 @@
     <div class="modal-form">
       <div class="form-group"><label>상대방 이름</label><input type="text" id="loan-person" placeholder="예) 홍길동"></div>
       <div class="form-group"><label>명목 / 사유</label><input type="text" id="loan-purpose" placeholder="예) 밥값, 교통비"></div>
-      <div class="form-group"><label>빌려준 금액</label><input type="number" id="loan-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>빌려준 금액</label><input type="text" inputmode="numeric" id="loan-amount" oninput="fmtComma(this)" placeholder="0" min="0"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="loan-date"></div>
       <div class="form-group">
         <label>결제 수단</label>
@@ -1587,7 +1582,7 @@
     <h3>💚 상환 기록</h3>
     <p id="repay-modal-desc"></p>
     <div class="modal-form">
-      <div class="form-group"><label>받은 금액</label><input type="number" id="repay-amount" placeholder="0" min="0"></div>
+      <div class="form-group"><label>받은 금액</label><input type="text" inputmode="numeric" id="repay-amount" oninput="fmtComma(this)" placeholder="0" min="0"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="repay-date"></div>
       <div class="form-group"><label>메모 (선택)</label><input type="text" id="repay-memo" placeholder="예) 계좌이체"></div>
     </div>
@@ -1612,7 +1607,7 @@
     <h3>✏️ 거래 수정</h3>
     <div id="edit-install-notice"></div>
     <div class="modal-form">
-      <div class="form-group"><label>금액</label><input type="number" id="edit-amount" min="0"></div>
+      <div class="form-group"><label>금액</label><input type="text" inputmode="numeric" id="edit-amount" oninput="fmtComma(this)" min="0"></div>
       <div class="form-group"><label>내용</label><input type="text" id="edit-desc"></div>
       <div class="form-group"><label>날짜</label><input type="date" id="edit-date"></div>
       <div class="form-group">
@@ -1728,6 +1723,23 @@ let currentType='expense', selectedCat=null, selectedMethod=null;
 let selectedPayType='lumpsum', selectedInstallMonths=0;
 let currentYear=new Date().getFullYear(), currentMonth=new Date().getMonth();
 let charts={}, currentLoanId=null;
+
+// ══ 금액 입력 콤마 포맷 유틸 ══
+function parseMoney(v){
+  if(typeof v==='number') return v;
+  return parseInt((v||'').toString().replace(/,/g,''))||0;
+}
+function fmtComma(input){
+  const raw=input.value.replace(/[^0-9]/g,'');
+  if(!raw){input.value='';return;}
+  input.value=parseInt(raw,10).toLocaleString();
+}
+// value 세팅 시 콤마 포함
+function setMoneyInput(id,val){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.value=val?Number(val).toLocaleString():'';
+}
 
 // ══ Sync ══
 function setSyncBar(state,text){
@@ -1960,7 +1972,7 @@ function updateRepayDropdown(){
 
 // ══ Add Transaction ══
 window.addTransaction=async()=>{
-  const amount=parseInt(document.getElementById('input-amount').value);
+  const amount=parseMoney(document.getElementById('input-amount').value);
   const desc  =document.getElementById('input-desc').value.trim();
   const date  =document.getElementById('input-date').value;
   if(!amount||amount<=0) return toast('금액을 입력해주세요');
@@ -2581,7 +2593,7 @@ window.closeLoanAddModal=()=>document.getElementById('loan-add-modal').style.dis
 window.addLoanDirect=async()=>{
   const person =document.getElementById('loan-person').value.trim();
   const purpose=document.getElementById('loan-purpose').value.trim();
-  const amount =parseInt(document.getElementById('loan-amount').value);
+  const amount =parseMoney(document.getElementById('loan-amount').value);
   const date   =document.getElementById('loan-date').value;
   const memo   =document.getElementById('loan-memo').value.trim();
   if(!person)           return toast('이름을 입력해주세요');
@@ -2617,7 +2629,7 @@ window.openRepayModal=id=>{
 };
 window.closeRepayModal=()=>document.getElementById('repay-modal').style.display='none';
 window.addRepaymentDirect=async()=>{
-  const amount=parseInt(document.getElementById('repay-amount').value);
+  const amount=parseMoney(document.getElementById('repay-amount').value);
   const date  =document.getElementById('repay-date').value;
   const memo  =document.getElementById('repay-memo').value.trim();
   if(!amount||amount<=0)return toast('금액을 입력해주세요');
@@ -3015,7 +3027,7 @@ function renderSettingsMethods(){
 }
 
 function renderSettingsChallenge(){
-  document.getElementById('setting-budget').value=CH_BASE;
+  setMoneyInput('setting-budget',CH_BASE);
   // CH_START → YYYY-MM-DD
   const y=CH_START.getFullYear();
   const m=String(CH_START.getMonth()+1).padStart(2,'0');
@@ -3167,7 +3179,7 @@ window.deleteMethod=async name=>{
 
 // ── 챌린지 설정 저장 ──
 window.saveChallengeSetting=async()=>{
-  const budget=parseInt(document.getElementById('setting-budget').value);
+  const budget=parseMoney(document.getElementById('setting-budget').value);
   const startDate=document.getElementById('setting-ch-start').value;
   if(!budget||budget<1000) return toast('예산을 1,000원 이상 입력해주세요');
   if(!startDate) return toast('시작일을 선택해주세요');
@@ -3353,9 +3365,7 @@ function renderSavingTab(){
   // ── 부족/초과 카드 (연간 목표 대비 현재 페이스) ──
   const expectedNow=Math.round(yearGoal/12*(thisMonth+now.getDate()/30));
   const gap=yearSaved-expectedNow;
-  const gapCardEl=document.getElementById('stab-gap');
-  gapCardEl.textContent=(gap>=0?'+':'')+'₩'+(Math.abs(gap)/10000).toFixed(0)+'만';
-  gapCardEl.style.color=gap>=0?'var(--accent-green)':'var(--accent-red)';
+  // stab-gap card removed
 
   // ── 자산 항목 ──
   renderSavingAccountCards();
@@ -3368,7 +3378,7 @@ window.openGoalEditInline=target=>{
   const gs=savingGoalSettings;
   const isYear=target==='year';
   document.getElementById('goal-edit-title').textContent=isYear?'연간 저축 목표 수정':'월간 저축 목표 수정';
-  document.getElementById('goal-edit-input').value=isYear?(gs.yearGoal||12000000):(gs.monthGoal||1000000);
+  setMoneyInput('goal-edit-input',isYear?(gs.yearGoal||12000000):(gs.monthGoal||1000000));
   document.getElementById('goal-edit-input').focus();
   document.getElementById('goal-edit-panel').style.display='';
 };
@@ -3377,7 +3387,7 @@ window.closeGoalEdit=()=>{
   _goalEditTarget=null;
 };
 window.saveGoalEdit=async()=>{
-  const val=parseInt(document.getElementById('goal-edit-input').value);
+  const val=parseMoney(document.getElementById('goal-edit-input').value);
   if(!val||val<=0) return toast('금액을 입력해주세요');
   const update=_goalEditTarget==='year'?{yearGoal:val}:{monthGoal:val};
   try{
@@ -3570,17 +3580,17 @@ window.toggleSavingCard=i=>{
 
 // ── 저축 설정 ──
 window.openSavingSettingsModal=()=>{
-  document.getElementById('ss-base-asset').value=savingGoalSettings.baseAsset||20000000;
-  document.getElementById('ss-year-goal').value=savingGoalSettings.yearGoal||12000000;
-  document.getElementById('ss-month-goal').value=savingGoalSettings.monthGoal||1000000;
+  setMoneyInput('ss-base-asset',savingGoalSettings.baseAsset||20000000);
+  setMoneyInput('ss-year-goal',savingGoalSettings.yearGoal||12000000);
+  setMoneyInput('ss-month-goal',savingGoalSettings.monthGoal||1000000);
   document.getElementById('saving-settings-modal').style.display='flex';
 };
 window.closeSavingSettingsModal=()=>document.getElementById('saving-settings-modal').style.display='none';
 window.saveSavingSettings=async()=>{
   const s={
-    baseAsset:parseInt(document.getElementById('ss-base-asset').value)||20000000,
-    yearGoal:parseInt(document.getElementById('ss-year-goal').value)||12000000,
-    monthGoal:parseInt(document.getElementById('ss-month-goal').value)||1000000,
+    baseAsset:parseMoney(document.getElementById('ss-base-asset').value)||20000000,
+    yearGoal:parseMoney(document.getElementById('ss-year-goal').value)||12000000,
+    monthGoal:parseMoney(document.getElementById('ss-month-goal').value)||1000000,
   };
   try{
     await upsertSetting('savingGoal',s);
@@ -3610,7 +3620,7 @@ window.openMonthlyCheckModal=()=>{
 };
 window.closeMonthlyCheckModal=()=>document.getElementById('monthly-check-modal').style.display='none';
 window.saveMonthlyCheck=async()=>{
-  const amount=parseInt(document.getElementById('mc-amount').value);
+  const amount=parseMoney(document.getElementById('mc-amount').value);
   const date=document.getElementById('mc-date').value;
   const memo=document.getElementById('mc-memo').value.trim();
   if(!mcType) return toast('종류를 선택해주세요');
@@ -3640,7 +3650,7 @@ window.editMonthlyCheck=(key,idx)=>{
       b.style.borderColor='var(--accent-purple)';b.style.background='#c084fc15';b.style.color='var(--accent-purple)';
     }
   });
-  document.getElementById('mc-amount').value=r.amount;
+  setMoneyInput('mc-amount',r.amount);
   document.getElementById('mc-date').value=r.date;
   document.getElementById('mc-memo').value=r.memo||'';
   document.getElementById('monthly-check-modal').style.display='flex';
@@ -3659,13 +3669,13 @@ window.openMonthlySavingModal=(key,label)=>{
   monthlySavingKey=key;
   document.getElementById('monthly-saving-title').textContent=`${label} 저축 기록`;
   const rec=yearlyChecks[key]||{checked:false,amount:0,memo:''};
-  document.getElementById('monthly-saving-amount').value=rec.amount||'';
+  setMoneyInput('monthly-saving-amount',rec.amount||0);
   document.getElementById('monthly-saving-memo').value=rec.memo||'';
   document.getElementById('monthly-saving-modal').style.display='flex';
 };
 window.closeMonthlySavingModal=()=>document.getElementById('monthly-saving-modal').style.display='none';
 window.saveMonthlySaving=async()=>{
-  const amount=parseInt(document.getElementById('monthly-saving-amount').value)||0;
+  const amount=parseMoney(document.getElementById('monthly-saving-amount').value)||0;
   const memo=document.getElementById('monthly-saving-memo').value.trim();
   const newChecks={...yearlyChecks};
   newChecks[monthlySavingKey]={checked:amount>0,amount,memo};
@@ -3685,21 +3695,21 @@ window.openShortGoalModal=idx=>{
   document.getElementById('sg-icon').value=g?.icon||'🎯';
   document.getElementById('sg-icon-btn').textContent=g?.icon||'🎯';
   document.getElementById('sg-name').value=g?.name||'';
-  document.getElementById('sg-target').value=g?.target||'';
-  document.getElementById('sg-current').value=g?.current||'';
+  setMoneyInput('sg-target',g?.target||0);
+  setMoneyInput('sg-current',g?.current||0);
   document.getElementById('sg-deadline').value=g?.deadline||'';
   document.getElementById('short-goal-modal').style.display='flex';
 };
 window.closeShortGoalModal=()=>document.getElementById('short-goal-modal').style.display='none';
 window.saveShortGoal=async()=>{
   const name=document.getElementById('sg-name').value.trim();
-  const target=parseInt(document.getElementById('sg-target').value)||0;
+  const target=parseMoney(document.getElementById('sg-target').value)||0;
   if(!name) return toast('목표 이름을 입력해주세요');
   if(!target) return toast('목표 금액을 입력해주세요');
   const g={
     icon:document.getElementById('sg-icon').value||'🎯',
     name, target,
-    current:parseInt(document.getElementById('sg-current').value)||0,
+    current:parseMoney(document.getElementById('sg-current').value)||0,
     deadline:document.getElementById('sg-deadline').value||''
   };
   const newGoals=[...shortGoals];
@@ -3753,7 +3763,7 @@ window.openSavingTxEditModal=(idx,ri)=>{
   savingTxType=t.type;
   document.getElementById('saving-tx-modal-title').textContent=t.type==='deposit'?'💚 입금 수정':'💛 출금 수정';
   document.getElementById('saving-tx-modal-desc').textContent=`${a.icon} ${a.name} · 수정 중`;
-  document.getElementById('saving-tx-amount').value=t.amount;
+  setMoneyInput('saving-tx-amount',t.amount);
   document.getElementById('saving-tx-date').value=t.date;
   document.getElementById('saving-tx-memo').value=t.memo||'';
   document.getElementById('saving-tx-modal').style.display='flex';
@@ -3827,14 +3837,14 @@ window.openYearRecordModal=idx=>{
   const r=idx!==null?yearRecords[idx]:null;
   document.getElementById('yr-modal-title').textContent=idx!==null?'📖 연도별 기록 수정':'📖 연도별 자산 기록 추가';
   document.getElementById('yr-year').value=r?.year||new Date().getFullYear()-1;
-  document.getElementById('yr-amount').value=r?.amount||'';
+  setMoneyInput('yr-amount',r?.amount||0);
   document.getElementById('yr-memo').value=r?.memo||'';
   document.getElementById('year-record-modal').style.display='flex';
 };
 window.closeYearRecordModal=()=>document.getElementById('year-record-modal').style.display='none';
 window.saveYearRecord=async()=>{
   const year=parseInt(document.getElementById('yr-year').value);
-  const amount=parseInt(document.getElementById('yr-amount').value);
+  const amount=parseMoney(document.getElementById('yr-amount').value);
   const memo=document.getElementById('yr-memo').value.trim();
   if(!year) return toast('연도를 입력해주세요');
   if(!amount||amount<=0) return toast('금액을 입력해주세요');
@@ -3865,8 +3875,8 @@ window.openSavingAccountModal=idx=>{
   if(saIconBtn) saIconBtn.textContent=a?.icon||'🏦';
   document.getElementById('sa-name').value=a?.name||'';
   document.getElementById('sa-type').value=a?.type||'';
-  document.getElementById('sa-goal').value=a?.goal||'';
-  document.getElementById('sa-balance').value=a?.balance||0;
+  setMoneyInput('sa-goal',a?.goal||0);
+  setMoneyInput('sa-balance',a?.balance||0);
   document.getElementById('sa-color').value=a?.color||'purple';
   document.getElementById('saving-account-modal').style.display='flex';
 };
@@ -3877,8 +3887,8 @@ window.saveSavingAccount=async()=>{
   const acct={
     icon:document.getElementById('sa-icon').value.trim()||'🏦',
     name, type:document.getElementById('sa-type').value.trim(),
-    goal:parseInt(document.getElementById('sa-goal').value)||0,
-    balance:parseInt(document.getElementById('sa-balance').value)||0,
+    goal:parseMoney(document.getElementById('sa-goal').value)||0,
+    balance:parseMoney(document.getElementById('sa-balance').value)||0,
     color:document.getElementById('sa-color').value,
   };
   const newAccounts=[...savingAccounts];
@@ -3917,7 +3927,7 @@ window.closeSavingTxModal=()=>{
   window._savingTxEditMode=false; savingTxEditRi=null;
 };
 window.saveSavingTx=async()=>{
-  const amount=parseInt(document.getElementById('saving-tx-amount').value);
+  const amount=parseMoney(document.getElementById('saving-tx-amount').value);
   const date=document.getElementById('saving-tx-date').value;
   const memo=document.getElementById('saving-tx-memo').value.trim();
   if(!amount||amount<=0) return toast('금액을 입력해주세요');
@@ -3954,7 +3964,7 @@ window.saveSavingTx=async()=>{
             desc:memo||(a.name+' 저축'),
             cat:'saving_linked',
             savingAccountName:a.name,
-            method:null,
+            method:'통장',
             excludeChallenge:true,
             createdAt:new Date().toISOString()
           });
@@ -3966,7 +3976,7 @@ window.saveSavingTx=async()=>{
           desc:memo||(a.name+' 저축'),
           cat:'saving_linked',
           savingAccountName:a.name,
-          method:null,
+          method:'통장',
           excludeChallenge:true,
           createdAt:new Date().toISOString()
         });
@@ -3995,7 +4005,7 @@ window.saveSavingTx=async()=>{
         desc: memo||(a.name+' 저축'),
         cat:'saving_linked',
         savingAccountName: a.name,
-        method: null,
+        method: '통장',
         excludeChallenge: true,
         createdAt: new Date().toISOString()
       });
@@ -4247,7 +4257,7 @@ window.closeFixedModal=()=>document.getElementById('fixed-modal').style.display=
 
 window.saveFixed=async()=>{
   const desc   = document.getElementById('fixed-desc').value.trim();
-  const amount = parseInt(document.getElementById('fixed-amount').value);
+  const amount = parseMoney(document.getElementById('fixed-amount').value);
   const cat    = document.getElementById('fixed-cat').value;
   const method = document.getElementById('fixed-method').value||null;
   const day    = parseInt(document.getElementById('fixed-day').value)||1;
@@ -4329,7 +4339,7 @@ window.openBudgetModal=(catId)=>{
 window.closeBudgetModal=()=>document.getElementById('budget-modal').style.display='none';
 window.saveBudget=async()=>{
   const cat = document.getElementById('budget-cat').value;
-  const amt = parseInt(document.getElementById('budget-amount').value);
+  const amt = parseMoney(document.getElementById('budget-amount').value);
   if(!cat)        return toast('카테고리를 선택해주세요');
   if(!amt||amt<=0)return toast('금액을 입력해주세요');
   const newBudgets = {...budgets, [cat]:amt};
@@ -4451,7 +4461,7 @@ window.selectInstallMonths=(n,btn)=>{
   });
   btn.style.borderColor='var(--accent-orange)';btn.style.background='#fb923c15';btn.style.color='var(--accent-orange)';
   // 미리보기
-  const amt=parseInt(document.getElementById('input-amount').value)||0;
+  const amt=parseMoney(document.getElementById('input-amount').value)||0;
   const monthly=amt?Math.round(amt/n):0;
   document.getElementById('install-preview').textContent =
     amt?`월 ₩${monthly.toLocaleString()} × ${n}개월 = ₩${amt.toLocaleString()}`:'금액을 먼저 입력해주세요';
@@ -4605,7 +4615,7 @@ window.openEditModal=id=>{
   editSelectedMethod=t.method||null;
   editExcludeChallenge=t.excludeChallenge||false;
 
-  document.getElementById('edit-amount').value=t.amount;
+  setMoneyInput('edit-amount',t.amount);
   document.getElementById('edit-desc').value=t.desc;
   document.getElementById('edit-date').value=t.date;
 
@@ -4671,7 +4681,7 @@ window.closeEditModal=()=>{
 
 window.saveEdit=async()=>{
   if(!editingId) return;
-  const amount=parseInt(document.getElementById('edit-amount').value);
+  const amount=parseMoney(document.getElementById('edit-amount').value);
   const desc  =document.getElementById('edit-desc').value.trim();
   const date  =document.getElementById('edit-date').value;
   if(!amount||amount<=0) return toast('금액을 입력해주세요');
