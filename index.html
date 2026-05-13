@@ -607,6 +607,34 @@
   .ch-week-carry.plus{color:var(--accent-green);}
   .ch-week-carry.minus{color:var(--accent-red);}
 </style>
+<script>
+// ══ 전역 금액 입력 콤마 유틸 (module 밖 - oninput에서 직접 호출 가능) ══
+function parseMoney(v){
+  if(typeof v==='number') return v;
+  return parseInt((v||'').toString().replace(/,/g,''))||0;
+}
+function fmtComma(input){
+  const pos=input.selectionStart;
+  const before=input.value.slice(0,pos).replace(/[^0-9]/g,'').length;
+  const raw=input.value.replace(/[^0-9]/g,'');
+  if(!raw){input.value='';return;}
+  const formatted=parseInt(raw,10).toLocaleString();
+  input.value=formatted;
+  // 커서 위치 복원 (콤마 삽입 후 커서가 밀리지 않도록)
+  let cnt=0,newPos=0;
+  for(let i=0;i<formatted.length;i++){
+    if(formatted[i]!==',') cnt++;
+    if(cnt===before){newPos=i+1;break;}
+    newPos=formatted.length;
+  }
+  try{input.setSelectionRange(newPos,newPos);}catch(_){}
+}
+function setMoneyInput(id,val){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.value=val?Number(val).toLocaleString():'';
+}
+</script>
 </head>
 <body>
 
@@ -1723,23 +1751,6 @@ let currentType='expense', selectedCat=null, selectedMethod=null;
 let selectedPayType='lumpsum', selectedInstallMonths=0;
 let currentYear=new Date().getFullYear(), currentMonth=new Date().getMonth();
 let charts={}, currentLoanId=null;
-
-// ══ 금액 입력 콤마 포맷 유틸 ══
-function parseMoney(v){
-  if(typeof v==='number') return v;
-  return parseInt((v||'').toString().replace(/,/g,''))||0;
-}
-function fmtComma(input){
-  const raw=input.value.replace(/[^0-9]/g,'');
-  if(!raw){input.value='';return;}
-  input.value=parseInt(raw,10).toLocaleString();
-}
-// value 세팅 시 콤마 포함
-function setMoneyInput(id,val){
-  const el=document.getElementById(id);
-  if(!el) return;
-  el.value=val?Number(val).toLocaleString():'';
-}
 
 // ══ Sync ══
 function setSyncBar(state,text){
