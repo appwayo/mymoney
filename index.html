@@ -449,8 +449,8 @@
   .saving-tab-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
   .saving-tab-header h2{font-size:1rem;font-weight:700;}
   .saving-sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
-  .saving-account-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start;}
-  @media(max-width:720px){.saving-account-list{grid-template-columns:1fr 1fr;}}
+  .saving-account-list{display:flex;flex-direction:column;gap:12px;}
+  /* saving-account-list: single column layout */
 
   /* ══ 모바일 전용 (아이폰12프로 기준) ══ */
   @media(max-width:430px){
@@ -960,85 +960,65 @@
       <h2>🏦 저축 현황</h2>
       <div style="display:flex;gap:7px">
         <button id="saving-sort-btn" onclick="toggleSavingSort()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all 0.15s;">↕ 순서</button>
-        <button onclick="openSavingSettingsModal()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;">⚙️ 설정</button>
         <button class="loan-add-btn" onclick="openSavingAccountModal(null)" style="background:var(--accent-purple)">+ 항목 추가</button>
       </div>
     </div>
 
-    <!-- ① 총자산 + 연간 목표 대형 카드 -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <!-- 총자산 -->
+    <!-- ① 상단 4카드 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px">
+
+      <!-- 총 저축 자산 -->
       <div class="card" style="background:linear-gradient(135deg,#1e1428,#1a1a1e);border-color:#c084fc33">
         <div class="card-label" style="color:var(--accent-purple)">💰 총 저축 자산</div>
-        <div style="font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:500;color:var(--accent-purple);margin:6px 0" id="stab-total-asset">₩0</div>
-        <div style="font-size:0.68rem;color:var(--text-muted)" id="stab-asset-breakdown"></div>
+        <div style="font-family:'DM Mono',monospace;font-size:1.45rem;font-weight:500;color:var(--accent-purple);margin-top:6px" id="stab-total-asset">₩0</div>
       </div>
+
       <!-- 연간 목표 -->
-      <div class="card" style="background:linear-gradient(135deg,#0d2418,#1a1a1e);border-color:#00e87a33">
-        <div class="card-label" style="color:var(--accent-green)">🎯 <span id="stab-year-label">2025</span>년 저축 목표</div>
-        <div style="font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:500;color:var(--accent-green);margin:6px 0" id="stab-year-saved">₩0</div>
-        <div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;margin:6px 0">
+      <div class="card" style="background:linear-gradient(135deg,#0d2418,#1a1a1e);border-color:#00e87a33;cursor:pointer" onclick="openGoalEditInline('year')" title="클릭해서 목표 수정">
+        <div class="card-label" style="color:var(--accent-green);display:flex;justify-content:space-between;align-items:center">
+          <span>🎯 <span id="stab-year-label">2026</span>년 저축목표</span>
+          <span style="font-size:0.6rem;opacity:0.6">✏️</span>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:1.45rem;font-weight:500;color:var(--accent-green);margin:4px 0" id="stab-year-saved">₩0</div>
+        <div style="background:var(--surface2);border-radius:4px;height:5px;overflow:hidden;margin:4px 0">
           <div id="stab-year-bar" style="height:100%;border-radius:4px;background:var(--accent-green);transition:width 0.5s;width:0%"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted)">
+        <div style="display:flex;justify-content:space-between;font-size:0.64rem;color:var(--text-muted);margin-top:2px">
           <span id="stab-year-pct">0%</span>
           <span id="stab-year-goal-text">목표 ₩1,200만</span>
         </div>
-        <div style="font-size:0.7rem;margin-top:6px" id="stab-year-gap"></div>
       </div>
-    </div>
 
-    <!-- ② 이달 요약 4카드 -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px" id="saving-summary-grid">
-      <div class="card">
-        <div class="card-label">이달 저축</div>
-        <div class="card-amount saving" id="stab-month">₩0</div>
+      <!-- 이달 저축 -->
+      <div class="card" onclick="openGoalEditInline('month')" style="cursor:pointer" title="클릭해서 목표 수정">
+        <div class="card-label" style="display:flex;justify-content:space-between;align-items:center">
+          <span>이달 저축</span>
+          <span style="font-size:0.6rem;opacity:0.6">✏️</span>
+        </div>
+        <div class="card-amount saving" id="stab-month" style="margin-top:6px">₩0</div>
         <div class="card-sub" id="stab-month-goal-text">목표 ₩100만</div>
       </div>
-      <div class="card">
-        <div class="card-label">연간 페이스</div>
-        <div class="card-amount" style="color:var(--accent-blue)" id="stab-pace">—</div>
-        <div class="card-sub">연말 예상</div>
-      </div>
+
+      <!-- 부족/초과 -->
       <div class="card">
         <div class="card-label">부족/초과</div>
-        <div class="card-amount" id="stab-gap">₩0</div>
-        <div class="card-sub">목표 대비</div>
+        <div class="card-amount" id="stab-gap" style="margin-top:6px">₩0</div>
+        <div class="card-sub">연간 목표 대비</div>
       </div>
-      <div class="card">
-        <div class="card-label">저축 스트릭</div>
-        <div class="card-amount" style="color:var(--accent-orange)" id="stab-streak">0개월</div>
-        <div class="card-sub">연속 달성</div>
+
+    </div>
+
+    <!-- 목표 인라인 편집 패널 -->
+    <div id="goal-edit-panel" style="display:none;background:var(--surface);border:1px solid var(--accent-green);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px">
+      <div style="font-size:0.78rem;font-weight:700;margin-bottom:12px" id="goal-edit-title">목표 수정</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="number" id="goal-edit-input" placeholder="금액 입력" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-family:inherit;font-size:0.9rem;padding:9px 12px;outline:none;">
+        <button onclick="saveGoalEdit()" style="background:var(--accent-green);border:none;color:#0f0f10;font-family:inherit;font-size:0.85rem;font-weight:700;padding:9px 18px;border-radius:9px;cursor:pointer;">저장</button>
+        <button onclick="closeGoalEdit()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.85rem;padding:9px 14px;border-radius:9px;cursor:pointer;">취소</button>
       </div>
     </div>
 
-    <!-- ③ 이달 저축 체크 -->
-    <div class="settings-section" style="margin-bottom:18px">
-      <div class="settings-section-header">
-        <h3>📅 이달 저축 체크 <span id="stab-check-month" style="font-size:0.72rem;color:var(--text-muted);font-weight:400"></span></h3>
-        <button onclick="openMonthlyCheckModal()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.72rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;">+ 기록</button>
-      </div>
-      <div class="settings-section-body" id="stab-check-list">
-        <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:16px">이달 저축 기록이 없어요</div>
-      </div>
-    </div>
-
-    <!-- ④ 연간 월별 현황 -->
-    <div class="settings-section" style="margin-bottom:18px">
-      <div class="settings-section-header" style="cursor:pointer" onclick="toggleYearlyCheck()">
-        <h3>📊 <span id="stab-year-title">2025</span>년 월별 현황</h3>
-        <span id="stab-yearly-toggle-icon" style="color:var(--text-muted);font-size:0.8rem">▼</span>
-      </div>
-      <div id="stab-yearly-body" class="settings-section-body" style="padding:14px 16px">
-        <div id="stab-monthly-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-          <span style="font-size:0.78rem;color:var(--text-muted)">올해 기록 합계</span>
-          <span style="font-family:'DM Mono',monospace;font-size:1rem;font-weight:600;color:var(--accent-purple)" id="stab-yearly-total">₩0</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ⑤ 자산 항목 -->
+    <!-- ② 자산 항목 -->
     <div class="settings-section" style="margin-bottom:18px">
       <div class="settings-section-header">
         <h3>💼 자산 항목</h3>
@@ -1047,28 +1027,6 @@
         <div class="saving-account-list" id="saving-account-list" style="margin:0">
           <div class="saving-empty">저축 항목이 없어요</div>
         </div>
-      </div>
-    </div>
-
-    <!-- ⑥ 단기 목표 -->
-    <div class="settings-section">
-      <div class="settings-section-header">
-        <h3>🎪 단기 목표</h3>
-        <button onclick="openShortGoalModal(null)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.72rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;">+ 추가</button>
-      </div>
-      <div class="settings-section-body" id="stab-short-goals">
-        <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:16px">단기 목표를 추가해봐요 (여행, 구매 등)</div>
-      </div>
-    </div>
-
-    <!-- ⑦ 연도별 자산 기록 -->
-    <div class="settings-section" style="margin-top:12px">
-      <div class="settings-section-header">
-        <h3>📖 연도별 자산 기록</h3>
-        <button onclick="openYearRecordModal(null)" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.72rem;font-weight:600;padding:5px 10px;border-radius:7px;cursor:pointer;">+ 추가</button>
-      </div>
-      <div class="settings-section-body" id="stab-year-records">
-        <div style="font-size:0.8rem;color:var(--text-muted);text-align:center;padding:12px">연도별 자산 기록을 추가해봐요 (예: 2024년 말 ₩2,000만)</div>
       </div>
     </div>
 
@@ -3353,28 +3311,26 @@ function renderSavingTab(){
   const now=new Date();
   const thisYear=now.getFullYear();
   const thisMonth=now.getMonth();
-  const thisMonthKey=`${thisYear}-${String(thisMonth+1).padStart(2,'0')}`;
   const gs=savingGoalSettings;
 
   // ── 총 자산 계산 (저축항목 잔액 합계만) ──
   const assetTotal=savingAccounts.reduce((s,a)=>s+a.balance,0);
-
-  // ── 연간 저축 계산 (monthlyChecks 기준) ──
-  let yearSaved=0;
-  for(let m=0;m<12;m++){
-    const k=`${thisYear}-${String(m+1).padStart(2,'0')}`;
-    const recs=monthlyChecks[k]||[];
-    yearSaved+=recs.reduce((s,r)=>s+r.amount,0);
-  }
-
-  // ── 이달 저축 ──
-  const thisMonthRecs=monthlyChecks[thisMonthKey]||[];
-  const monthSaved=thisMonthRecs.reduce((s,r)=>s+r.amount,0);
-
-  // ── 총자산 카드 ──
   document.getElementById('stab-total-asset').textContent='₩'+assetTotal.toLocaleString();
-  const acctNames=savingAccounts.map(a=>`${a.icon||'🏦'}${a.name} ₩${(a.balance/10000).toFixed(0)}만`).join(' · ');
-  document.getElementById('stab-asset-breakdown').textContent=acctNames||'항목을 추가해봐요';
+
+  // ── 연간 저축 계산 (saving_linked 거래내역 기준) ──
+  const yearTxs=transactions.filter(t=>{
+    const d=new Date(t.date);
+    return t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'||t.cat==='saving_linked')&&d.getFullYear()===thisYear;
+  });
+  const yearSaved=yearTxs.reduce((s,t)=>s+t.amount,0);
+
+  // ── 이달 저축 (saving_linked 거래내역 기준) ──
+  const monthTxs=transactions.filter(t=>{
+    const d=new Date(t.date);
+    return t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'||t.cat==='saving_linked')
+      &&d.getFullYear()===thisYear&&d.getMonth()===thisMonth;
+  });
+  const monthSaved=monthTxs.reduce((s,t)=>s+t.amount,0);
 
   // ── 연간 목표 카드 ──
   const yearGoal=gs.yearGoal||12000000;
@@ -3384,17 +3340,8 @@ function renderSavingTab(){
   document.getElementById('stab-year-bar').style.width=yearPct+'%';
   document.getElementById('stab-year-pct').textContent=yearPct+'%';
   document.getElementById('stab-year-goal-text').textContent=`목표 ₩${(yearGoal/10000).toFixed(0)}만`;
-  const yearGap=yearGoal-yearSaved;
-  const gapEl=document.getElementById('stab-year-gap');
-  if(yearGap>0){
-    gapEl.textContent=`₩${(yearGap/10000).toFixed(0)}만 부족`;
-    gapEl.style.color='var(--accent-red)';
-  } else {
-    gapEl.textContent=`₩${(Math.abs(yearGap)/10000).toFixed(0)}만 초과 달성!`;
-    gapEl.style.color='var(--accent-green)';
-  }
 
-  // ── 이달 요약 카드 ──
+  // ── 이달 저축 카드 ──
   const monthGoal=gs.monthGoal||1000000;
   const monthPct=Math.round(monthSaved/monthGoal*100);
   document.getElementById('stab-month').textContent='₩'+(monthSaved/10000).toFixed(0)+'만';
@@ -3403,48 +3350,42 @@ function renderSavingTab(){
   document.getElementById('stab-month').style.color=
     monthSaved>=monthGoal?'var(--accent-green)':'var(--accent-purple)';
 
-  // 연말 페이스 예측
-  const monthsPassed=thisMonth+(now.getDate()/new Date(thisYear,thisMonth+1,0).getDate());
-  const pace=monthsPassed>0?Math.round(yearSaved/monthsPassed*12):0;
-  document.getElementById('stab-pace').textContent='₩'+(pace/10000).toFixed(0)+'만';
-  document.getElementById('stab-pace').style.color=
-    pace>=yearGoal?'var(--accent-green)':'var(--accent-yellow)';
-
-  // 목표 대비 격차
+  // ── 부족/초과 카드 (연간 목표 대비 현재 페이스) ──
   const expectedNow=Math.round(yearGoal/12*(thisMonth+now.getDate()/30));
   const gap=yearSaved-expectedNow;
   const gapCardEl=document.getElementById('stab-gap');
-  gapCardEl.textContent=(gap>=0?'+':'')+'₩'+(gap/10000).toFixed(0)+'만';
+  gapCardEl.textContent=(gap>=0?'+':'')+'₩'+(Math.abs(gap)/10000).toFixed(0)+'만';
   gapCardEl.style.color=gap>=0?'var(--accent-green)':'var(--accent-red)';
-
-  // 스트릭: 연속 달성 개월
-  let streak=0;
-  for(let m=thisMonth;m>=0;m--){
-    const k=`${thisYear}-${String(m+1).padStart(2,'0')}`;
-    const recs=monthlyChecks[k]||[];
-    const saved=recs.reduce((s,r)=>s+r.amount,0);
-    if(saved>=monthGoal) streak++;
-    else break;
-  }
-  document.getElementById('stab-streak').textContent=streak+'개월';
-
-  // ── 이달 체크 목록 ──
-  document.getElementById('stab-check-month').textContent=`${thisYear}.${String(thisMonth+1).padStart(2,'0')}`;
-  renderMonthlyCheckList(thisMonthKey, thisMonthRecs, monthGoal);
-
-  // ── 연간 월별 현황 ──
-  document.getElementById('stab-year-title').textContent=thisYear;
-  renderYearlyGrid(thisYear, thisMonth, yearGoal);
 
   // ── 자산 항목 ──
   renderSavingAccountCards();
-
-  // ── 단기 목표 ──
-  renderShortGoals();
-
-  // ── 연도별 기록 ──
-  renderYearRecords();
 }
+
+// ── 목표 인라인 편집 ──
+let _goalEditTarget=null; // 'year' | 'month'
+window.openGoalEditInline=target=>{
+  _goalEditTarget=target;
+  const gs=savingGoalSettings;
+  const isYear=target==='year';
+  document.getElementById('goal-edit-title').textContent=isYear?'연간 저축 목표 수정':'월간 저축 목표 수정';
+  document.getElementById('goal-edit-input').value=isYear?(gs.yearGoal||12000000):(gs.monthGoal||1000000);
+  document.getElementById('goal-edit-input').focus();
+  document.getElementById('goal-edit-panel').style.display='';
+};
+window.closeGoalEdit=()=>{
+  document.getElementById('goal-edit-panel').style.display='none';
+  _goalEditTarget=null;
+};
+window.saveGoalEdit=async()=>{
+  const val=parseInt(document.getElementById('goal-edit-input').value);
+  if(!val||val<=0) return toast('금액을 입력해주세요');
+  const update=_goalEditTarget==='year'?{yearGoal:val}:{monthGoal:val};
+  try{
+    await upsertSetting('savingGoal',update);
+    closeGoalEdit();
+    showSuccessPopup('목표가 저장됐어요! 🎯');
+  }catch(e){toast('❌ 저장 실패');}
+};
 
 function renderMonthlyCheckList(key, recs, monthGoal){
   const el=document.getElementById('stab-check-list');
@@ -3507,13 +3448,37 @@ function renderYearlyGrid(year, thisMonth, yearGoal){
 function renderSavingAccountCards(){
   const el=document.getElementById('saving-account-list');
   if(!savingAccounts.length){
-    el.innerHTML='<div class="saving-empty" style="padding:20px">저축 항목이 없어요<br>+ 항목 추가로 추가해봐요</div>';
+    el.innerHTML='<div class="saving-empty" style="padding:20px">저축 항목이 없어요<br>+ 항목 추가 버튼으로 추가해봐요</div>';
     return;
   }
   el.innerHTML=savingAccounts.map((a,i)=>{
     const color=SA_COLORS[a.color]||SA_COLORS.purple;
     const pct=a.goal>0?Math.min(100,Math.round(a.balance/a.goal*100)):null;
     const isReached=pct!==null&&pct>=100;
+
+    // 순서 변경 모드
+    if(savingSortMode){
+      return`<div class="saving-account-card${isReached?' goal-reached':''}">
+        <div class="saving-account-header" style="cursor:default">
+          <div class="saving-account-left">
+            <div class="saving-account-icon" style="background:${color}22;border:1.5px solid ${color}44">${a.icon||'🏦'}</div>
+            <div>
+              <div class="saving-account-name">${a.name}</div>
+              <div class="saving-account-type">${a.type||''}</div>
+            </div>
+          </div>
+          <div class="saving-account-right">
+            <div class="saving-account-balance" style="color:${color}">₩${a.balance.toLocaleString()}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;padding:8px 14px;border-top:1px solid var(--border);background:var(--surface2)">
+          <button onclick="moveSavingAccount(${i},-1)" ${i===0?'disabled':''} style="flex:1;padding:6px;border-radius:7px;border:1.5px solid var(--border);background:none;color:${i===0?'var(--border)':'var(--text-muted)'};font-family:inherit;font-size:0.82rem;cursor:${i===0?'default':'pointer'}">↑ 위로</button>
+          <button onclick="moveSavingAccount(${i},1)" ${i===savingAccounts.length-1?'disabled':''} style="flex:1;padding:6px;border-radius:7px;border:1.5px solid var(--border);background:none;color:${i===savingAccounts.length-1?'var(--border)':'var(--text-muted)'};font-family:inherit;font-size:0.82rem;cursor:${i===savingAccounts.length-1?'default':'pointer'}">↓ 아래로</button>
+        </div>
+      </div>`;
+    }
+
+    // 일반 모드: 항상 펼쳐진 형태 (클릭 시 접기/펴기)
     const txsSorted=(a.txs||[]).slice().sort((x,y)=>new Date(y.date)-new Date(x.date));
     const txHTML=txsSorted.slice(0,5).map((t,ri)=>`
       <div class="saving-tx-item">
@@ -3523,13 +3488,9 @@ function renderSavingAccountCards(){
         <button onclick="openSavingTxEditModal(${i},${ri})" style="background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:0.75rem;padding:2px 4px;flex-shrink:0">✏️</button>
         <button onclick="deleteSavingTx(${i},${ri})" style="background:none;border:none;color:var(--accent-red);cursor:pointer;font-size:0.75rem;padding:2px 4px;flex-shrink:0">✕</button>
       </div>`).join('');
-    const sortBtns=savingSortMode?`
-      <div style="display:flex;gap:6px;padding:8px 14px;border-top:1px solid var(--border);background:var(--surface2)">
-        <button onclick="moveSavingAccount(${i},-1)" ${i===0?'disabled':''} style="flex:1;padding:6px;border-radius:7px;border:1.5px solid var(--border);background:none;color:${i===0?'var(--border)':'var(--text-muted)'};font-family:inherit;font-size:0.82rem;cursor:${i===0?'default':'pointer'}">↑ 위로</button>
-        <button onclick="moveSavingAccount(${i},1)" ${i===savingAccounts.length-1?'disabled':''} style="flex:1;padding:6px;border-radius:7px;border:1.5px solid var(--border);background:none;color:${i===savingAccounts.length-1?'var(--border)':'var(--text-muted)'};font-family:inherit;font-size:0.82rem;cursor:${i===savingAccounts.length-1?'default':'pointer'}">↓ 아래로</button>
-      </div>`:'';
+
     return`<div class="saving-account-card${isReached?' goal-reached':''}">
-      <div class="saving-account-header" onclick="${savingSortMode?'':'toggleSavingCard('+i+')'}">
+      <div class="saving-account-header" onclick="toggleSavingCard(${i})" style="cursor:pointer">
         <div class="saving-account-left">
           <div class="saving-account-icon" style="background:${color}22;border:1.5px solid ${color}44">${a.icon||'🏦'}</div>
           <div>
@@ -3542,9 +3503,8 @@ function renderSavingAccountCards(){
           <div class="saving-account-goal">${a.goal>0?`목표 ₩${a.goal.toLocaleString()} (${pct}%)`:'목표 없음'}</div>
         </div>
       </div>
-      ${sortBtns}
-      <div class="saving-account-body" id="sab-${i}">
-        ${a.goal>0?`<div class="saving-progress-wrap" title="달성 ${pct}% · 남은 ₩${Math.max(0,a.goal-a.balance).toLocaleString()}" style="cursor:help">
+      <div class="saving-account-body open" id="sab-${i}">
+        ${a.goal>0?`<div class="saving-progress-wrap" style="cursor:help" title="달성 ${pct}% · 남은 ₩${Math.max(0,a.goal-a.balance).toLocaleString()}">
           <div class="saving-progress-bar" style="width:${pct}%;background:${color}"></div></div>
           <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin-bottom:12px">
             <span>₩${a.balance.toLocaleString()}</span>
@@ -3555,7 +3515,7 @@ function renderSavingAccountCards(){
           <button class="saving-action-btn deposit" onclick="openSavingTxModal(${i},'deposit')">+ 입금</button>
           <button class="saving-action-btn withdraw" onclick="openSavingTxModal(${i},'withdraw')">- 출금</button>
           <button class="saving-action-btn" onclick="openSavingAccountModal(${i})" style="border-color:var(--accent-blue);color:var(--accent-blue)">✏️ 수정</button>
-          <button class="saving-action-btn del" onclick="deleteSavingAccount(${i})">🗑</button>
+          <button class="saving-action-btn del" onclick="deleteSavingAccount(${i})">🗑 삭제</button>
         </div>
       </div>
     </div>`;
