@@ -990,7 +990,6 @@ function setMoneyInput(id,val){
       <h2>🏦 저축 현황</h2>
       <div style="display:flex;gap:7px">
         <button id="saving-sort-btn" onclick="toggleSavingSort()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);font-family:inherit;font-size:0.78rem;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all 0.15s;">↕ 순서</button>
-        <button class="loan-add-btn" onclick="openSavingAccountModal(null)" style="background:var(--accent-purple)">+ 항목 추가</button>
       </div>
     </div>
 
@@ -1017,6 +1016,7 @@ function setMoneyInput(id,val){
           <span id="stab-year-pct">0%</span>
           <span id="stab-year-goal-text">목표 ₩1,200만</span>
         </div>
+        <div id="stab-year-accounts" style="font-size:0.6rem;color:var(--text-muted);margin-top:4px;opacity:0.7"></div>
       </div>
 
       <!-- 이달 저축 -->
@@ -1045,6 +1045,7 @@ function setMoneyInput(id,val){
     <div class="settings-section" style="margin-bottom:18px">
       <div class="settings-section-header">
         <h3>💼 자산 항목</h3>
+        <button class="loan-add-btn" onclick="openSavingAccountModal(null)" style="background:var(--accent-purple);font-size:0.75rem;padding:6px 12px">+ 항목 추가</button>
       </div>
       <div class="settings-section-body" style="padding:12px 16px">
         <div class="saving-account-list" id="saving-account-list" style="margin:0">
@@ -1407,6 +1408,17 @@ function setMoneyInput(id,val){
           <option value="blue">파랑</option><option value="yellow">노랑</option>
           <option value="orange">주황</option><option value="red">빨강</option>
         </select>
+      </div>
+      <!-- 연간 목표 포함 여부 -->
+      <div class="form-group">
+        <div class="toggle-wrap" id="sa-year-goal-wrap" onclick="toggleSaYearGoal()" style="cursor:pointer">
+          <span style="font-size:1rem">🎯</span>
+          <span style="flex:1">
+            <span style="font-size:0.83rem;font-weight:600;color:var(--text)">연간 저축목표에 포함</span><br>
+            <span style="font-size:0.68rem;color:var(--text-muted)">이 항목의 입금이 상단 연간 목표 카드에 집계돼요</span>
+          </span>
+          <div class="toggle-switch"><div class="toggle-knob"></div></div>
+        </div>
       </div>
     </div>
     <button class="modal-submit green" onclick="saveSavingAccount()">저장</button>
@@ -3340,10 +3352,19 @@ function renderSavingTab(){
   const assetTotal=savingAccounts.reduce((s,a)=>s+a.balance,0);
   document.getElementById('stab-total-asset').textContent='₩'+assetTotal.toLocaleString();
 
-  // ── 연간 저축 계산 (saving_linked 거래내역 기준) ──
+  // ── 연간 목표에 포함된 항목 이름 목록 ──
+  const yearGoalAccountNames=new Set(
+    savingAccounts.filter(a=>a.includeInYearGoal).map(a=>a.name)
+  );
+  const hasYearFilter=yearGoalAccountNames.size>0;
+
+  // ── 연간 저축 계산 (includeInYearGoal 항목만, 없으면 전체) ──
   const yearTxs=transactions.filter(t=>{
     const d=new Date(t.date);
-    return t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'||t.cat==='saving_linked')&&d.getFullYear()===thisYear;
+    if(!(t.type==='expense'&&(t.cat==='saving'||t.cat==='apt'||t.cat==='saving_linked')&&d.getFullYear()===thisYear)) return false;
+    if(!hasYearFilter) return true; // 체크된 항목 없으면 전체
+    if(t.cat==='saving_linked') return yearGoalAccountNames.has(t.savingAccountName);
+    return true; // saving/apt는 일반 거래라 포함
   });
   const yearSaved=yearTxs.reduce((s,t)=>s+t.amount,0);
 
@@ -3363,6 +3384,12 @@ function renderSavingTab(){
   document.getElementById('stab-year-bar').style.width=yearPct+'%';
   document.getElementById('stab-year-pct').textContent=yearPct+'%';
   document.getElementById('stab-year-goal-text').textContent=`목표 ₩${(yearGoal/10000).toFixed(0)}만`;
+  // 포함 항목 힌트
+  const hintEl=document.getElementById('stab-year-accounts');
+  if(hintEl){
+    if(hasYearFilter) hintEl.textContent='집계: '+[...yearGoalAccountNames].join(', ');
+    else hintEl.textContent='집계: 전체 항목 (항목 추가 시 🎯 체크)';
+  }
 
   // ── 이달 저축 카드 ──
   const monthGoal=gs.monthGoal||1000000;
@@ -3515,7 +3542,7 @@ function renderSavingAccountCards(){
         <div class="saving-account-left">
           <div class="saving-account-icon" style="background:${color}22;border:1.5px solid ${color}44">${a.icon||'🏦'}</div>
           <div>
-            <div class="saving-account-name">${a.name}${isReached?' <span style="font-size:0.62rem;color:var(--accent-green);background:#00e87a18;padding:2px 6px;border-radius:4px">목표달성🎉</span>':''}</div>
+            <div class="saving-account-name">${a.name}${isReached?' <span style="font-size:0.62rem;color:var(--accent-green);background:#00e87a18;padding:2px 6px;border-radius:4px">목표달성🎉</span>':''}${a.includeInYearGoal?' <span style="font-size:0.6rem;color:var(--accent-green);background:#00e87a18;border:1px solid #00e87a44;padding:1px 5px;border-radius:4px">🎯 연간목표</span>':''}</div>
             <div class="saving-account-type">${a.type||''}</div>
           </div>
         </div>
@@ -3877,6 +3904,11 @@ window.deleteYearRecord=async i=>{
 
 // 저축 항목 모달
 let saEditIdx=null;
+let _saYearGoal=false;
+window.toggleSaYearGoal=()=>{
+  _saYearGoal=!_saYearGoal;
+  document.getElementById('sa-year-goal-wrap').classList.toggle('on',_saYearGoal);
+};
 window.openSavingAccountModal=idx=>{
   saEditIdx=idx;
   const a=idx!==null?savingAccounts[idx]:null;
@@ -3889,6 +3921,8 @@ window.openSavingAccountModal=idx=>{
   setMoneyInput('sa-goal',a?.goal||0);
   setMoneyInput('sa-balance',a?.balance||0);
   document.getElementById('sa-color').value=a?.color||'purple';
+  _saYearGoal=a?.includeInYearGoal||false;
+  document.getElementById('sa-year-goal-wrap').classList.toggle('on',_saYearGoal);
   document.getElementById('saving-account-modal').style.display='flex';
 };
 window.closeSavingAccountModal=()=>document.getElementById('saving-account-modal').style.display='none';
@@ -3901,6 +3935,7 @@ window.saveSavingAccount=async()=>{
     goal:parseMoney(document.getElementById('sa-goal').value)||0,
     balance:parseMoney(document.getElementById('sa-balance').value)||0,
     color:document.getElementById('sa-color').value,
+    includeInYearGoal:_saYearGoal,
   };
   const newAccounts=[...savingAccounts];
   if(saEditIdx!==null){
